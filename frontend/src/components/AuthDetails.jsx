@@ -44,7 +44,7 @@ const AuthDetails = () => {
         </>
       ) : (
         // If there is no authenticated user, display a "Signed Out" message
-        <p>Signed Out</p>
+        <p>You are Not Signed In</p>
       )}
     </div>
   );
