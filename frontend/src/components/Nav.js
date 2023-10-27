@@ -10,7 +10,9 @@ function Nav() {
             <div id="navMainMenu" class="navbar-collapse collapse">
                 <div class="navbar-nav ml-auto">
                     <Link to='/' className="nav-item nav-link active">Home</Link>
-                    <Link to='/tweets' className="nav-item nav-link">Tweets</Link>
+                    <Link to='/SignIn' className="nav-item nav-link">SignIn</Link>
+                    <Link to ='/SignUp' className="nav-item nav-link">SignUp</Link>
+                    <Link to ='/AuthDetails' className="nav-item nav-link">Logout</Link>
                 </div>
             </div>
         </nav>

@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
-import { auth } from "../../firebase";
+import { auth } from "../firebase";
 
 const SignUp = () => {
       // State variables for email, password, password confirmation, and error message
