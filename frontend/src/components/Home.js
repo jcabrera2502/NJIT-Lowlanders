@@ -19,14 +19,13 @@ function Home()
         }
     });
     }, []);
-    
+
     return (
         <div>
         <h1>Home</h1>
         {user ? (
             <div>
             <h1>Welcome {user.email}</h1>
-            <AuthDetails />
             </div>
         ) : (
             <h1>You need to login</h1>

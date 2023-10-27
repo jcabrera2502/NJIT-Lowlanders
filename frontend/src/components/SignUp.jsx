@@ -21,6 +21,7 @@ const SignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log(userCredential);
+        window.location.href = "http://localhost:3000/";
         setError(null); // Clear the error message on successful sign-up
 
       })
