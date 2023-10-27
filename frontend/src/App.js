@@ -1,10 +1,11 @@
+import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
-import AuthDetails from './components/AuthDetails';
-import Home from './components/Home';
-import Nav from './components/Nav';
+import SignIn from './Components/Auth-Components/SignIn';
+import SignUp from './Components/Auth-Components/SignUp';
+import AuthDetails from './Components/Auth-Components/AuthDetails';
+import Home from './Components/Central-Components/Home';
+import Nav from './Components/Nav';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 
 

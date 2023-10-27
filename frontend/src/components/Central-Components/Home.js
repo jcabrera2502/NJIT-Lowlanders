@@ -1,7 +1,6 @@
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-import { auth } from "../firebase";
-import AuthDetails from "./AuthDetails";
+import { auth } from "../../firebase";
 
 function Home() 
 {
