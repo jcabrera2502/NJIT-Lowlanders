@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {auth} from "../firebase"
+import {auth} from "../../firebase"
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 const SignIn = () => {
     // State variables for email, password, password confirmation, and error message
