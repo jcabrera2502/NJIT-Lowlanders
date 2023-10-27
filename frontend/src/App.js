@@ -1,18 +1,15 @@
-//import logo from './logo.svg';
+import logo from './logo.svg';
 import './App.css';
-import Nav from './components/Nav';
-import { BrowserRouter as Router } from 'react-router-dom';
-
+import SignIn from './components/auth/SignIn';
+import SignUp from './components/auth/SignUp';
+import AuthDetails from './components/AuthDetails';
 function App() {
   return (
-    <Router>
     <div className="App">
-      <header className="App-header">
-        <Nav />
-        <p> My first react app </p>
-      </header>
+      <SignIn />
+      <SignUp />
+      <AuthDetails />
     </div>
-    </Router>
   );
 }
 
