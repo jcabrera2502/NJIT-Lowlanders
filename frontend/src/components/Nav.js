@@ -13,6 +13,7 @@ function Nav() {
                     <Link to='/SignIn' className="nav-item nav-link">SignIn</Link>
                     <Link to ='/SignUp' className="nav-item nav-link">SignUp</Link>
                     <Link to ='/AuthDetails' className="nav-item nav-link">Logout</Link>
+                    <Link to ='/Settings' className="nav-item nav-link">&#9881;</Link>
                 </div>
             </div>
         </nav>

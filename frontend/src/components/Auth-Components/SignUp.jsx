@@ -31,6 +31,7 @@ const SignUp = () => {
   };
 
   return (
+    <section>
     <div className="sign-in-container">
       <form onSubmit={signUp}>
         <h1>Create Account</h1>
@@ -53,9 +54,13 @@ const SignUp = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
         ></input>
         <button type="submit">Sign Up</button>
+        <div>
+        <button type="button" onClick={() => (window.location.href = "http://localhost:3000/")}> Already have an account? Sign In</button>
+        </div>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
     </div>
+    </section>
   );
 };
 

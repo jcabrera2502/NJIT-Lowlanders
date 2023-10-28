@@ -54,6 +54,9 @@ const SignIn = () => {
           onChange={(e) => setPassword(e.target.value)}
         ></input>
         <button type="submit">Log In</button>
+        <div>
+        <button type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}> Don't have an account? Sign Up</button>
+        </div>
       </form>
 
       {!resetEmailSent ? (
