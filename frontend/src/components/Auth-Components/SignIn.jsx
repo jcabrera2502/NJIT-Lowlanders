@@ -1,6 +1,17 @@
 import React, { useState } from "react";
 import {auth} from "../../firebase"
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { Button, TextField, Paper, Avatar, Typography, Grid, Container, 
+         CssBaseline, AppBar, Link} from "@mui/material";
+
+const paperStyle =
+{
+  padding: 20,
+  height: "70vh",
+  width: "280",
+  margin: "20px auto"
+};
+
 const SignIn = () => {
     // State variables for email, password, password confirmation, and error message
 
@@ -38,37 +49,44 @@ const SignIn = () => {
 
 
   return (
-    <div className="sign-in-container">
-      <form onSubmit={signIn}>
-        <h1>Log In to your Account</h1>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        ></input>
-        <input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        ></input>
-        <button type="submit">Log In</button>
-        <div>
-        <button type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}> Don't have an account? Sign Up</button>
-        </div>
-      </form>
+    <>
+      <Container>
+        <div className="sign-in-container">
+          <Paper variant="elevation" square={false} style={paperStyle} >
+          <form onSubmit={signIn}>
+            <Typography>Log In to your Account</Typography>
+            <TextField
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            ></TextField>
+            <TextField
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            ></TextField>
+            <Button variant="contained" type="submit">Log In</Button>
+            <div>
+            <Link variant="contained" type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}> Don't have an account? Sign Up</Link>
+            </div>
+          </form>
+          
 
-      {!resetEmailSent ? (
-        <div>
-          <button onClick={handleForgotPassword}>Forgot Password?</button>
+          {!resetEmailSent ? (
+            <div>
+              <Link variant="contained" onClick={handleForgotPassword}>Forgot Password?</Link>
+            </div>
+          ) : (
+            <div>
+              <p>Password reset email sent. Check your email to reset your password.</p>
+            </div>
+          )}
+          </Paper>
         </div>
-      ) : (
-        <div>
-          <p>Password reset email sent. Check your email to reset your password.</p>
-        </div>
-      )}
-    </div>
+      </Container>
+    </>
   );
 };
 export default SignIn;
