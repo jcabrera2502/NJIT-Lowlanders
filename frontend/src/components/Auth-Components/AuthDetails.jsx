@@ -30,6 +30,7 @@ const AuthDetails = () => {
     signOut(auth)
       .then(() => {
         console.log("sign out successful");
+        setTimeout(function(){window.location.href = "http://localhost:3000/SignIn"}, 3000);
       })
       .catch((error) => console.log(error));
   };
