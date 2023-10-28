@@ -55,7 +55,7 @@ const SignUp = () => {
         ></input>
         <button type="submit">Sign Up</button>
         <div>
-        <button type="button" onClick={() => (window.location.href = "http://localhost:3000/")}> Already have an account? Sign In</button>
+        <button type="button" onClick={() => (window.location.href = "http://localhost:3000/Signin")}> Already have an account? Sign In</button>
         </div>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
