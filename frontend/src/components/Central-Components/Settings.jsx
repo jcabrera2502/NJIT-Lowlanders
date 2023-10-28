@@ -25,6 +25,10 @@ function Settings() {
                     <option value="German">German</option>
                 </select>
             </div>
+            <div>
+                <h2>Theme: </h2>
+                <button> Dark Theme </button>
+            </div>
         </div>
     );
 }
