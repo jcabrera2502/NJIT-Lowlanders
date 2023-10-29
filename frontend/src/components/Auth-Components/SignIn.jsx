@@ -65,62 +65,62 @@ const SignIn = () => {
     <>
     <CssBaseline>
         <Container>
-          <Paper elevation={5} variant="elevation" square={false} style={paperStyle} >
-          <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-          </Box>
-            <form onSubmit={signIn}>
-              <Box sx={{ mt: 2, mb: 2 }}>
-                <Typography variant="h3" textAlign={"center"}>Log In to your Account</Typography>
-              </Box>
-              <TextField
-                margin = "normal"
-                variant="standard"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoFocus
-                required
-                fullWidth
-              />
-              <TextField
-                margin = "normal"
-                variant="standard"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                fullWidth
-              />
-              <Button 
-                sx={{ mt: 3, mb: 2 }} 
-                variant="contained" 
-                type="submit"
-                fullWidth
-              >Log In</Button>
-              <Link type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Link>
-            </form>
-            {!resetEmailSent ? (
-              <div>
-                <Link type="button" variant="contained" onClick={handleForgotPassword}>Forgot Password?</Link>
-              </div>
-            ) : (
-              <div>
-                <Typography>Password reset email sent. Check your email to reset your password.</Typography>
-              </div>
-            )}
-            <Copyright sx={{ mt: 8, mb: 4 }} />
-          </Paper>
+          <Paper elevation={5} variant="elevation" square={false} style={paperStyle}>
+            <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+            >
+              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                <LockOutlinedIcon />
+              </Avatar>
+            </Box>
+              <form onSubmit={signIn}>
+                <Box sx={{ mt: 2, mb: 2 }}>
+                  <Typography variant="h3" textAlign={"center"}>Log In to your Account</Typography>
+                </Box>
+                <TextField
+                  margin = "normal"
+                  variant="standard"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoFocus
+                  required
+                  fullWidth
+                />
+                <TextField
+                  margin = "normal"
+                  variant="standard"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  fullWidth
+                />
+                <Button 
+                  sx={{ mt: 3, mb: 2 }} 
+                  variant="contained" 
+                  type="submit"
+                  fullWidth
+                >Log In</Button>
+                <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Button>
+              </form>
+              {!resetEmailSent ? (
+                <div>
+                  <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>
+                </div>
+              ) : (
+                <div>
+                  <Typography>Password reset email sent. Check your email to reset your password.</Typography>
+                </div>
+              )}
+              <Copyright sx={{ mt: 8, mb: 4 }} />
+            </Paper>
           </Container>
       </CssBaseline>
     </>
