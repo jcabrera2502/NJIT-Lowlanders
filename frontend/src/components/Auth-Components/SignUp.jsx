@@ -1,7 +1,9 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
-
+import { Button, TextField, Paper, Typography, Container, 
+  CssBaseline, Link, Box, Avatar, Grid} from "@mui/material";
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 const SignUp = () => {
       // State variables for email, password, password confirmation, and error message
 
