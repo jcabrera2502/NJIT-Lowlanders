@@ -2,7 +2,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, Container, 
-  CssBaseline, Link, Box, Avatar, Grid} from "@mui/material";
+  CssBaseline, Link, Box, Avatar} from "@mui/material";
   import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 
 function Copyright(props) {
@@ -23,7 +23,7 @@ const paperStyle =
   padding: 30,
   height: "80vh",
   width: "45%",
-  margin: "50px auto"
+  margin: "110px auto"
 };
 
 const SignUp = () => {

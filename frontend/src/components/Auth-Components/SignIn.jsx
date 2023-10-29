@@ -23,7 +23,7 @@ const paperStyle =
   padding: 30,
   height: "80vh",
   width: "45%",
-  margin: "50px auto"
+  margin: "110px auto"
 };
 
 const SignIn = () => {

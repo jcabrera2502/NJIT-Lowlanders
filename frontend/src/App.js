@@ -7,7 +7,7 @@ import Nav from './Components/Central-Components/Nav';
 import Settings from './Components/Central-Components/Settings';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Profile from './Components/Central-Components/Profile';
-import { createTheme, ThemeProvider, styled} from "@mui/material/styles";
+import { createTheme, ThemeProvider} from "@mui/material/styles";
 
 const darkTheme = createTheme({ palette: { mode: 'dark' } });
 
