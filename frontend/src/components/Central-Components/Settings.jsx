@@ -1,5 +1,4 @@
 import React from "react";
-import { auth } from "../../firebase";
 
 
 
@@ -10,10 +9,10 @@ function Settings() {
         <h1><u>Settings</u></h1>
             <div>
                 <h2>Account</h2>
-                <button type="button" onClick={() => (window.location.href = "http://localhost:3000/ChangeUsername")}> Change Username</button>
-                <button type="button" onClick={() => (window.location.href = "http://localhost:3000/ChangePassword")}> Change Password</button>
-                <button type="button" onClick={() => (window.location.href = "http://localhost:3000/ChangeEmail")}> Change Email</button>
-                <button type="button" onClick={() => (window.location.href = "http://localhost:3000/ChangePhoneNumber")}> Change Phone Number</button>
+                <button type="button"> Change Username</button>
+                <button type="button"> Change Password</button>
+                <button type="button"> Change Email</button>
+                <button type="button"> Change Phone Number</button>
             </div>
             <div>
                 <h2>Notifications</h2>
@@ -60,7 +59,7 @@ function Settings() {
             </div>
             <div>
                 <h2>Delete Account</h2>
-                <button type="button" onClick={() => (window.location.href = "http://localhost:3000/DeleteAccount")}> Delete Account</button>
+                <button type="button"> Delete Account</button>
             </div>
         </div>
     );
