@@ -28,6 +28,26 @@ function Settings() {
                 </select>
             </div>
             <div>
+                <h2>Date Format: </h2>
+                <select> 
+                    <option value="MonthDayYear">MM/DD/YYYY</option>
+                    <option value="DayMonthYear">DD/MM/YYYY</option>
+                </select>
+            </div>
+            <div>
+                <h2>Time: </h2>
+                <select>
+                    <option value="EST">Eastern Standard Time</option>
+                    <option value="CST">Central Standard Time</option>
+                    <option value="PST">Pacific Standard Time</option>
+                </select>
+                <select>
+                    <option value="Twelve">12-hour</option>
+                    <option value="TwentyFour">24-hour</option>
+                </select>
+            </div>
+
+            <div>
                 <h2>Adjust Volume: </h2>
                 <select> 
                     <option value="100">100</option>
