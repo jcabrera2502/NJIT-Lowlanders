@@ -109,6 +109,7 @@ const SignUp = () => {
               </div>
               {error && <p style={{ color: "red" }}>{error}</p>}
             </form>
+            <Copyright sx={{ mt: 8, mb: 4 }} />
           </Paper>
         </Container>
       </CssBaseline>
