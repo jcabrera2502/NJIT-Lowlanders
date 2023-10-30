@@ -29,17 +29,14 @@ function Nav() {
 
     //Side menu
 
-    const [state, setState] = React.useState({
-        menu: false,
-      });
+    const [state, setState] = React.useState(false);
 
     // Side Menu toggle button
     const toggleDrawer = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-        return;
-    }
-
-    setState({ ...state, [anchor]: open });
+      if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+          return;
+      }
+      setState({ ...state, [anchor]: open });
     };
 
     // Side Menu list
@@ -51,7 +48,7 @@ function Nav() {
           onKeyDown={toggleDrawer(anchor, false)}
         >
           <List sx={{mt: 8}}>
-            {['Testing', 'Testing', 'Testing', 'Testing'].map((text, index) => (
+            {['Testing1', 'Testing2', 'Testing3', 'Testing4'].map((text, index) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton>
                   <ListItemText primary={text} />
@@ -61,7 +58,7 @@ function Nav() {
           </List>
           <Divider />
           <List>
-            {['Testing', 'Testing', 'Testing'].map((text, index) => (
+            {['Testing5', 'Testing6', 'Testing7'].map((text, index) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton>
                   <ListItemText primary={text} />
@@ -77,16 +74,16 @@ function Nav() {
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <nav>
                     <Toolbar>
-                        <IconButton
+                        {user && <IconButton
                             size="large"
                             edge="start"
                             color="inherit"
                             aria-label="menu"
                             sx={{ mr: 2 }}
-                            onClick={toggleDrawer("left", true)}
+                            onClick={!state["left"] ? toggleDrawer("left", true) : toggleDrawer("left", false)}
                             >
                             <MenuIcon />
-                        </IconButton>
+                        </IconButton>}
                         <Box sx={{flexGrow: 1}}></Box>
                         {user && <Button onClick={() => (window.location.href = "http://localhost:3000/")}>Home</Button>}
                         {!user && <Button onClick={() => (window.location.href = "http://localhost:3000/SignIn")}>SignIn</Button>}
@@ -103,7 +100,7 @@ function Nav() {
                     open={state["left"]}
                     onClose={toggleDrawer("left", false)}
                 >
-                {list('left')}
+                {list("left")}
             </Drawer>
         </>
     );
