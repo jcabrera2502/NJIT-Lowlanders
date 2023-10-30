@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth} from "../../firebase";
 import { Button, Drawer, List, ListItem, Box, Avatar, AppBar, IconButton, 
-         Toolbar, ListItemButton, ListItemIcon, ListItemText, Divider} 
+         Toolbar, ListItemButton, ListItemText, Divider} 
          from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';

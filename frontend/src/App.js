@@ -8,12 +8,24 @@ import Settings from './Components/Central-Components/Settings';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Profile from './Components/Central-Components/Profile';
 import { createTheme, ThemeProvider} from "@mui/material/styles";
+import { grey, deepOrange } from "@mui/material/colors";
 
-const darkTheme = createTheme({ palette: { mode: 'dark' } });
+const theme = createTheme({
+  palette: {
+    mode: "dark",
+    primary: deepOrange,
+    divider: deepOrange[700],
+    text: {
+      primary: "#fff",
+      secondary: grey[500],
+    },
+  },
+});
 
 function App() {
+
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <Router>
         <div className="App">
           <Nav />
