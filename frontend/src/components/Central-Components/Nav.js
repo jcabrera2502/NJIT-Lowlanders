@@ -4,15 +4,16 @@ import { FaUserCircle } from "react-icons/fa";
 import { FaGear } from "react-icons/fa6";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth} from "../../firebase";
-import { Button, TextField, Paper, Typography, Container, 
-    CssBaseline, Box, Avatar, AppBar, IconButton, Toolbar} from "@mui/material";
+import { Button, TextField, Paper, Typography, Container, Drawer, List, ListItem,
+         CssBaseline, Box, Avatar, AppBar, IconButton, Toolbar, ListItemButton,
+         ListItemIcon, ListItemText, Divider} 
+         from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 //Only show Profile if the user is logged in
 //Only show Settings if the user is logged in
 //Only show Logout if the user is logged in
-
 
 function Nav() {
     const [user, setUser] = useState(null);
@@ -32,6 +33,8 @@ function Nav() {
 
     return(
         <AppBar position="fixed">
+            <Drawer>
+            </Drawer>
             <nav>
                 <Toolbar>
                     <IconButton

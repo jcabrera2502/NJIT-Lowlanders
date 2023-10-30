@@ -37,24 +37,25 @@ const AuthDetails = () => {
   };
 
   return (
-    <div>
-      {authUser ? (
-        // If there is an authenticated user, display user details and a sign-out button
-        <>
-        <CssBaseline>
-          <Container>
-            <Box textAlign={"center"} sx={{margin: "30vh auto  ", width: "45%"}}>
-              <Typography textAlign={"center"} variant={"h4"}>{`Signed In as ${authUser.email}`}</Typography>
-              <Button sx={{ mt: 3, mb: 2}} variant="contained" onClick={userSignOut}>Sign Out</Button>
-            </Box>
-          </Container>
-          </CssBaseline>
-        </>
-      ) : (
-        // If there is no authenticated user, display a "Signed Out" message
-        <p>You are Not Signed In</p>
-      )}
-    </div>
+    <>
+      <div>
+      <CssBaseline>
+        {authUser ? (
+          // If there is an authenticated user, display user details and a sign-out button
+          
+            <Container>
+              <Box textAlign={"center"} sx={{margin: "30vh auto  ", width: "45%"}}>
+                <Typography textAlign={"center"} variant={"h4"}>{`Signed In as ${authUser.email}`}</Typography>
+                <Button sx={{ mt: 3, mb: 2}} variant="contained" onClick={userSignOut}>Sign Out</Button>
+              </Box>
+            </Container>
+          ) : (
+            // If there is no authenticated user, display a "Signed Out" message
+            <Typography textAlign={"center"}variant="h3">You are Not Signed In</Typography>
+          )}
+        </CssBaseline>
+      </div>
+    </>
   );
 };
 

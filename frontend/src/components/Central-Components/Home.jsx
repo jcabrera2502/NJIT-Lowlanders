@@ -2,7 +2,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import Dhruv from "../../Images/Dhruvy.jfif";
-import { Button, Typography, Container, CssBaseline, Box} from "@mui/material";
+import { Typography, CssBaseline, Box} from "@mui/material";
 
 function Home() 
 {
@@ -32,7 +32,7 @@ function Home()
                         </Box>
                     </div>
                 ) : (
-                    <h1>You need to login</h1>
+                    <Typography textAlign={"center"}variant="h3">You need to login</Typography>
                 )}
             </Box>
         </CssBaseline>
