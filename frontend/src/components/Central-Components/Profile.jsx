@@ -1,6 +1,8 @@
 import { onAuthStateChanged} from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
+import { Button, TextField, Paper, Typography, Container, 
+    CssBaseline, Link, Box, Avatar} from "@mui/material";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -15,15 +17,16 @@ const Profile = () => {
         });
     }, []);
     
-    
     return (
-        <div>
-        <h1>Profile</h1>
-        <p>Email: {user?.email}</p>
-        <p> Name: {user?.displayName}</p>
-        <p> Phone: {user?.phoneNumber}</p>
-        <p> Photo: {user?.photoURL}</p>
-        </div>
+        <CssBaseline>
+            <Box sx={{mt: 8, ml: 4}}>
+                <Typography variant="h3">Profile</Typography>
+                <Typography> Email: {user?.email}</Typography>
+                <Typography> Name: {user?.displayName}</Typography>
+                <Typography> Phone: {user?.phoneNumber}</Typography>
+                <Typography> Photo: {user?.photoURL}</Typography>
+            </Box>
+        </CssBaseline>
     );
     }
 

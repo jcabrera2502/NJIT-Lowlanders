@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {Link} from 'react-router-dom';
-import { FaUserCircle } from "react-icons/fa";
-import { FaGear } from "react-icons/fa6";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth} from "../../firebase";
-import { Button, TextField, Paper, Typography, Container, Drawer, List, ListItem,
-         CssBaseline, Box, Avatar, AppBar, IconButton, Toolbar, ListItemButton,
-         ListItemIcon, ListItemText, Divider} 
+import { Button, Drawer, List, ListItem, Box, Avatar, AppBar, IconButton, 
+         Toolbar, ListItemButton, ListItemIcon, ListItemText, Divider} 
          from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -96,7 +92,7 @@ function Nav() {
                         {!user && <Button onClick={() => (window.location.href = "http://localhost:3000/SignIn")}>SignIn</Button>}
                         {!user && <Button onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>SignUp</Button>}
                         {user && <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Logout</Button>}
-                        {user && <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><AccountCircleIcon /></IconButton>}
+                        {user && <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar><AccountCircleIcon /></Avatar></IconButton>}
                         {user && <IconButton onClick={() => (window.location.href = "http://localhost:3000/Settings")}><SettingsIcon /></IconButton>}
                     </Toolbar>
                 </nav>
