@@ -9,7 +9,7 @@ import VolumeUp from '@mui/icons-material/VolumeUp';
 function Settings() {
     return (
         <CssBaseline>
-            <Grid container spacing={2} sx={{margin: "110px"}}>
+            <Grid container spacing={2} sx={{mt: "110px", ml: 2, width: "99%"}}>
                 <Grid item xs={12}>
                     <Typography variant="h3">Settings</Typography>
                 </Grid>
