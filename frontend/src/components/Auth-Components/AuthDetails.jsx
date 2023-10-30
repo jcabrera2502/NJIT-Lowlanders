@@ -1,6 +1,7 @@
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
+import { Button, Typography, Container, CssBaseline, Box} from "@mui/material";
 
 const AuthDetails = () => {
   // State variable to hold the authenticated user
@@ -36,18 +37,25 @@ const AuthDetails = () => {
   };
 
   return (
-    <div>
-      {authUser ? (
-        // If there is an authenticated user, display user details and a sign-out button
-        <>
-          <p>{`Signed In as ${authUser.email}`}</p>
-          <button onClick={userSignOut}>Sign Out</button>
-        </>
-      ) : (
-        // If there is no authenticated user, display a "Signed Out" message
-        <p>You are Not Signed In</p>
-      )}
-    </div>
+    <>
+      <div>
+      <CssBaseline>
+        {authUser ? (
+          // If there is an authenticated user, display user details and a sign-out button
+          
+            <Container>
+              <Box textAlign={"center"} sx={{margin: "30vh auto  ", width: "45%"}}>
+                <Typography textAlign={"center"} variant={"h4"}>{`Signed In as ${authUser.email}`}</Typography>
+                <Button sx={{ mt: 3, mb: 2}} variant="contained" onClick={userSignOut}>Sign Out</Button>
+              </Box>
+            </Container>
+          ) : (
+            // If there is no authenticated user, display a "Signed Out" message
+            <Typography textAlign={"center"}variant="h3">You are Not Signed In</Typography>
+          )}
+        </CssBaseline>
+      </div>
+    </>
   );
 };
 
