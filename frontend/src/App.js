@@ -8,9 +8,54 @@ import Settings from './components/Central-Components/Settings';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Profile from './components/Central-Components/Profile';
 import { createTheme, ThemeProvider} from "@mui/material/styles";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+//give me full path of firebase
+import { auth} from "./firebase";
+import axios from "axios";
+
+function App() 
+{
+
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+  onAuthStateChanged(auth, (user) => 
+  {
+      if (user) 
+      {
+          setUser(user);
+          fetchUserDataSettings(user);
+          console.log("User", user);
+      } 
+      else
+      {
+          setUser(null);
+      }
+  });
+  }, []);
+  
+  const [data, setData] = useState(null);
+  const fetchUserDataSettings = async (user) => {
+      const response = await axios.get("/settings", {
+          params: {
+              email: user.email,
+          }
+      });
+      //Only sets the data if there is a result
+      if(response){
+          setData(response.data);
+          console.log("Data", response.data);
+      }
+      
+  };
+// if Data is not null, then we can use it to set the theme
+var colorPrim = "#1976d2";
+if (data != null)
+{
+  colorPrim = data.primary;
+}
 
 const tmode = "dark";
-const colorPrim = "#1976d2";
 const colorPriml = "#42a5f5";
 const colorPrimd = "#1565c0";
 const colorSec = "#9c27b0";
@@ -51,8 +96,6 @@ const theme = createTheme({
   },
 });
 
-function App() {
-
   return (
     <ThemeProvider theme={theme}>
       <Router>
@@ -72,4 +115,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
