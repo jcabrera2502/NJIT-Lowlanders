@@ -35,19 +35,19 @@ const Profile = () => {
     var time;
     if (true /*Twelve*/) {
         if (date.getHours() > 12) {
-            time = (date.getHours() - 12) + ":" + date.getMinutes() + " pm"; 
+            time = (date.getHours() - 12) + ":" + String("0" + date.getMinutes()).slice(-2) + " pm"; 
         }
         else if (date.getHours() === 12) {
-            time = date.getHours() + ":" + date.getMinutes() + " pm";
+            time = date.getHours() + ":" + String("0" + date.getMinutes()).slice(-2) + " pm";
         }
         else if (date.getHours() === 0) {
-            time = "12:" + date.getMinutes() + " am";
+            time = "12:" + String("0" + date.getMinutes()).slice(-2) + " am";
         }
         else {
-            time = date.getHours() + ":" + date.getMinutes() + " am";
+            time = date.getHours() + ":" + String("0" + date.getMinutes()).slice(-2) + " am";
         }
     } else /*TwentyFour*/ {
-        time = date.getHours() + ":" + date.getMinutes().toFixed(2);
+        time = date.getHours() + ":" + String("0" + date.getMinutes()).slice(-2);
     }
     return (
         <CssBaseline>
