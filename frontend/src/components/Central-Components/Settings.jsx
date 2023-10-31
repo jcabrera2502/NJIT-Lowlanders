@@ -5,6 +5,10 @@ import VolumeDown from '@mui/icons-material/VolumeDown';
 import VolumeUp from '@mui/icons-material/VolumeUp';
 import { ColorPicker, useColor } from "react-color-palette";
 import "react-color-palette/css";
+import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firebase";
+
 
 
 function Settings() {
@@ -14,8 +18,39 @@ function Settings() {
 
     const handleChange = (event) => {
         setLanguage(event.target.value);
-    };
+    };    
 
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+    onAuthStateChanged(auth, (user) => 
+    {
+        if (user) 
+        {
+            setUser(user);
+            fetchUserDataSettings(user);
+            console.log("User", user);
+        } 
+        else
+        {
+            setUser(null);
+        }
+    });
+    }, []);
+
+    const fetchUserDataSettings = async (user) => 
+    {
+        const response = await fetch("/updateSettings", 
+        {
+            method: "POST",
+            headers: 
+            {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({email: user.email, primary: "#561ecb", secondary: "#561ecb", theme: "light", language: "Spanish"}),
+        });
+        const data = await response.json();
+        console.log("Data", data);
+    };
     return (
         <CssBaseline>
             <Grid container spacing={2} sx={{mt: "110px", ml: 2, width: "99%"}}>

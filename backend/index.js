@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import LoggedInUSerSettings from './api/Logged-In-Email-F2B.js';
 import SettingsFromEmail from './api/Settings-From-Email.js';
+import UpdateUserSettings from './api/Update-User-Settings.js';
 import cors from 'cors';
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/', LoggedInUSerSettings);
 app.use('/', SettingsFromEmail);
+app.use('/', UpdateUserSettings);
 app.use(cors());
 app.use(express.json());
 
