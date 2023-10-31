@@ -32,6 +32,7 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [error, setError] = useState(null);
 
 
 /*Firebase method is called to sign user in*/
@@ -40,10 +41,17 @@ const SignIn = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log(userCredential);
-        window.location.href = "http://localhost:3000/";
+        if(userCredential.user.emailVerified == false){
+          setError("You must verify your email to login.");
+          console.log("peepee")
+
+        }
+        else{console.log("HIHI");
+        window.location.href = "http://localhost:3000/";}
+        
       })
       .catch((error) => {
-        alert(error.message);
+        setError(error.message);
       });
   };
 
@@ -53,13 +61,14 @@ const SignIn = () => {
         setResetEmailSent(true);
       })
       .catch((error) => {
-        alert(error.message);
+        setError(error.message);
       });
   };
 
-  const handleClick = () => {
+ /* const handleClick = () => {
     window.location.href = "http://localhost:3000/";
   };
+  */
 
   return (
     <>
@@ -114,11 +123,16 @@ const SignIn = () => {
                 <div>
                   <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>
                 </div>
+
               ) : (
                 <div>
                   <Typography>Password reset email sent. Check your email to reset your password.</Typography>
                 </div>
-              )}
+
+              )
+            }
+            {error && <p style={{ color: "red" }}>{error}</p>}
+
               <Copyright sx={{ mt: 8, mb: 4 }} />
             </Paper>
           </Container>

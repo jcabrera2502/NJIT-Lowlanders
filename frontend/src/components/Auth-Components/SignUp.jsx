@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, UserCredential, onAuthStateChanged} from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, Container, 
@@ -27,33 +27,50 @@ const paperStyle =
 };
 
 const SignUp = () => {
-      // State variables for email, password, password confirmation, and error message
+  // State variables for email, password, password confirmation, and error message
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // New state variable for password confirmation
-  const [error, setError] = useState(null);
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState(""); // New state variable for password confirmation
+const [error, setError] = useState(null);
+const [isEmailVerified, setIsEmailVerified] = useState(false);
 
-  const signUp = (e) => {
-    e.preventDefault();
-    
-    if (password !== confirmPassword) {
-      setError("Passwords do not match. Please try again.");
-      return;
-    }
-    /*Firebase method to create new user */
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        console.log(userCredential);
-        window.location.href = "http://localhost:3000/";
-        setError(null); // Clear the error message on successful sign-up
+const signUp = (e) => {
+e.preventDefault();
 
-      })
-      .catch((error) => {
-        setError(error.message);
-      });
-  };
+if (password !== confirmPassword) {
+  setError("Passwords do not match. Please try again.");
+  return;
+}
+  // Password complexity requirements
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+  
+  if (!passwordRegex.test(password)) {
+    setError("Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number.");
+    return;
+  }
+// Create the new user
+createUserWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Send the verification email
+// Send the verification email
+sendEmailVerification(userCredential.user);
 
+// Display a message to the user informing them that a verification email has been sent
+alert(`A verification email has been sent to ${email}. Please click on the link in the email to verify your email address.`);
+
+
+window.location.href = "http://localhost:3000/SignIn";  
+
+// The user's email address is now verified.  redirect them to the main page.
+if(!userCredential.user.emailVerified)
+setError("You must verify your email to login.");
+  
+  })
+  .catch((error) => {
+    setError(error.message);
+  });
+};
   return (
     <>
     <CssBaseline>
