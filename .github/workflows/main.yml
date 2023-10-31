@@ -24,5 +24,8 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Print Working Directory
+      run: pwd
+
     - name: Run Jest Tests
       run: npm test
