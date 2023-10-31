@@ -23,7 +23,10 @@ jobs:
 
     - name: Set working directory
       run: cd frontend
-
+      
+    - name: Print Working Directory
+      run: pwd
+      
     - name: Install dependencies
       run: npm install
 
