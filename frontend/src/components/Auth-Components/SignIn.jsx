@@ -43,7 +43,6 @@ const SignIn = () => {
         console.log(userCredential);
         if(userCredential.user.emailVerified == false){
           setError("You must verify your email to login.");
-          console.log("peepee")
 
         }
         else{
