@@ -1,32 +1,18 @@
-name: Jest Tests
+name: Unit Tests
 
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
-    branches:
-      - main
+    branches: [master]
 
 jobs:
-  test:
+  Jest:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-
-      - name: Change working directory
-        run: cd frontend
-        working-directory: ./frontend
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Jest tests
-        run: npm test
+      - uses: actions/checkout@v1
+      - name: Run Tests
+        run: |
+          npm install 
+          npm test
