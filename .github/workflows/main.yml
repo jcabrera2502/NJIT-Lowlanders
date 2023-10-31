@@ -21,14 +21,8 @@ jobs:
       with:
         node-version: 14
 
-    - name: Set working directory
-      run: cd frontend
-      
-    - name: Print Working Directory
-      run: pwd
-      
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run Jest Tests
-      run: npm test
+    - name: Set working directory and run commands
+      run: |
+        cd frontend
+        npm install
+        npm test
