@@ -11,16 +11,27 @@ import { createTheme, ThemeProvider} from "@mui/material/styles";
 import { grey, deepOrange } from "@mui/material/colors";
 
 const tmode = "dark";
-const colorPrim = "#ff3d00";
-const colorSec = "#304ffe";
+const colorPrim = "#1976d2";
+const colorPriml = "#42a5f5";
+const colorPrimd = "#1565c0";
+const colorSec = "#9c27b0";
+const colorSecl = "#ba68c8";
+const colorSecd = "#7b1fa2";
 const theme = createTheme({
   palette: {
     mode: tmode,
     primary: {
       main: colorPrim,
+      light: colorPriml,
+      dark: colorPrimd,
     },
     secondary: {
       main: colorSec,
+      light: colorSecl,
+      dark: colorSecd,
+    },
+    text: {
+      primary: '#fff',
     },
   },
 });
