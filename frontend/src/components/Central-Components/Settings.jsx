@@ -17,25 +17,6 @@ function Settings() {
     };
 
     return (
-            <div>
-                <h2>Date Format: </h2>
-                <select> 
-                    <option value="MonthDayYear">MM/DD/YYYY</option>
-                    <option value="DayMonthYear">DD/MM/YYYY</option>
-                </select>
-            </div>
-            <div>
-                <h2>Time: </h2>
-                <select>
-                    <option value="EST">Eastern Standard Time</option>
-                    <option value="CST">Central Standard Time</option>
-                    <option value="PST">Pacific Standard Time</option>
-                </select>
-                <select>
-                    <option value="Twelve">12-hour</option>
-                    <option value="TwentyFour">24-hour</option>
-                </select>
-            </div>
         <CssBaseline>
             <Grid container spacing={2} sx={{mt: "110px", ml: 2, width: "99%"}}>
                 <Grid item xs={12}>
