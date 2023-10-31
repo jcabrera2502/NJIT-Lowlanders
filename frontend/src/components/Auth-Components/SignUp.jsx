@@ -9,7 +9,7 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://github.com/jcabrera2502/NJIT-Lowlanders">
+      <Link color="text.primary" href="https://github.com/jcabrera2502/NJIT-Lowlanders">
         NJIT Lowlanders
       </Link>{' '}
       {new Date().getFullYear()}

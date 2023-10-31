@@ -47,6 +47,23 @@
     ]
   },
   "devDependencies": {
-    "react-router-dom": "^6.17.0"
+    "@babel/preset-env": "^7.23.2",
+    "@babel/preset-react": "^7.22.15",
+    "firebase-mock": "^2.3.2",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.5.1",
+    "jsdom": "^22.1.0",
+    "react-router-dom": "^6.17.0",
+    "resize-observer-polyfill": "^1.5.1"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    
+    "moduleNameMapper": {
+      "react-color-palette/css": "frontend/__mocks__/react-color-palette/css.js"
+    }
+  },
+  "transform": {
+    "\\.js$": "frontend/node_modules/babel-jest"
   }
 }
