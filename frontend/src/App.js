@@ -30,9 +30,6 @@ const theme = createTheme({
       light: colorSecl,
       dark: colorSecd,
     },
-    text: {
-      primary: '#fff',
-    },
   },
 });
 
