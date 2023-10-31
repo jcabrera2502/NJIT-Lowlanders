@@ -46,7 +46,7 @@ const SignIn = () => {
           console.log("peepee")
 
         }
-        else{console.log("HIHI");
+        else{
         window.location.href = "http://localhost:3000/";}
         
       })
