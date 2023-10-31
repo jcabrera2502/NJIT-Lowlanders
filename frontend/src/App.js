@@ -10,14 +10,25 @@ import Profile from './Components/Central-Components/Profile';
 import { createTheme, ThemeProvider} from "@mui/material/styles";
 import { grey, deepOrange } from "@mui/material/colors";
 
+const tmode = "dark";
+const colorPrim = "#1976d2";
+const colorPriml = "#42a5f5";
+const colorPrimd = "#1565c0";
+const colorSec = "#9c27b0";
+const colorSecl = "#ba68c8";
+const colorSecd = "#7b1fa2";
 const theme = createTheme({
   palette: {
-    mode: "dark",
-    primary: deepOrange,
-    divider: deepOrange[700],
-    text: {
-      primary: "#fff",
-      secondary: grey[500],
+    mode: tmode,
+    primary: {
+      main: colorPrim,
+      light: colorPriml,
+      dark: colorPrimd,
+    },
+    secondary: {
+      main: colorSec,
+      light: colorSecl,
+      dark: colorSecd,
     },
   },
 });
