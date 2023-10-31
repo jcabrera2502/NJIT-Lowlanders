@@ -52,18 +52,29 @@
     "firebase-mock": "^2.3.2",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.5.1",
+    "jest-transform-stub": "^2.0.0",
     "jsdom": "^22.1.0",
     "react-router-dom": "^6.17.0",
     "resize-observer-polyfill": "^1.5.1"
   },
+  "env": {
+    "test": {
+      "plugins": [
+        "dynamic-import-node"
+      ]
+    }
+  },
   "jest": {
     "testEnvironment": "jsdom",
-    
     "moduleNameMapper": {
-      "react-color-palette/css": "frontend/__mocks__/react-color-palette/css.js"
+      "react-color-palette/css": "<rootDir>/mocks/react-color-palette/css.js",
+      "\\.(jpg|jpeg|png|gif)$": "<rootDir>/mocks/fileMock.js",
+      "\\.(css|less)$": "identity-obj-proxy"
     }
   },
   "transform": {
-    "\\.js$": "frontend/node_modules/babel-jest"
+    "\\.js$": "frontend/node_modules/babel-jest",
+      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":"jest-transform-stub"
+    
   }
 }
