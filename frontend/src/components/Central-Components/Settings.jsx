@@ -52,16 +52,20 @@ function Settings() {
                         </Select>
                     </FormControl>
                 </Grid>
+                <Grid item xs={12}>
+                    <Box>
+                        <FormControl sx={{ width: 250, mt: 2, mb: 2 }}>
+                            <Typography variant="h5">Date Format: </Typography>
+                            <Select> 
+                                <MenuItem value="MonthDayYear">MM/DD/YYYY</MenuItem>
+                                <MenuItem value="DayMonthYear">DD/MM/YYYY</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </Grid>
                 <Grid item xs={4}>
-                    <FormControl sx={{ width: 250, mt: 2, mb: 2 }}>
-                        <Typography variant="h5">Date Format: </Typography>
-                        <Select> 
-                            <MenuItem value="MonthDayYear">MM/DD/YYYY</MenuItem>
-                            <MenuItem value="DayMonthYear">DD/MM/YYYY</MenuItem>
-                        </Select>
-                    </FormControl>
+                    <Typography variant="h5">Time: </Typography>
                     <FormControl fullWidth sx={{ width: 250, mt: 2, mb: 2 }}>
-                        <Typography variant="h5">Time: </Typography>
                         <Select>
                             <MenuItem value="EST">Eastern Standard Time</MenuItem>
                             <MenuItem value="CST">Central Standard Time</MenuItem>
