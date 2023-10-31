@@ -1,4 +1,4 @@
-name: Run Jest Test
+name: Run Jest Tests
 
 on:
   pull_request:
@@ -21,11 +21,11 @@ jobs:
       with:
         node-version: 14
 
+    - name: Set working directory
+      run: cd frontend
+
     - name: Install dependencies
       run: npm install
-
-    - name: Print Working Directory
-      run: pwd
 
     - name: Run Jest Tests
       run: npm test
