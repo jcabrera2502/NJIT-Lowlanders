@@ -48,7 +48,7 @@ function Nav() {
           onKeyDown={toggleDrawer(anchor, false)}
         >
           <List sx={{mt: 8}}>
-            {['Testing1', 'Testing2', 'Testing3', 'Testing4'].map((text, index) => (
+            {['Testing1', 'Testing2', 'Testing3', 'Testing4'].map((text) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton>
                   <ListItemText primary={text} />
@@ -58,7 +58,7 @@ function Nav() {
           </List>
           <Divider />
           <List>
-            {['Testing5', 'Testing6', 'Testing7'].map((text, index) => (
+            {['Testing5', 'Testing6', 'Testing7'].map((text) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton>
                   <ListItemText primary={text} />
@@ -71,7 +71,7 @@ function Nav() {
 
     return(
         <>
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+            <AppBar position="fixed">
                 <nav>
                     <Toolbar>
                         {user && <IconButton
@@ -85,8 +85,8 @@ function Nav() {
                             <MenuIcon />
                         </IconButton>}
                         <Box sx={{flexGrow: 1}}></Box>
-                        {user && <Button onClick={() => (window.location.href = "http://localhost:3000/")}>Home</Button>}
-                        {user && <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Logout</Button>}
+                        {user && <Button color="button" onClick={() => (window.location.href = "http://localhost:3000/")}>Home</Button>}
+                        {user && <Button color="button" onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Logout</Button>}
                         {user && <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar><AccountCircleIcon /></Avatar></IconButton>}
                         {user && <IconButton onClick={() => (window.location.href = "http://localhost:3000/Settings")}><SettingsIcon /></IconButton>}
                     </Toolbar>
