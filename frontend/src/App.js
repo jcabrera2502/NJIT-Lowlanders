@@ -7,7 +7,7 @@ import Nav from './components/Central-Components/Nav';
 import Settings from './components/Central-Components/Settings';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Profile from './components/Central-Components/Profile';
-import { createTheme, ThemeProvider} from "@mui/material/styles";
+import { createTheme, ThemeProvider, alpha} from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 //give me full path of firebase
@@ -49,18 +49,27 @@ function App()
       
   };
 // if Data is not null, then we can use it to set the theme
+
+var tmode = "dark";
 var colorPrim = "#1976d2";
+var colorPriml = "#42a5f5";
+var colorPrimd = "#1565c0";
+var colorSec = "#9c27b0";
+var colorSecl = "#ba68c8";
+var colorSecd = "#7b1fa2";
+
 if (data != null)
 {
+  tmode = data.theme;
   colorPrim = data.primary;
+  colorPriml = alpha(colorPrim, 0.5);
+  colorPrimd = alpha(colorPrim, 0.9);
+  colorSec = data.secondary;
+  colorSecl = alpha(colorSec, 0.5);
+  colorSecd = alpha(colorSec, 0.9); 
 }
 
-const tmode = "dark";
-const colorPriml = "#42a5f5";
-const colorPrimd = "#1565c0";
-const colorSec = "#9c27b0";
-const colorSecl = "#ba68c8";
-const colorSecd = "#7b1fa2";
+
 
 const { palette } = createTheme();
 const { augmentColor } = palette;
