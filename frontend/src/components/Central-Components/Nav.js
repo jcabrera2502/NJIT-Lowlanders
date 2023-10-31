@@ -87,6 +87,8 @@ function Nav() {
                         <Box sx={{flexGrow: 1}}></Box>
                         {user && <Button color="button" onClick={() => (window.location.href = "http://localhost:3000/")}>Home</Button>}
                         {user && <Button color="button" onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Logout</Button>}
+                        {!user && <Button color="button" onClick={() => (window.location.href = "http://localhost:3000/SignIn")}>Sign In</Button>}
+                        {!user && <Button color="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Sign Up</Button>}
                         {user && <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar><AccountCircleIcon /></Avatar></IconButton>}
                         {user && <IconButton onClick={() => (window.location.href = "http://localhost:3000/Settings")}><SettingsIcon /></IconButton>}
                     </Toolbar>

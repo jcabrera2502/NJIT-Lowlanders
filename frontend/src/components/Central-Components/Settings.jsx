@@ -5,6 +5,7 @@ import VolumeDown from '@mui/icons-material/VolumeDown';
 import VolumeUp from '@mui/icons-material/VolumeUp';
 import { ColorPicker, useColor } from "react-color-palette";
 import "react-color-palette/css";
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
 
 function Settings() {
@@ -107,6 +108,9 @@ function Settings() {
                     <Button sx={{mb: 2, ml: 2 }} variant="outlined"> Primary </Button>
                     <Button sx={{mb: 2, ml: 1 }} variant="outlined"> Secondary </Button>
                     </Box>
+                </Grid>
+                <Grid item xs={12}>
+                <Button sx={{ mt: 2, mb: 2, width: 250}} variant="contained" type="button">Save <SaveAltIcon sx={{ml:1}} /></Button>
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant="h5">Delete Account</Typography>
