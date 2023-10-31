@@ -1,6 +1,8 @@
 import { onAuthStateChanged} from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
+import { Button, TextField, Paper, Typography, Container, 
+    CssBaseline, Link, Box, Avatar} from "@mui/material";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -39,8 +41,6 @@ const Profile = () => {
     } else /*TwentyFour*/ {
         time = date.getHours() + ":" + date.getMinutes();
     }
-
-    
     return (
         <div>
         <h1>Profile</h1>

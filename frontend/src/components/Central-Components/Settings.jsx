@@ -1,32 +1,22 @@
 import React from "react";
-
-
+import { Button, Typography, Stack, CssBaseline, Box, Grid,
+         Select, MenuItem, FormControl, Slider} from "@mui/material";
+import VolumeDown from '@mui/icons-material/VolumeDown';
+import VolumeUp from '@mui/icons-material/VolumeUp';
+import { ColorPicker, useColor } from "react-color-palette";
+import "react-color-palette/css";
 
 
 function Settings() {
+    const [color, setColor] = useColor("#561ecb");
+
+    const [language, setLanguage] = React.useState('');
+
+    const handleChange = (event) => {
+        setLanguage(event.target.value);
+    };
+
     return (
-        <div>
-        <h1><u>Settings</u></h1>
-            <div>
-                <h2>Account</h2>
-                <button type="button"> Change Username</button>
-                <button type="button"> Change Password</button>
-                <button type="button"> Change Email</button>
-                <button type="button"> Change Phone Number</button>
-            </div>
-            <div>
-                <h2>Notifications</h2>
-                <button type="button"> Turn on notifications</button>
-            </div>
-            <div>
-                <h2>Language: </h2>
-                <select> 
-                    <option value="English">English</option>
-                    <option value="Spanish">Spanish</option>
-                    <option value="French">French</option>
-                    <option value="German">German</option>
-                </select>
-            </div>
             <div>
                 <h2>Date Format: </h2>
                 <select> 
@@ -46,42 +36,76 @@ function Settings() {
                     <option value="TwentyFour">24-hour</option>
                 </select>
             </div>
-
-            <div>
-                <h2>Adjust Volume: </h2>
-                <select> 
-                    <option value="100">100</option>
-                    <option value="95">95</option>
-                    <option value="90">90</option>
-                    <option value="85">85</option>
-                    <option value="80">80</option>
-                    <option value="75">75</option>
-                    <option value="70">70</option>
-                    <option value="65">65</option>
-                    <option value="60">60</option>
-                    <option value="55">55</option>
-                    <option value="50">50</option>
-                    <option value="45">45</option>
-                    <option value="40">40</option>
-                    <option value="35">35</option>
-                    <option value="30">30</option>
-                    <option value="25">25</option>
-                    <option value="20">20</option>
-                    <option value="15">15</option>
-                    <option value="10">10</option>
-                    <option value="5">5</option>
-                    <option value="0">0</option>
-                </select>
-            </div>
-            <div>
-                <h2>Theme: </h2>
-                <button> Dark Theme </button>
-            </div>
-            <div>
-                <h2>Delete Account</h2>
-                <button type="button"> Delete Account</button>
-            </div>
-        </div>
+        <CssBaseline>
+            <Grid container spacing={2} sx={{mt: "110px", ml: 2, width: "99%"}}>
+                <Grid item xs={12}>
+                    <Typography variant="h3">Settings</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant="h5">Account</Typography>
+                    <Box>
+                        <Button variant="outlined" sx={{ mt: 1, mb: 2 }} type="button"> Change Username</Button>
+                    </Box>
+                    <Box>
+                        <Button variant="outlined" sx={{ mt: 1, mb: 2 }} type="button"> Change Password</Button>
+                    </Box>
+                    <Box>
+                        <Button variant="outlined" sx={{ mt: 1, mb: 2 }} type="button"> Change Email</Button>
+                    </Box>
+                    <Box>
+                        <Button variant="outlined" sx={{ mt: 1, mb: 2 }} type="button"> Change Phone Number</Button>
+                    </Box>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant="h5">Notifications</Typography>
+                    <Button variant="outlined" sx={{ mt: 2, mb: 2 }} type="button"> Turn on notifications</Button>
+                </Grid>
+                <Grid item xs={2}>
+                    <Typography variant="h5">Language: </Typography>
+                    <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
+                        <Select labelId="langId" value={language} onChange={handleChange}> 
+                            <MenuItem value="English">English</MenuItem>
+                            <MenuItem value="Spanish">Spanish</MenuItem>
+                            <MenuItem value="French">French</MenuItem>
+                            <MenuItem value="German">German</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant="h5">Adjust Volume: </Typography>
+                    <Stack spacing={2} direction="row" sx={{ mt: 2, mb: 1 }} alignItems="center">
+                        <VolumeDown />
+                        <Slider sx={{width: 200, margin: 1}}aria-label="Volume"/>
+                        <VolumeUp />
+                    </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant="h5">Theme: </Typography>
+                    <Button sx={{ mt: 2, mb: 2 }} variant="outlined"> Dark Theme </Button>
+                    <Button sx={{ mt: 2, mb: 2, ml: 1 }} variant="outlined"> Light Theme </Button>
+                </Grid>
+                <Grid item xs={4}>
+                    <Box sx={{height:320, width:250}}>
+                    <ColorPicker
+                        color={color} 
+                        onChange={setColor}
+                        hideInput={["rgb", "hsv"]}
+                        hideAlpha
+                    />
+                    </Box>
+                </Grid>
+                <Grid item xs={12}>
+                    <Box>
+                        <Button type="button" sx={{mb: 2, ml: 1 }} variant="outlined">Primary </Button> 
+                        <Button sx={{mb: 2, ml: 4 }} variant="outlined"> Secondary </Button>
+                    </Box>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant="h5">Delete Account</Typography>
+                    <Button color="error" sx={{ mt: 2, mb: 2 }} variant="outlined" type="button"> Delete Account</Button>
+                </Grid>
+            </Grid>
+        </CssBaseline>
     );
 }
 
