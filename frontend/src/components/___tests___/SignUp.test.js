@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom/extend-expect'; // Import this at the beginning of your test file
+import '@testing-library/jest-dom/extend-expect'; 
 
 import React from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react'; // Ensure you've imported "screen"

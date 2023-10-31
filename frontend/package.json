@@ -51,6 +51,8 @@
   "devDependencies": {
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-react": "^7.22.15",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^29.7.0",
     "firebase-mock": "^2.3.2",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.5.1",
@@ -68,15 +70,18 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
+    "type": "module",
     "moduleNameMapper": {
       "react-color-palette/css": "<rootDir>/mocks/react-color-palette/css.js",
       "\\.(jpg|jpeg|png|gif)$": "<rootDir>/mocks/fileMock.js",
-      "\\.(css|less)$": "identity-obj-proxy"
+      "\\.(css|less)$": "identity-obj-proxy",
+      "axios": "axios/dist/node/axios.cjs"
+
     }
   },
   "transform": {
     "\\.js$": "frontend/node_modules/babel-jest",
-      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":"jest-transform-stub"
-    
+    "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "jest-transform-stub",
+    "^.+\\.(js|jsx)$": "babel-jest"
   }
 }

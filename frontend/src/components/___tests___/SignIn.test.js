@@ -50,9 +50,8 @@ test('should trigger sign-in when the form is submitted', async () => {
   // Simulate a form submission by clicking the login button
   fireEvent.click(loginButton);
 
-  // You may want to add assertions here to check for successful sign-in
 
-  // Use waitFor to wait for asynchronous actions to complete (if needed)
+  // Use waitFor to wait for asynchronous actions to complete
   await waitFor(() => {
     // Add assertions here for the expected behavior after sign-in
   });
@@ -64,6 +63,7 @@ test('should trigger sign-in when the form is submitted', async () => {
 test('should redirect when email is verified', async () => {
     // Mock the Firebase signInWithEmailAndPassword function to simulate email verification
     const mockSignInWithEmailAndPassword = jest.fn(() => {
+      //this simulates the field that shows the email is verified in firebase
       return Promise.resolve({ user: { emailVerified: true } });
     });
   
