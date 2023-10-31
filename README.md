@@ -9,3 +9,13 @@ Jose Cabrera (Project Manager)
 
 
 ## Development Stack
+Frontend Framework and Language-  React JS
+<br/>Component Library-           Material UI
+<br/>API-                         Rest API
+<br/>Backend Language-            Node JS
+<br/>Database-                    MongoDB
+<br/>Authentication Model-        Firebase Authentication
+<br/>Unit Test Frameworks-        Jest
+
+
+
