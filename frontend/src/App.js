@@ -1,12 +1,12 @@
 import React from 'react';
-import SignIn from './Components/Auth-Components/SignIn';
-import SignUp from './Components/Auth-Components/SignUp';
-import AuthDetails from './Components/Auth-Components/AuthDetails';
-import Home from './Components/Central-Components/Home';
-import Nav from './Components/Central-Components/Nav';
-import Settings from './Components/Central-Components/Settings';
+import SignIn from './components/Auth-Components/SignIn';
+import SignUp from './components/Auth-Components/SignUp';
+import AuthDetails from './components/Auth-Components/AuthDetails';
+import Home from './components/Central-Components/Home';
+import Nav from './components/Central-Components/Nav';
+import Settings from './components/Central-Components/Settings';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import Profile from './Components/Central-Components/Profile';
+import Profile from './components/Central-Components/Profile';
 import { createTheme, ThemeProvider} from "@mui/material/styles";
 import { grey, deepOrange } from "@mui/material/colors";
 
