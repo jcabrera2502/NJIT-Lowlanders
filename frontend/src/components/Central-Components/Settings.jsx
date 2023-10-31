@@ -60,14 +60,37 @@ function Settings() {
                     <Typography variant="h5">Notifications</Typography>
                     <Button variant="outlined" sx={{ mt: 2, mb: 2 }} type="button"> Turn on notifications</Button>
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item xs={12}>
                     <Typography variant="h5">Language: </Typography>
-                    <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
+                    <FormControl sx={{ width: 250, mt: 2, mb: 2 }}>
                         <Select labelId="langId" value={language} onChange={handleChange}> 
                             <MenuItem value="English">English</MenuItem>
                             <MenuItem value="Spanish">Spanish</MenuItem>
                             <MenuItem value="French">French</MenuItem>
                             <MenuItem value="German">German</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={4}>
+                    <FormControl sx={{ width: 250, mt: 2, mb: 2 }}>
+                        <Typography variant="h5">Date Format: </Typography>
+                        <Select> 
+                            <MenuItem value="MonthDayYear">MM/DD/YYYY</MenuItem>
+                            <MenuItem value="DayMonthYear">DD/MM/YYYY</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth sx={{ width: 250, mt: 2, mb: 2 }}>
+                        <Typography variant="h5">Time: </Typography>
+                        <Select>
+                            <MenuItem value="EST">Eastern Standard Time</MenuItem>
+                            <MenuItem value="CST">Central Standard Time</MenuItem>
+                            <MenuItem value="PST">Pacific Standard Time</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth sx={{ width: 250, mt: 2, mb: 2 }}>
+                        <Select>
+                            <MenuItem value="Twelve">12-hour</MenuItem>
+                            <MenuItem value="TwentyFour">24-hour</MenuItem>
                         </Select>
                     </FormControl>
                 </Grid>
