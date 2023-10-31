@@ -42,15 +42,17 @@ const Profile = () => {
         time = date.getHours() + ":" + date.getMinutes();
     }
     return (
-        <div>
-        <h1>Profile</h1>
-        <p>Email: {user?.email}</p>
-        <p> Name: {user?.displayName}</p>
-        <p> Phone: {user?.phoneNumber}</p>
-        <p> Photo: {user?.photoURL}</p>
-        <p> Date: {dateFormatted}</p>
-        <p> Time: {time}</p>
-        </div>
+        <CssBaseline>
+            <Box sx={{mt: 10, ml: 5}}>
+                <Typography variant="h4">Profile</Typography>
+                <Typography variant="h6"> Email: {user?.email}</Typography>
+                <Typography variant="h6"> Name: {user?.displayName}</Typography>
+                <Typography variant="h6"> Phone: {user?.phoneNumber}</Typography>
+                <Typography variant="h6"> Photo: {user?.photoURL}</Typography>
+                <Typography variant="h6"> Date: {dateFormatted}</Typography>
+                <Typography variant="h6"> Time: {time}</Typography>
+            </Box>
+        </CssBaseline>
     );
     }
 
