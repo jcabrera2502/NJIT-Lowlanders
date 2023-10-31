@@ -1,4 +1,5 @@
 import { onAuthStateChanged} from "firebase/auth";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, Container, 
@@ -19,6 +20,7 @@ const Profile = () => {
         onAuthStateChanged(auth, (user) => {
         if (user) {
             setUser(user);
+            fetchUserData(user);
         } else {
             setUser(null);
         }
@@ -49,14 +51,31 @@ const Profile = () => {
     } else /*TwentyFour*/ {
         time = date.getHours() + ":" + String("0" + date.getMinutes()).slice(-2);
     }
+
+    // get data from backend from handler.js without using axios
+    const [data, setData] = useState(null);
+    const fetchUserData = async (user) => {
+        const response = await axios.get("/email", {
+            params: {
+                email: user.email,
+            }
+        });
+        //Only sets the data if there is a result
+        if(response){
+            setData(response.data);
+        }
+        
+    };
+
+
     return (
         <CssBaseline>
             <Paper square={false} style={paperStyle}>
                 <Typography variant="h4">Profile</Typography>
-                <Typography variant="h6"> Email: {user?.email}</Typography>
-                <Typography variant="h6"> Name: {user?.displayName}</Typography>
-                <Typography variant="h6"> Phone: {user?.phoneNumber}</Typography>
-                <Typography variant="h6"> Photo: {user?.photoURL}</Typography>
+                <Typography variant="h6"> Email: {data?.email}</Typography>
+                <Typography variant="h6"> Name: {data?.firstName + " " + data?.lastName}</Typography>
+                <Typography variant="h6"> Phone: {data?.phone}</Typography>
+                <Typography variant="h6"> Photo: {data?.photo}</Typography>
                 <Typography variant="h6"> Date: {dateFormatted}</Typography>
                 <Typography variant="h6"> Time: {time}</Typography>
             </Paper>
