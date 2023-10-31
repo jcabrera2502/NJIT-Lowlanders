@@ -3,10 +3,19 @@ import { Button, Typography, Stack, CssBaseline, Box, Grid,
          Select, MenuItem, FormControl, Slider} from "@mui/material";
 import VolumeDown from '@mui/icons-material/VolumeDown';
 import VolumeUp from '@mui/icons-material/VolumeUp';
-
+import { ColorPicker, useColor } from "react-color-palette";
+import "react-color-palette/css";
 
 
 function Settings() {
+    const [color, setColor] = useColor("#561ecb");
+
+    const [language, setLanguage] = React.useState('');
+
+    const handleChange = (event) => {
+        setLanguage(event.target.value);
+    };
+
     return (
         <CssBaseline>
             <Grid container spacing={2} sx={{mt: "110px", ml: 2, width: "99%"}}>
@@ -35,7 +44,7 @@ function Settings() {
                 <Grid item xs={2}>
                     <Typography variant="h5">Language: </Typography>
                     <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
-                        <Select labelId="langId"> 
+                        <Select labelId="langId" value={language} onChange={handleChange}> 
                             <MenuItem value="English">English</MenuItem>
                             <MenuItem value="Spanish">Spanish</MenuItem>
                             <MenuItem value="French">French</MenuItem>
@@ -55,6 +64,22 @@ function Settings() {
                     <Typography variant="h5">Theme: </Typography>
                     <Button sx={{ mt: 2, mb: 2 }} variant="outlined"> Dark Theme </Button>
                     <Button sx={{ mt: 2, mb: 2, ml: 1 }} variant="outlined"> Light Theme </Button>
+                </Grid>
+                <Grid item xs={4}>
+                    <Box sx={{height:320, width:250}}>
+                    <ColorPicker
+                        color={color} 
+                        onChange={setColor}
+                        hideInput={["rgb", "hsv"]}
+                        hideAlpha
+                    />
+                    </Box>
+                </Grid>
+                <Grid item xs={12}>
+                    <Box>
+                        <Button type="button" sx={{mb: 2, ml: 1 }} variant="outlined">Primary </Button> 
+                        <Button sx={{mb: 2, ml: 4 }} variant="outlined"> Secondary </Button>
+                    </Box>
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant="h5">Delete Account</Typography>
