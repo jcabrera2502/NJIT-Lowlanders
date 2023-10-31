@@ -29,10 +29,10 @@ const Profile = () => {
         if (date.getHours() > 12) {
             time = (date.getHours() - 12) + ":" + date.getMinutes() + " pm"; 
         }
-        else if (date.getHours() == 12) {
+        else if (date.getHours() === 12) {
             time = date.getHours() + ":" + date.getMinutes() + " pm";
         }
-        else if (date.getHours() == 0) {
+        else if (date.getHours() === 0) {
             time = "12:" + date.getMinutes() + " am";
         }
         else {
