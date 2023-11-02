@@ -47,7 +47,7 @@ const Profile = () => {
     // get data from backend from handler.js without using axios
     const [data, setData] = useState(null);
     const fetchUserData = async (user) => {
-        const response = await axios.get("/email", {
+        const response = await axios.get("/api/email", {
             params: {
                 email: user.email,
             }
