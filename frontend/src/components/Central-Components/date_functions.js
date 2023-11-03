@@ -75,3 +75,11 @@ export function printThis12Time(hour, min, pm) {
         return hour + ":" + min + " am";
     }
 }
+export function isThisCurrent(m, d, y) {
+    if (m == month && d == day && y == year) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}

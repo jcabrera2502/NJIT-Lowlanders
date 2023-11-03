@@ -6,7 +6,7 @@ import { Button, TextField, Paper, Typography, Container,
     CssBaseline, Link, Box, Avatar} from "@mui/material";
 import { getCurrentMonth, getCurrentDay, getCurrentYear, 
     printDate, printThisDate, printTime, printThis12Time, 
-    printThis24Time } from "./date_functions";
+    printThis24Time, isThisCurrent } from "./date_functions";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
