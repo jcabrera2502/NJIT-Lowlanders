@@ -1,7 +1,7 @@
 import { onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import Dhruv from "../../Images/Dhruvy.jfif";
+import WebIcon from "../../Images/WebIcon.jfif";
 import { Typography, CssBaseline, Box} from "@mui/material";
 
 function Home() 
@@ -27,8 +27,8 @@ function Home()
                 {user ? (
                     <div>
                         <Typography textAlign={"center"} variant="h3">Welcome {user.email}</Typography>
-                        <Box textAlign={"center"} sx={{padding: "10px"}}>
-                            <img src={Dhruv} alt="Dhruv" />
+                        <Box textAlign={"center"} sx={{padding: "10px"}} >
+                            <img src={WebIcon} width={542} height={542} alt="WebIcon" />
                         </Box>
                     </div>
                 ) : (

@@ -100,7 +100,7 @@ function Settings() {
                 </Grid>
                 <Grid item xs={12}>
                     <Box>
-                        <Button type="button" sx={{mb: 2, ml: 1 }} variant="outlined">Primary </Button> 
+                        <Button sx={{mb: 2, ml: 1 }} variant="outlined">Primary </Button> 
                         <Button sx={{mb: 2, ml: 4 }} variant="outlined"> Secondary </Button>
                     </Box>
                 </Grid>
