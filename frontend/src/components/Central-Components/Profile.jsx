@@ -79,7 +79,6 @@ const Profile = () => {
                     <Grid container>
                         <Grid item xs={3.4}>
                         <Typography variant="h6"> Email: {user?.email}</Typography>
-
                         </Grid>
                         <Grid item xs={3.8}>
                             <Typography variant="h10">First Name</Typography>
