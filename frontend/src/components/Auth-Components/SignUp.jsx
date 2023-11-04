@@ -4,7 +4,7 @@ import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, Container, 
   CssBaseline, Link, Box, Avatar} from "@mui/material";
   import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
-import 'whatwg-fetch';
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -108,7 +108,6 @@ const authErrors = {
   "auth/weak-password": "The password must be 6 characters long or more.",
   "web-storage-unsupported": "This browser is not supported or 3rd party cookies and data may be disabled."
 }
-
 const SignUp = () => {
   // State variables for email, password, password confirmation, and error message
 
