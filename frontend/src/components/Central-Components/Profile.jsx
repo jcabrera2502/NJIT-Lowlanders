@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, Container, 
     CssBaseline, Link, Box, Avatar} from "@mui/material";
+import { getCurrentMonth, getCurrentDay, getCurrentYear, 
+    printDate, printThisDate, printTime, printThis12Time, 
+    printThis24Time, isThisCurrent } from "./date_functions";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -18,31 +21,6 @@ const Profile = () => {
         }
         });
     }, []);
-    
-    const date = new Date();
-    var dateFormatted;
-    if (true /*MonthDayYear*/) {
-        dateFormatted = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-    } else if (true /*DayMonthYear*/) {
-        dateFormatted = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
-    }
-    var time;
-    if (true /*Twelve*/) {
-        if (date.getHours() > 12) {
-            time = (date.getHours() - 12) + ":" + date.getMinutes() + " pm"; 
-        }
-        else if (date.getHours() === 12) {
-            time = date.getHours() + ":" + date.getMinutes() + " pm";
-        }
-        else if (date.getHours() === 0) {
-            time = "12:" + date.getMinutes() + " am";
-        }
-        else {
-            time = date.getHours() + ":" + date.getMinutes() + " am";
-        }
-    } else /*TwentyFour*/ {
-        time = date.getHours() + ":" + date.getMinutes();
-    }
 
     // get data from backend from handler.js without using axios
     const [data, setData] = useState(null);
@@ -68,8 +46,8 @@ const Profile = () => {
                 <Typography variant="h6"> Name: {data?.firstName + " " + data?.lastName}</Typography>
                 <Typography variant="h6"> Phone: {data?.phone}</Typography>
                 <Typography variant="h6"> Photo: {data?.photo}</Typography>
-                <Typography variant="h6"> Date: {dateFormatted}</Typography>
-                <Typography variant="h6"> Time: {time}</Typography>
+                <Typography variant="h6"> Date: {printDate()}</Typography>
+                <Typography variant="h6"> Time: {printTime()}</Typography>
             </Box>
         </CssBaseline>
     );
