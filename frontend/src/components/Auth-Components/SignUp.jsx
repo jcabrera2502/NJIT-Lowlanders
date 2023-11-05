@@ -1,9 +1,12 @@
 import { createUserWithEmailAndPassword, sendEmailVerification, UserCredential, onAuthStateChanged} from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase";
-import { Button, TextField, Paper, Typography, Container, 
-  CssBaseline, Link, Box, Avatar} from "@mui/material";
-  import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import { Button, TextField, Paper, Typography, Grid, 
+  CssBaseline, Link, Box, InputLabel} from "@mui/material";
+import Logo from '../../Images/Logo.svg';
+import CrushIt from '../../Images/CrushIt.svg';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 function Copyright(props) {
   return (
@@ -22,8 +25,8 @@ const paperStyle =
 {
   padding: 30,
   height: "80vh",
-  width: "45%",
-  margin: "110px auto"
+  width: "60%",
+  marginLeft: "35%",
 };
 const authErrors = {
   
@@ -158,61 +161,92 @@ setError("You must verify your email to login.");
   return (
     <>
     <CssBaseline>
-        <Container>
-          <Paper elevation={5} variant="elevation" square={false} style={paperStyle}>
-            <form onSubmit={signUp}>
-              <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-              >
-                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                  <PersonAddAlt1Icon />
-                </Avatar>
-              </Box>
-              <Typography variant="h3" textAlign={"center"}>Create Account</Typography>
-              <TextField
-                autoFocus
-                margin = "normal"
-                variant="standard"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                fullWidth
-              ></TextField>
-              <TextField
-                margin = "normal"
-                variant="standard"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                fullWidth
-              ></TextField>
-              <TextField
-                margin = "normal"
-                variant="standard"
-                type="password"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                fullWidth
-              ></TextField>
-              <Button sx={{ mt: 3, mb: 2 }} fullWidth type="submit" variant="contained">Sign Up</Button>
-              <div>
-              <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/Signin")}> Already have an account? Sign In</Button>
-              </div>
-              {error && <p style={{ color: "red" }}>{error}</p>}
-            </form>
-            <Copyright sx={{ mt: 8, mb: 4 }} />
-          </Paper>
-        </Container>
+        <Grid container sx={{height: "100vh"}}>
+          <Grid item xs={6}>
+          <Box 
+              sx={{width: "148%", height: "100%", backgroundColor: "#252628"}}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+            >
+              <img src={CrushIt} alt="Crush It Logo"/>
+              <img src={Logo} alt="Crush It Logo" width="700" height="700" /></Box>
+          </Grid>
+          <Grid item xs={6} sx={{mt: 14}}>
+            <Paper 
+              elevation={6} 
+              variant="elevation" 
+              square={false} 
+              style={paperStyle}
+              sx={{borderRadius: 2}}
+            >
+              <form onSubmit={signUp}>
+                <Box sx={{ mt: 1, mb: 5 }}>
+                  <Typography variant="h4" textAlign={"left"}>Sign Up</Typography>
+                </Box>
+                <InputLabel shrink><MailOutlineIcon color="purple" sx={{height: 25, width: 25, mr: 1}} />Email/username</InputLabel>
+                <TextField
+                  autoFocus
+                  variant="outlined"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  fullWidth
+                  sx={{mb: 3}}
+                  InputProps={{ sx: {borderRadius: 2}}}
+                />
+                <InputLabel shrink><LockOutlinedIcon color="purple" sx={{height: 25, width: 25, mr: 1}} />Password</InputLabel>
+                <TextField
+                  variant="outlined"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  fullWidth
+                  sx={{mb: 3}}
+                ></TextField>
+                <InputLabel shrink><LockOutlinedIcon color="purple" sx={{height: 25, width: 25, mr: 1}} />Password</InputLabel>
+                <TextField
+                  variant="outlined"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  fullWidth
+                  sx={{mb: 4}}
+                ></TextField>
+                <Box 
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  sx={{borderRadius: 2}}
+                >
+                <Button 
+                  sx={{ mt: 3, mb: 2, width: 225, height: 50, borderRadius: 3 }} 
+                  variant="contained" 
+                  type="submit"
+                  color="purple"
+                >
+                  Sign Up</Button>
+                </Box>
+                <Box
+                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2, height: 50, mt: 15}}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/Signin")}> Already have an account? Sign In</Button>
+                </Box>
+                {error && <Typography sx={{ color: "red" }}>{error}</Typography>}
+              </form>
+            </Paper>
+          </Grid>
+        </Grid>
       </CssBaseline>
     </>
   );

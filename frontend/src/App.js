@@ -9,7 +9,6 @@ import TasksAppts from './components/Central-Components/TasksAppts';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Profile from './components/Central-Components/Profile';
 import { createTheme, ThemeProvider} from "@mui/material/styles";
-import { grey, deepOrange } from "@mui/material/colors";
 
 const theme = createTheme({
   palette:
@@ -22,6 +21,7 @@ const theme = createTheme({
     gray:
     {
       main: "#252628",
+      light: "#F5F7F9",
     }
   }
 });

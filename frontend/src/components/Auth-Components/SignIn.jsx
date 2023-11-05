@@ -182,7 +182,7 @@ const SignIn = () => {
               sx={{borderRadius: 2}}
             >
               <form onSubmit={signIn}>
-                <Box sx={{ mt: 1, mb: 6 }}>
+                <Box sx={{ mt: 1, mb: 5 }}>
                   <Typography variant="h4" textAlign={"left"}>Sign In</Typography>
                 </Box>
                 <InputLabel shrink><MailOutlineIcon color="purple" sx={{height: 25, width: 25, mr: 1}} />Email/username</InputLabel>
@@ -195,7 +195,7 @@ const SignIn = () => {
                   autoFocus
                   required
                   fullWidth
-                  sx={{mb: 4}}
+                  sx={{mb: 3}}
                   InputProps={{ sx: {borderRadius: 2}}}
                 />
                 <InputLabel shrink><LockOutlinedIcon color="purple" sx={{height: 25, width: 25, mr: 1}} />Password</InputLabel>
@@ -207,7 +207,7 @@ const SignIn = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   fullWidth
-                  sx={{mb: 4}}
+                  sx={{mb: 3}}
                   InputProps={{ sx: {borderRadius: 2}}}
                 />
                 <Box 
@@ -224,12 +224,23 @@ const SignIn = () => {
                   >Log In</Button>
                 </Box>
                 <Box sx={{height: 125}}></Box>
-                <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Button>
               </form>
               {!resetEmailSent ? (
-                <div>
-                  <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>
-                </div>
+                <Box 
+                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2, mt: 15}}
+                  display="flex"
+                  justifyContent="left"
+                  alignItems="left"
+                >
+                  <Grid container>
+                    <Grid item xs={12}>
+                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>
+                    </Grid>
+                  </Grid>
+                </Box>
 
               ) : (
                 <div>
@@ -238,9 +249,7 @@ const SignIn = () => {
 
               )
             }
-            {error && <p style={{ color: "red" }}>{error}</p>}
-
-                
+            {error && <Typography style={{ color: "red" }}>{error}</Typography>}    
               </Paper>
             </Grid>
           </Grid>
