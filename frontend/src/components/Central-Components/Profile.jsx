@@ -37,6 +37,38 @@ const Profile = () => {
         
     };
 
+    //call an axios put request to update the user data
+    const updateUserData = async () => {
+            const response = await axios.put("/api/updateProfile", {
+            params: 
+            {
+                email: "gcn5@njit.edu"
+            }
+        });
+        //Only sets the data if there is a result
+        if(response){
+            console.log(response)
+            setData(response.data);
+        }
+    };
+
+    //write a cancel function to clear text inputs
+    const cancelUserData = () => 
+    {
+        document.querySelector("#FirstName").value = "";
+        document.querySelector("#LastName").value = "";
+        document.querySelector("#CurrentPassword").value = ""
+        document.querySelector("#NewPassword").value = ""
+        document.querySelector("#ConfirmcurrentPassword").value = ""
+        document.querySelector("#Pomodoro").value = "";
+        document.querySelector("#ShortBreak").value = "";
+        document.querySelector("#LongBreak").value = "";
+    };
+
+    function myFunction() {
+        document.getElementById("FirstName").reset();
+        console.log("reset");
+    }
 
     return (
         <CssBaseline>
@@ -60,10 +92,10 @@ const Profile = () => {
                         <Grid item xs={3.4}>
                         </Grid>
                         <Grid item xs={3.8}>
-                            <TextField label= {data?.firstName}> </TextField>
+                            <TextField placeholder={data?.firstName} defaultValue={data?.lastName} id='FirstName' onFocus=""> </TextField>
                         </Grid>
                         <Grid item xs={3.8}>
-                            <TextField label= {data?.lastName}> </TextField>
+                            <TextField placeholder= {data?.lastName} defaultValue={data?.lastName} id='LastName'> </TextField>
                         </Grid>
                     </Grid>
                     <Grid container>
@@ -78,9 +110,9 @@ const Profile = () => {
                         </Grid>
                     </Grid>
                     <Grid container>
-                        <TextField label= "**********"> </TextField>
-                        <TextField label= "**********"> </TextField>
-                        <TextField label= "**********"> </TextField>
+                        <TextField placeholder= "**********"  id="CurrentPassword"> </TextField>
+                        <TextField placeholder= "**********"  id="NewPassword"> </TextField>
+                        <TextField placeholder= "**********"  id="ConfirmcurrentPassword"> </TextField>
                     </Grid>
                     <Grid container>
                         <Grid item xs={4}>
@@ -94,18 +126,18 @@ const Profile = () => {
                         </Grid>
                     </Grid>
                     <Grid container>
-                        <TextField label={data?.pomodoro}> </TextField>
-                        <TextField label={data?.shortBreak}> </TextField>
-                        <TextField label={data?.longBreak}> </TextField>
+                        <TextField placeholder={data?.pomodoro} defaultValue={data?.pomodoro} id="Pomodoro"> </TextField>
+                        <TextField placeholder={data?.shortBreak} defaultValue={data?.shortBreak} id="ShortBreak"> </TextField>
+                        <TextField label={data?.longBreak} defaultValue={data?.longBreak} id="LongBreak"> </TextField>
                     </Grid>
                     <Grid container>
                         <Grid item xs={3.4}>
                         </Grid>
                         <Grid item xs={3.8}>
-                            <Button variant="contained" color="primary"> Save </Button>
+                            <Button variant="contained" color="primary" onClick={updateUserData}> Save </Button>
                         </Grid>
                         <Grid item xs={3.8}>
-                            <Button variant = "contained" color="primary"> Cancel </Button>
+                            <Button variant = "contained" color="primary" onClick={cancelUserData}> Cancel </Button>
                         </Grid>
                     </Grid>
                 </FormControl>
