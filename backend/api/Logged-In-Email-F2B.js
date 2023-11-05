@@ -37,7 +37,6 @@ router.post('/api/new', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-
 router.put('/api/updateProfile', async (req, res) =>
 {
     const collection = mongoose.connection.db.collection("user-profile");
@@ -52,4 +51,3 @@ router.put('/api/updateProfile', async (req, res) =>
 });
   
 export default router;
-

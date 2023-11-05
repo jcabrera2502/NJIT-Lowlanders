@@ -7,34 +7,64 @@ import { Button, TextField, Paper, Typography, Container,
 import { getCurrentMonth, getCurrentDay, getCurrentYear, 
     printDate, printThisDate, printTime, printThis12Time, 
     printThis24Time, isThisCurrent } from "./date_functions";
-
+    let userPresentInDatabase = 0;
 const Profile = () => {
     const [user, setUser] = useState(null);
-    
+    const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
+    const [userInserted, setUserInserted] = useState(false);
+
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
-        if (user) {
-            setUser(user);
-            fetchUserData(user);
-        } else {
-            setUser(null);
-        }
+            if (user) {
+                setUser(user);
+            } else {
+                setUser(null);
+            }
         });
     }, []);
+    useEffect(() => {
+        if (user) {
+            fetchUserData(user);
+            insertUser(user);
 
+        }
+    }, [user]);
     // get data from backend from handler.js without using axios
     const [data, setData] = useState(null);
     const fetchUserData = async (user) => {
-        const response = await axios.get("/api/email", {
-            params: {
-                email: user.email,
+        if (!userPresentInDatabase) {
+            const response = await axios.get("/api/email", {
+                params: {
+                    email: user.email,
+                }
+            });
+
+            if (response) {
+                setUserPresentInDatabase(true);
+                console.log("User already in database");
+                console.log(response.data);
+                setData(response.data);
             }
-        });
-        //Only sets the data if there is a result
-        if(response){
-            setData(response.data);
         }
+    };
+
+    //function to insert a new user
+    const insertUser = async (user) => {
+        if (!userInserted) {
+            try {
+                const insertNewUser = await axios.post("/api/new", { email: user.email });
         
+                if (insertNewUser) {            
+                    setUserInserted(true);
+                    console.log("User inserted into the database");
+                    console.log(insertNewUser.data);
+                }
+              
+            } catch (error) {
+                console.log("GUFISE");
+                console.error("An error occurred while making the POST request:", error);
+            }
+        }
     };
 
     //call an axios put request to update the user data
@@ -80,6 +110,7 @@ const Profile = () => {
                 <FormControl>
                     <Grid container>
                         <Grid item xs={3.4}>
+                        <Typography variant="h6"> Email: {user?.email}</Typography>
                         </Grid>
                         <Grid item xs={3.8}>
                             <Typography variant="h10">First Name</Typography>
