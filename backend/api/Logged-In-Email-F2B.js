@@ -37,5 +37,13 @@ router.post('/api/new', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
+router.put('/api/updateProfile', async (req, res) =>
+{
+    const collection = mongoose.connection.db.collection("user-profile");
+    console.log("Req" , req.body.params)
+    const result = await collection.updateOne({email: req.body.params.email}, {$set: {firstName: req.body.params.firstName, lastName: req.body.params.lastName, pomodoro:req.body.params.pomodoro, shortBreak:req.body.params.shortBreak, longBreak:req.body.params.longBreak}})
+    res.send(result);
+   
+});
   
 export default router;
