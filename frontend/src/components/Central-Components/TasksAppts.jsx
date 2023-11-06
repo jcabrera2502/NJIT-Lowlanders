@@ -15,8 +15,11 @@ import { display, positions, sizing  } from '@mui/system';
 const TasksAppts = () => {
     const [month, setMonth] = React.useState(getCurrentMonth);
     const handleMonthChange = (event) => {
+        //console.log("choice " + event.target.value);
+        //console.log("before " + month);
         setMonth(event.target.value);
-        dateRules();
+        //console.log("after " + month);
+        dateRules(event.target.value, year);
     }
     const [day, setDay] = React.useState(getCurrentDay);
     const handleDayChange = (event) => {
@@ -25,7 +28,7 @@ const TasksAppts = () => {
     const [year, setYear] = React.useState(getCurrentYear);
     const handleYearChange = (event) => {
         setYear(event.target.value);
-        dateRules();
+        dateRules(month, event.target.value);
     }
     function leap(y) {
         if (y % 4 == 0) {
@@ -35,14 +38,18 @@ const TasksAppts = () => {
             return false;
         }
     }
-    function dateRules() {
-        if (day > 29 && leap(year) && month == 2) {
+    function dateRules(m, y) {
+        //console.log(m + "/" + day + "/" + y);
+        if (day > 29 && leap(y) && m == 2) {
+            //console.log("one");
             setDay(1);
         }
-        else if (day > 28 && month == 2) {
+        else if (day > 28 && m == 2 && !leap(y)) {
+            //console.log("two");
             setDay(1);
         }
-        else if (day > 30 && thirty.includes(month)) {
+        else if (day > 30 && thirty.includes(m)) {
+            console.log("three");
             setDay(1);
         }
     }
