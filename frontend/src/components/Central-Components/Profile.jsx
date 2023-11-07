@@ -30,6 +30,10 @@ const Profile = () => {
     const handlePasswordUpdate = async () => {
         updateUserData();
         //compare fields
+        if (currentPassword === "")
+        {
+            return;
+        }
         if (newPassword !== confirmNewPassword) {
             setError("New passwords do not match.");
             return;
@@ -232,6 +236,7 @@ const Profile = () => {
                             <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                             <Box sx={{flexGrow: 1}}></Box>
                             <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar><PermIdentityRoundedIcon /></Avatar></IconButton>
+                            <Typography sx={{fontWeight: "bold"}}>{data?.firstName} {data?.lastName}</Typography>
                         </Toolbar>
                     </AppBar>
                 {/* Page information*/}
@@ -289,6 +294,7 @@ const Profile = () => {
                                         defaultValue={data?.lastName} 
                                         id='CurrentPassword'
                                         onChange={(e) => setCurrentPassword(e.target.value)}
+                                        type="password"
                                     > 
                                     </TextField>
                                     
@@ -297,7 +303,8 @@ const Profile = () => {
                                         InputProps={{ sx: {borderRadius: 3}}}
                                         placeholder= "**********"
                                         id="NewPassword"
-                                        onChange={(e) => setNewPassword(e.target.value)} 
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        type="password" 
                                     > 
                                     </TextField>
 
@@ -307,6 +314,7 @@ const Profile = () => {
                                         placeholder= "**********"
                                         id="ConfirmcurrentPassword"
                                         onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                        type="password"
                                     > 
                                     </TextField>
                                 </Box>
