@@ -282,7 +282,7 @@ const Profile = () => {
                                 >
                                     <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Current Password</Typography>
                                     <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />New Password</Typography>
-                                    <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Confirm New Password</Typography>
+                                    <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Confirm Password</Typography>
                                 </Box>
                                 <Box
                                     sx={{display: "flex", flexDirection: "row"}}
@@ -314,7 +314,7 @@ const Profile = () => {
                                         placeholder= "**********"
                                         id="ConfirmcurrentPassword"
                                         onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                        type="password"
+                                        
                                     > 
                                     </TextField>
                                 </Box>
