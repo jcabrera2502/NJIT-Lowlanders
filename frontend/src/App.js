@@ -3,7 +3,6 @@ import SignIn from './components/Auth-Components/SignIn';
 import SignUp from './components/Auth-Components/SignUp';
 import AuthDetails from './components/Auth-Components/AuthDetails';
 import Home from './components/Central-Components/Home';
-import Nav from './components/Central-Components/Nav';
 import Settings from './components/Central-Components/Settings';
 import TasksAppts from './components/Central-Components/TasksAppts';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
@@ -13,7 +12,6 @@ import { createTheme, ThemeProvider} from "@mui/material/styles";
 const theme = createTheme({
   palette:
   {
-    mode: "dark",
     purple:
     {
       main: "#5779F4",
