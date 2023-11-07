@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import WebIcon from "../../Images/WebIcon.jfif";
 import { Typography, CssBaseline, Box} from "@mui/material";
+import Nav from './Nav';
 
 function Home() 
 {
@@ -23,8 +24,10 @@ function Home()
 
     return (
         <CssBaseline>
+            <Nav />
             <Box sx={{margin: "110px auto"}}>
                 {user ? (
+                    
                     <div>
                         <Typography textAlign={"center"} variant="h3">Welcome {user.email}</Typography>
                         <Box textAlign={"center"} sx={{padding: "10px"}} >

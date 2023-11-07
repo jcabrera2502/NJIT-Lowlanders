@@ -22,6 +22,10 @@ const theme = createTheme({
     {
       main: "#252628",
       light: "#F5F7F9",
+    },
+    white:
+    {
+      main: "#FFF"
     }
   }
 });
@@ -32,7 +36,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <div className="App">
-          <Nav />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/SignIn" element={<SignIn />} />

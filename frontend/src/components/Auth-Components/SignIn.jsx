@@ -217,7 +217,7 @@ const SignIn = () => {
                   sx={{borderRadius: 2}}
                 >
                   <Button 
-                    sx={{ mt: 3, mb: 2, width: 225, height: 50, borderRadius: 3 }} 
+                    sx={{ mt: 3, mb: 4, width: 225, height: 50, borderRadius: 3 }} 
                     variant="contained" 
                     type="submit"
                     color="purple"
@@ -227,7 +227,7 @@ const SignIn = () => {
               </form>
               {!resetEmailSent ? (
                 <Box 
-                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2, mt: 15}}
+                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2}}
                   display="flex"
                   justifyContent="left"
                   alignItems="left"

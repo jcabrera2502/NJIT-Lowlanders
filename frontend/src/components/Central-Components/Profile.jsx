@@ -2,12 +2,20 @@ import { onAuthStateChanged} from "firebase/auth";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Button, TextField, Paper, Typography, Container, 
-    CssBaseline, Link, Box, Avatar, FormControl, Grid} from "@mui/material";
+import { Button, TextField, Paper, Typography, 
+    CssBaseline, Divider, Box, Avatar, FormControl, Grid, AppBar, Toolbar,
+    IconButton, InputLabel} from "@mui/material";
 import { getCurrentMonth, getCurrentDay, getCurrentYear, 
     printDate, printThisDate, printTime, printThis12Time, 
     printThis24Time, isThisCurrent } from "./date_functions";
-    let userPresentInDatabase = 0;
+import Nav from './Nav';
+import WebIcon from "../../Images/Logo.svg";
+import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+
+let userPresentInDatabase = 0;
 const Profile = () => {
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
@@ -102,78 +110,168 @@ const Profile = () => {
 
     return (
         <CssBaseline>
-            <Box sx={{mt: 10, ml: 5}}>
-                <Typography variant="h10"> Date: {printDate()}</Typography>
-                <Typography variant="h10"> Time: {printTime()}</Typography>
-                <Typography variant="h3"> --------------------------------------</Typography>
-                <Grid container spacing={2}>
-                <FormControl>
-                    <Grid container>
-                        <Grid item xs={3.4}>
-                        <Typography variant="h6"> Email: {user?.email}</Typography>
-                        </Grid>
-                        <Grid item xs={3.8}>
-                            <Typography variant="h10">First Name</Typography>
-                        </Grid>
-                        <Grid item xs={3.8}>
-                            <Typography variant="h10"> Last Name </Typography>
-                        </Grid>
-                    </Grid>
-                    <Grid container>
-                        <Grid item xs={3.4}>
-                        </Grid>
-                        <Grid item xs={3.8}>
-                            <TextField placeholder={data?.firstName} defaultValue={data?.lastName} id='FirstName' onFocus=""> </TextField>
-                        </Grid>
-                        <Grid item xs={3.8}>
-                            <TextField placeholder= {data?.lastName} defaultValue={data?.lastName} id='LastName'> </TextField>
-                        </Grid>
-                    </Grid>
-                    <Grid container>
-                        <Grid item xs={4}>
-                            <Typography variant="h10"> Current Password</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="h10"> New Password</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="h10"> Confirm Password</Typography>
-                        </Grid>
-                    </Grid>
-                    <Grid container>
-                        <TextField placeholder= "**********"  id="CurrentPassword"> </TextField>
-                        <TextField placeholder= "**********"  id="NewPassword"> </TextField>
-                        <TextField placeholder= "**********"  id="ConfirmcurrentPassword"> </TextField>
-                    </Grid>
-                    <Grid container>
-                        <Grid item xs={4}>
-                            <Typography variant="h10"> Pomodoro</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="h10"> Short Break</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="h10"> Long Break</Typography>
-                        </Grid>
-                    </Grid>
-                    <Grid container>
-                        <TextField placeholder={data?.pomodoro} defaultValue={data?.pomodoro} id="Pomodoro"> </TextField>
-                        <TextField placeholder={data?.shortBreak} defaultValue={data?.shortBreak} id="ShortBreak"> </TextField>
-                        <TextField label={data?.longBreak} defaultValue={data?.longBreak} id="LongBreak"> </TextField>
-                    </Grid>
-                    <Grid container>
-                        <Grid item xs={3.4}>
-                        </Grid>
-                        <Grid item xs={3.8}>
-                            <Button variant="contained" color="primary" onClick={updateUserData}> Save </Button>
-                        </Grid>
-                        <Grid item xs={3.8}>
-                            <Button variant = "contained" color="primary" onClick={cancelUserData}> Cancel </Button>
-                        </Grid>
-                    </Grid>
-                </FormControl>
+            {/* Nav bar on the top and crush it on the left*/}
+            <Grid container>
+                <Grid item xs={1.64}>
+                    <Box positions="left" textAlign={"center"} sx={{
+                        color: '#FFFFFF',
+                        background: '#252628',
+                        height: "100vh",
+                        width: '200px',
+                        padding: "10px",
+                    }}>
+                        <div class="container-fluid">
+                            <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
+                            <Divider variant="middle" color="#3E3F42" sx={{ height: 2, width: '160px' }} />
+                            <Box textAlign={"center"} sx={{padding: "10px"}} >
+                                <img src={WebIcon} width={148} height={148} alt="WebIcon" />
+                            </Box>
+
+                            <Box textAlign={"center"}>
+                                <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
+                                    <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid"}} color="white" variant="outlined">Plan Day</Button>
+                            </Box>
+                        </div>
+                        
+                        <Box sx={{mt: "32vh"}}>
+                            <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
+                        </Box>
+                    </Box>
                 </Grid>
-            </Box>
+                    <AppBar elevation={12} color="white" sx={{width: `calc(100% - ${200}px)`}}>   
+                        <Toolbar>
+                            <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
+                            <Box sx={{flexGrow: 1}}></Box>
+                            <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar><PermIdentityRoundedIcon /></Avatar></IconButton>
+                        </Toolbar>
+                    </AppBar>
+                {/* Page information*/}
+                <Grid item xs={10}>
+                    <Box sx={{mt: 14, width: "100%"}}>
+                        <FormControl sx={{width: "100%"}}>
+
+                            { /* User Info */ }
+                            <Typography variant="h5" sx={{mb: 2, fontWeight: "bold"}}>User Info</Typography>
+                            <Paper sx={{width: "100%", height: "15vh", borderRadius: 3}} elevation={12}>
+                                <Box
+                                    sx={{display: "flex", flexDirection: "row", ml: 3, mt: "2vh"}}
+                                >
+                                    <Typography sx={{flexGrow: 1}}><PermIdentityRoundedIcon color="purple" />First Name</Typography>
+                                    <Typography sx={{flexGrow: 1}}><PermIdentityRoundedIcon color="purple" />Last Name</Typography>
+                                </Box>
+                                <Box
+                                    sx={{display: "flex", flexDirection: "row"}}
+                                >
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3, ml: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder={data?.firstName} 
+                                        defaultValue={data?.lastName} 
+                                        id='FirstName' onFocus=""> 
+                                    </TextField>
+                                    
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder={data?.lastName}
+                                        defaultValue={data?.lastName} 
+                                        id='LastName'> 
+                                    </TextField>
+                                </Box>
+                            </Paper>
+
+                            { /* Password info */ }
+                            <Typography variant="h5" sx={{mb: 2, fontWeight: "bold", mt: "5vh"}}>Change Password</Typography>
+                            <Paper sx={{width: "100%", height: "15vh", borderRadius: 3}} elevation={12}>
+                                <Box
+                                    sx={{display: "flex", flexDirection: "row", ml: 3, mt: "2vh"}}
+                                >
+                                    <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Current Password</Typography>
+                                    <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />New Password</Typography>
+                                    <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Confirm New Password</Typography>
+                                </Box>
+                                <Box
+                                    sx={{display: "flex", flexDirection: "row"}}
+                                >
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3, ml: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder= "**********" 
+                                        defaultValue={data?.lastName} 
+                                        id='CurrentPassword'
+                                    > 
+                                    </TextField>
+                                    
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder= "**********"
+                                        id="NewPassword" 
+                                    > 
+                                    </TextField>
+
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder= "**********"
+                                        id="ConfirmcurrentPassword"
+                                    > 
+                                    </TextField>
+                                </Box>
+                            </Paper>
+
+                            { /* Pomodoro Timer */ }
+                            <Typography variant="h5" sx={{mb: 2, fontWeight: "bold",  mt: "5vh"}}>Pomodoro Timer (Minutes)</Typography>
+                            <Paper sx={{width: "100%", height: "15vh", borderRadius: 3}} elevation={12}>
+                                <Box
+                                    sx={{display: "flex", flexDirection: "row", ml: 3, mt: "2vh"}}
+                                >
+                                    <Typography sx={{flexGrow: 1}}><AccessTimeOutlinedIcon color="purple" />Pomodoro</Typography>
+                                    <Typography sx={{flexGrow: 1}}><AccessTimeOutlinedIcon color="purple" />Short Break</Typography>
+                                    <Typography sx={{flexGrow: 1}}><AccessTimeOutlinedIcon color="purple" />Long Break</Typography>
+                                </Box>
+                                <Box
+                                    sx={{display: "flex", flexDirection: "row"}}
+                                >
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3, ml: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder={data?.pomodoro} 
+                                        defaultValue={data?.pomodoro} 
+                                        id='FirstName' onFocus=""> 
+                                    </TextField>
+                                    
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder={data?.shortBreak}
+                                        defaultValue={data?.shortBreak} 
+                                        id='LastName'> 
+                                    </TextField>
+
+                                    <TextField  
+                                        sx={{flexGrow: 1, mr: 3}}
+                                        InputProps={{ sx: {borderRadius: 3}}}
+                                        placeholder={data?.longBreak}
+                                        defaultValue={data?.longBreak} 
+                                        id='LastName'> 
+                                    </TextField>
+                                </Box>
+                            </Paper>
+
+                            <Box 
+                                sx={{mt: "6vh", width: "100%", height: "5vh"}}
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                            >
+                                <Button color="purple" sx={{mr: 2, width: "18%", height: "6vh", borderRadius: 3, boxShadow: 12}} variant="outlined" onClick={cancelUserData}>Cancel</Button>
+                                <Button color="purple" sx={{width: "18%", height: "6vh", borderRadius: 3, boxShadow: 12}} variant="contained" onClick={updateUserData}>Save</Button>
+                            </Box>
+                        </FormControl>
+                    </Box>
+                </Grid>
+            </Grid>
         </CssBaseline>
     );
     }
