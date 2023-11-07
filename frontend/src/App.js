@@ -26,7 +26,7 @@ const theme = createTheme({
     white:
     {
       main: "#FFF"
-    }
+    },
   }
 });
 
