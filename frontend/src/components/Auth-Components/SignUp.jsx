@@ -227,7 +227,7 @@ setError("You must verify your email to login.");
                   sx={{borderRadius: 2}}
                 >
                 <Button 
-                  sx={{ mt: 3, mb: 2, width: 225, height: 50, borderRadius: 3 }} 
+                  sx={{ mt: 3, mb: 7, width: 225, height: 50, borderRadius: 3 }} 
                   variant="contained" 
                   type="submit"
                   color="purple"
@@ -235,7 +235,7 @@ setError("You must verify your email to login.");
                   Sign Up</Button>
                 </Box>
                 <Box
-                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2, height: 50, mt: 15}}
+                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2, height: 50}}
                   display="flex"
                   justifyContent="center"
                   alignItems="center"

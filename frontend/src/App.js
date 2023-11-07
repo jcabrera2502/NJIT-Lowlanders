@@ -3,7 +3,6 @@ import SignIn from './components/Auth-Components/SignIn';
 import SignUp from './components/Auth-Components/SignUp';
 import AuthDetails from './components/Auth-Components/AuthDetails';
 import Home from './components/Central-Components/Home';
-import Nav from './components/Central-Components/Nav';
 import Settings from './components/Central-Components/Settings';
 import TasksAppts from './components/Central-Components/TasksAppts';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
@@ -22,7 +21,11 @@ const theme = createTheme({
     {
       main: "#252628",
       light: "#F5F7F9",
-    }
+    },
+    white:
+    {
+      main: "#FFF"
+    },
   }
 });
 
@@ -32,7 +35,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <div className="App">
-          <Nav />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/SignIn" element={<SignIn />} />
