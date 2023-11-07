@@ -29,6 +29,7 @@ const Profile = () => {
 
 
     const handlePasswordUpdate = async () => {
+        updateUserData();
         //compare fields
         if (newPassword !== confirmNewPassword) {
             setError("New passwords do not match.");
@@ -106,6 +107,78 @@ const Profile = () => {
         }
     };
 
+    const cancelUserData = () => 
+    {
+        document.querySelector("#FirstName").value = "";
+        document.querySelector("#LastName").value = "";
+        document.querySelector("#CurrentPassword").value = ""
+        document.querySelector("#NewPassword").value = ""
+        document.querySelector("#ConfirmcurrentPassword").value = ""
+        document.querySelector("#Pomodoro").value = "";
+        document.querySelector("#ShortBreak").value = "";
+        document.querySelector("#LongBreak").value = "";
+    };
+
+    const updateUserData = async () => {
+        console.log(user);
+        if (document.querySelector("#FirstName").value == "")
+        {
+            var firstNameVal = data?.firstName;
+        }
+        else
+        {
+            var firstNameVal = document.querySelector("#FirstName").value;
+        }
+        if (document.querySelector("#LastName").value == "")
+        {
+            var lastNameVal = data?.firstName;
+        }
+        else
+        {
+            var lastNameVal = document.querySelector("#LastName").value;
+        }
+        if (document.querySelector("#Pomodoro").value == "")
+        {
+            var pomodoroVal = data?.pomodoro;
+        }
+        else
+        {
+            var pomodoroVal = document.querySelector("#Pomodoro").value;
+        }
+        if (document.querySelector("#ShortBreak").value == "")
+        {
+            var shortBreakVal = data?.shortBreak;
+        }
+        else
+        {
+            var shortBreakVal = document.querySelector("#ShortBreak").value;
+        }
+        if (document.querySelector("#LongBreak").value == "")
+        {
+            var longBreakVal = data?.longBreak;
+        }
+        else
+        {
+            var longBreakVal = document.querySelector("#LongBreak").value;
+        }
+            const response = await axios.put("/api/updateProfile", {
+            params: 
+            {
+                email: data?.email,
+                firstName: firstNameVal,
+                lastName: lastNameVal,
+                pomodoro: pomodoroVal,
+                shortBreak: shortBreakVal,
+                longBreak: longBreakVal,     
+            } 
+        });
+        //Only sets the data if there is a result
+        if(response){ 
+            console.log(response)
+            setData(response.data);
+        }
+    };
+
     //function to insert a new user
     const insertUser = async (user) => {
         if (!userInserted) {
@@ -151,33 +224,13 @@ const Profile = () => {
                             <Typography variant="h10">Confirm New Password</Typography>
                             </Grid>
                         </Grid>
-                        
-                        <Grid container>
-                            <TextField
-                                type="password"
-                                label="************"
-                                id="CurrentPassword"
-                                value={currentPassword}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
-                            />
-                            <TextField
-                                type="password"
-                                label="************"
-                                id="NewPassword"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                            />
-
-                            <TextField
-                                type="password"
-                                id="ConfirmNewPassword"
-                                label="************"
-                                value={confirmNewPassword}
-                                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                            />
-                        </Grid>
-                    
-                        <Grid container>
+                    </Grid>
+                    <Grid container>
+                        <TextField type="password" placeholder= "**********"  id="CurrentPassword" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}> </TextField>
+                        <TextField type="password" placeholder= "**********"  id="NewPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}> </TextField>
+                        <TextField type="password" placeholder= "**********"  id="ConfirmcurrentPassword" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)}> </TextField>
+                    </Grid>
+                    <Grid container>
                         <Grid item xs={4}>
                             <Typography variant="h10"> Pomodoro</Typography>
                         </Grid>
@@ -191,24 +244,19 @@ const Profile = () => {
                     <Grid container>
                         <TextField placeholder={data?.pomodoro} defaultValue={data?.pomodoro} id="Pomodoro"> </TextField>
                         <TextField placeholder={data?.shortBreak} defaultValue={data?.shortBreak} id="ShortBreak"> </TextField>
-                        <TextField label={data?.longBreak} defaultValue={data?.longBreak} id="LongBreak"> </TextField>
+                        <TextField placeholder={data?.longBreak} defaultValue={data?.longBreak} id="LongBreak"> </TextField>
                     </Grid>
-                        <Grid container>
-                            <Grid item xs={3.4} />
-
-                            <Grid item xs={3.8}>
-                                <Button variant="contained" color="primary" onClick={handlePasswordUpdate}>
-                                    Save
-                                </Button>
-                            </Grid>
-                            <Grid item xs={3.8}>
-                                <Button variant="contained" color="primary">
-                                    Cancel
-                                </Button>
-
-                            </Grid>
+                    <Grid container>
+                        <Grid item xs={3.4}>
                         </Grid>
-                    </FormControl>
+                        <Grid item xs={3.8}>
+                            <Button variant="contained" color="primary" onClick={handlePasswordUpdate}> Save </Button>
+                        </Grid>
+                        <Grid item xs={3.8}>
+                            <Button variant = "contained" color="primary" onClick={cancelUserData}> Cancel </Button>
+                        </Grid>
+                    </Grid>
+                </FormControl>
                 </Grid>
 
             </Box>
