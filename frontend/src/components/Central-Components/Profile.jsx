@@ -29,6 +29,7 @@ const Profile = () => {
 
     const handlePasswordUpdate = async () => {
         updateUserData();
+        window.location.reload();
         //compare fields
         if (currentPassword === "")
         {
