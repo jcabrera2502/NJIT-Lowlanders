@@ -120,45 +120,45 @@ const Profile = () => {
 
     const updateUserData = async () => {
         console.log(user);
-        if (document.querySelector("#FirstName").value == "")
+        if (document.querySelector("#FirstName").value === "")
         {
             var firstNameVal = data?.firstName;
         }
         else
         {
-            var firstNameVal = document.querySelector("#FirstName").value;
+            firstNameVal = document.querySelector("#FirstName").value;
         }
-        if (document.querySelector("#LastName").value == "")
+        if (document.querySelector("#LastName").value === "")
         {
             var lastNameVal = data?.firstName;
         }
         else
         {
-            var lastNameVal = document.querySelector("#LastName").value;
+            lastNameVal = document.querySelector("#LastName").value;
         }
-        if (document.querySelector("#Pomodoro").value == "")
+        if (document.querySelector("#Pomodoro").value === "")
         {
             var pomodoroVal = data?.pomodoro;
         }
         else
         {
-            var pomodoroVal = document.querySelector("#Pomodoro").value;
+            pomodoroVal = document.querySelector("#Pomodoro").value;
         }
-        if (document.querySelector("#ShortBreak").value == "")
+        if (document.querySelector("#ShortBreak").value === "")
         {
             var shortBreakVal = data?.shortBreak;
         }
         else
         {
-            var shortBreakVal = document.querySelector("#ShortBreak").value;
+            shortBreakVal = document.querySelector("#ShortBreak").value;
         }
-        if (document.querySelector("#LongBreak").value == "")
+        if (document.querySelector("#LongBreak").value === "")
         {
             var longBreakVal = data?.longBreak;
         }
         else
         {
-            var longBreakVal = document.querySelector("#LongBreak").value;
+            longBreakVal = document.querySelector("#LongBreak").value;
         }
             const response = await axios.put("/api/updateProfile", {
             params: 
@@ -236,7 +236,7 @@ const Profile = () => {
                     </AppBar>
                 {/* Page information*/}
                 <Grid item xs={10}>
-                    <Box sx={{mt: 14, width: "100%"}}>
+                    <Box sx={{mt: 12, width: "100%"}}>
                         <FormControl sx={{width: "100%"}}>
 
                             { /* User Info */ }
@@ -330,7 +330,7 @@ const Profile = () => {
                                         InputProps={{ sx: {borderRadius: 3}}}
                                         placeholder={data?.pomodoro} 
                                         defaultValue={data?.pomodoro} 
-                                        id='FirstName' onFocus=""> 
+                                        id='Pomodoro' onFocus=""> 
                                     </TextField>
                                     
                                     <TextField  
@@ -338,7 +338,7 @@ const Profile = () => {
                                         InputProps={{ sx: {borderRadius: 3}}}
                                         placeholder={data?.shortBreak}
                                         defaultValue={data?.shortBreak} 
-                                        id='LastName'> 
+                                        id='ShortBreak'> 
                                     </TextField>
 
                                     <TextField  
@@ -346,13 +346,13 @@ const Profile = () => {
                                         InputProps={{ sx: {borderRadius: 3}}}
                                         placeholder={data?.longBreak}
                                         defaultValue={data?.longBreak} 
-                                        id='LastName'> 
+                                        id='LongBreak'> 
                                     </TextField>
                                 </Box>
                             </Paper>
 
                             <Box 
-                                sx={{mt: "6vh", width: "100%", height: "5vh"}}
+                                sx={{mt: "4vh", width: "100%", height: "5vh"}}
                                 display="flex"
                                 justifyContent="center"
                                 alignItems="center"
@@ -362,10 +362,18 @@ const Profile = () => {
                             </Box>
                         </FormControl>
                     </Box>
+                    <Box 
+                        sx={{mt: 3}}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        {error && <Typography color="error">{error}</Typography>}
+                        {!error && saveClicked && (<Typography color="success">Password Updated Successfully.</Typography>)}
+                    </Box>
                 </Grid>
             </Grid>
-            {error && <Typography color="error">{error}</Typography>}
-            {!error && saveClicked && (<Typography color="success">Password Updated Successfully.</Typography>)}
+            
         </CssBaseline>
     );
 };
