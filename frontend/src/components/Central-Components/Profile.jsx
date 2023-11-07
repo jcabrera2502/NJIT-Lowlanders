@@ -235,8 +235,7 @@ const Profile = () => {
                         <Toolbar>
                             <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                             <Box sx={{flexGrow: 1}}></Box>
-                            <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar></IconButton>
-                            <Typography sx={{fontWeight: "bold"}}>{data?.firstName} {data?.lastName}</Typography>
+                            <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                         </Toolbar>
                     </AppBar>
                 {/* Page information*/}
@@ -314,7 +313,7 @@ const Profile = () => {
                                         placeholder= "**********"
                                         id="ConfirmcurrentPassword"
                                         onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                        
+                                        type="password"
                                     > 
                                     </TextField>
                                 </Box>
