@@ -235,7 +235,7 @@ const Profile = () => {
                         <Toolbar>
                             <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                             <Box sx={{flexGrow: 1}}></Box>
-                            <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar><PermIdentityRoundedIcon /></Avatar></IconButton>
+                            <IconButton onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar></IconButton>
                             <Typography sx={{fontWeight: "bold"}}>{data?.firstName} {data?.lastName}</Typography>
                         </Toolbar>
                     </AppBar>
@@ -282,7 +282,7 @@ const Profile = () => {
                                 >
                                     <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Current Password</Typography>
                                     <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />New Password</Typography>
-                                    <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Confirm New Password</Typography>
+                                    <Typography sx={{flexGrow: 1}}><LockOutlinedIcon color="purple" />Confirm Password</Typography>
                                 </Box>
                                 <Box
                                     sx={{display: "flex", flexDirection: "row"}}
@@ -314,7 +314,7 @@ const Profile = () => {
                                         placeholder= "**********"
                                         id="ConfirmcurrentPassword"
                                         onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                        type="password"
+                                        
                                     > 
                                     </TextField>
                                 </Box>
