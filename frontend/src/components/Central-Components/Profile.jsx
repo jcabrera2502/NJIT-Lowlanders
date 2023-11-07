@@ -239,6 +239,7 @@ const Profile = () => {
                         </Toolbar>
                     </AppBar>
                 {/* Page information*/}
+                
                 <Grid item xs={10}>
                     <Box sx={{mt: 12, width: "100%"}}>
                         <FormControl sx={{width: "100%"}}>
