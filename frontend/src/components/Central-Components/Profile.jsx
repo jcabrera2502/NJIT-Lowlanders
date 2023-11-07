@@ -1,26 +1,76 @@
-import { onAuthStateChanged} from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, 
     CssBaseline, Divider, Box, Avatar, FormControl, Grid, AppBar, Toolbar,
-    IconButton, InputLabel} from "@mui/material";
-import { getCurrentMonth, getCurrentDay, getCurrentYear, 
-    printDate, printThisDate, printTime, printThis12Time, 
-    printThis24Time, isThisCurrent } from "./date_functions";
-import Nav from './Nav';
+    IconButton} from "@mui/material";
 import WebIcon from "../../Images/Logo.svg";
 import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth"; // Import the necessary Firebase functions
 
 let userPresentInDatabase = 0;
 const Profile = () => {
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [userInserted, setUserInserted] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
+    const [passwordUpdateError, setPasswordUpdateError] = useState(null);
+    let [passwordUpdatedMessage, setPasswordUpdatedMessage] = useState('');
+    const [saveClicked, setSaveClicked] = useState(false); // Track if "Save" button has been clicked
 
+    const [error, setError] = useState(''); // Define the error state variable
+
+
+    const handlePasswordUpdate = async () => {
+        updateUserData();
+        //compare fields
+        if (newPassword !== confirmNewPassword) {
+            setError("New passwords do not match.");
+            return;
+        }
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{12,}$/;
+
+        // complexity check
+        if (!passwordRegex.test(newPassword)) {
+            setError("Password must contain at least 12 characters, including one uppercase letter, one lowercase letter, and one number.");
+            return;
+        }
+
+
+        
+        try {
+            // Reauthenticate the user with their current password
+            const credentials = EmailAuthProvider.credential(user.email, currentPassword);
+            await reauthenticateWithCredential(user, credentials);
+    
+            // User re-authenticated, proceed to update the password
+            await updatePassword(user, newPassword);
+            setPasswordUpdateError(null); // Clear any previous errors
+            setNewPassword('');
+            setConfirmNewPassword('');
+            setError('');
+            setSaveClicked(true);
+
+            setPasswordUpdatedMessage = "Success!";
+            //passwordUpdatedMessage = "Password Updated Successfully.";
+        } catch (error) {
+            console.error("Error during reauthentication or password update:", error);
+            if (error.code === "auth/invalid-login-credentials") {
+                setError("Incorrect password. Please try again.");
+            } else {
+                setError("An error occurred. Please try again later.");
+            }
+        }
+        
+
+
+    };
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -56,41 +106,6 @@ const Profile = () => {
         }
     };
 
-    //function to insert a new user
-    const insertUser = async (user) => {
-        if (!userInserted) {
-            try {
-                const insertNewUser = await axios.post("/api/new", { email: user.email });
-        
-                if (insertNewUser) {            
-                    setUserInserted(true);
-                    console.log("User inserted into the database");
-                    console.log(insertNewUser.data);
-                }
-              
-            } catch (error) {
-                console.log("GUFISE");
-                console.error("An error occurred while making the POST request:", error);
-            }
-        }
-    };
-
-    //call an axios put request to update the user data
-    const updateUserData = async () => {
-            const response = await axios.put("/api/updateProfile", {
-            params: 
-            {
-                email: "gcn5@njit.edu"
-            }
-        });
-        //Only sets the data if there is a result
-        if(response){
-            console.log(response)
-            setData(response.data);
-        }
-    };
-
-    //write a cancel function to clear text inputs
     const cancelUserData = () => 
     {
         document.querySelector("#FirstName").value = "";
@@ -103,10 +118,84 @@ const Profile = () => {
         document.querySelector("#LongBreak").value = "";
     };
 
-    function myFunction() {
-        document.getElementById("FirstName").reset();
-        console.log("reset");
-    }
+    const updateUserData = async () => {
+        console.log(user);
+        if (document.querySelector("#FirstName").value == "")
+        {
+            var firstNameVal = data?.firstName;
+        }
+        else
+        {
+            var firstNameVal = document.querySelector("#FirstName").value;
+        }
+        if (document.querySelector("#LastName").value == "")
+        {
+            var lastNameVal = data?.firstName;
+        }
+        else
+        {
+            var lastNameVal = document.querySelector("#LastName").value;
+        }
+        if (document.querySelector("#Pomodoro").value == "")
+        {
+            var pomodoroVal = data?.pomodoro;
+        }
+        else
+        {
+            var pomodoroVal = document.querySelector("#Pomodoro").value;
+        }
+        if (document.querySelector("#ShortBreak").value == "")
+        {
+            var shortBreakVal = data?.shortBreak;
+        }
+        else
+        {
+            var shortBreakVal = document.querySelector("#ShortBreak").value;
+        }
+        if (document.querySelector("#LongBreak").value == "")
+        {
+            var longBreakVal = data?.longBreak;
+        }
+        else
+        {
+            var longBreakVal = document.querySelector("#LongBreak").value;
+        }
+            const response = await axios.put("/api/updateProfile", {
+            params: 
+            {
+                email: data?.email,
+                firstName: firstNameVal,
+                lastName: lastNameVal,
+                pomodoro: pomodoroVal,
+                shortBreak: shortBreakVal,
+                longBreak: longBreakVal,     
+            } 
+        });
+        //Only sets the data if there is a result
+        if(response){ 
+            console.log(response)
+            setData(response.data);
+        }
+    };
+
+    //function to insert a new user
+    const insertUser = async (user) => {
+        if (!userInserted) {
+            try {
+                const insertNewUser = await axios.post("/api/new", { email: user.email });
+
+                if (insertNewUser) {
+                    setUserInserted(true);
+                    console.log("User inserted into the database");
+                    console.log(insertNewUser.data);
+                }
+
+            } catch (error) {
+                console.log("GUFISE");
+                console.error("An error occurred while making the POST request:", error);
+            }
+        }
+    };
 
     return (
         <CssBaseline>
@@ -166,7 +255,7 @@ const Profile = () => {
                                         sx={{flexGrow: 1, mr: 3, ml: 3}}
                                         InputProps={{ sx: {borderRadius: 3}}}
                                         placeholder={data?.firstName} 
-                                        defaultValue={data?.lastName} 
+                                        defaultValue={data?.firstName} 
                                         id='FirstName' onFocus=""> 
                                     </TextField>
                                     
@@ -199,6 +288,7 @@ const Profile = () => {
                                         placeholder= "**********" 
                                         defaultValue={data?.lastName} 
                                         id='CurrentPassword'
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
                                     > 
                                     </TextField>
                                     
@@ -206,7 +296,8 @@ const Profile = () => {
                                         sx={{flexGrow: 1, mr: 3}}
                                         InputProps={{ sx: {borderRadius: 3}}}
                                         placeholder= "**********"
-                                        id="NewPassword" 
+                                        id="NewPassword"
+                                        onChange={(e) => setNewPassword(e.target.value)} 
                                     > 
                                     </TextField>
 
@@ -215,6 +306,7 @@ const Profile = () => {
                                         InputProps={{ sx: {borderRadius: 3}}}
                                         placeholder= "**********"
                                         id="ConfirmcurrentPassword"
+                                        onChange={(e) => setConfirmNewPassword(e.target.value)}
                                     > 
                                     </TextField>
                                 </Box>
@@ -266,14 +358,16 @@ const Profile = () => {
                                 alignItems="center"
                             >
                                 <Button color="purple" sx={{mr: 2, width: "18%", height: "6vh", borderRadius: 3, boxShadow: 12}} variant="outlined" onClick={cancelUserData}>Cancel</Button>
-                                <Button color="purple" sx={{width: "18%", height: "6vh", borderRadius: 3, boxShadow: 12}} variant="contained" onClick={updateUserData}>Save</Button>
+                                <Button color="purple" sx={{width: "18%", height: "6vh", borderRadius: 3, boxShadow: 12}} variant="contained" onClick={handlePasswordUpdate}>Save</Button>
                             </Box>
                         </FormControl>
                     </Box>
                 </Grid>
             </Grid>
+            {error && <Typography color="error">{error}</Typography>}
+            {!error && saveClicked && (<Typography color="success">Password Updated Successfully.</Typography>)}
         </CssBaseline>
     );
-    }
+};
 
 export default Profile;

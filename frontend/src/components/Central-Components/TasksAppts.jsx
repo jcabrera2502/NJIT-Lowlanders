@@ -9,14 +9,18 @@ import { getCurrentMonth, getCurrentDay, getCurrentYear,
     printThis24Time, isThisCurrent } from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
 import { display, positions, sizing  } from '@mui/system';
+import LogoutIcon from '@mui/icons-material/Logout';
 
-
+  
 
 const TasksAppts = () => {
     const [month, setMonth] = React.useState(getCurrentMonth);
     const handleMonthChange = (event) => {
+        //console.log("choice " + event.target.value);
+        //console.log("before " + month);
         setMonth(event.target.value);
-        dateRules();
+        //console.log("after " + month);
+        dateRules(event.target.value, year);
     }
     const [day, setDay] = React.useState(getCurrentDay);
     const handleDayChange = (event) => {
@@ -25,7 +29,7 @@ const TasksAppts = () => {
     const [year, setYear] = React.useState(getCurrentYear);
     const handleYearChange = (event) => {
         setYear(event.target.value);
-        dateRules();
+        dateRules(month, event.target.value);
     }
     function leap(y) {
         if (y % 4 == 0) {
@@ -35,15 +39,33 @@ const TasksAppts = () => {
             return false;
         }
     }
-    function dateRules() {
-        if (day > 29 && leap(year) && month == 2) {
+    function dateRules(m, y) {
+        //console.log(m + "/" + day + "/" + y);
+        if (day > 29 && leap(y) && m == 2) {
+            //console.log("one");
             setDay(1);
         }
-        else if (day > 28 && month == 2) {
+        else if (day > 28 && m == 2 && !leap(y)) {
+            //console.log("two");
             setDay(1);
         }
-        else if (day > 30 && thirty.includes(month)) {
+        else if (day > 30 && thirty.includes(m)) {
+            console.log("three");
             setDay(1);
+        }
+    }
+    function getMaxDay(m, y) {
+        if (thirtyOne.includes(m)) {
+            return 31;
+        }
+        else if (thirty.includes(m)) {
+            return 30;
+        }
+        else if (m == 2 && leap(y)) {
+            return 29;
+        }
+        else {
+            return 28;
         }
     }
 
@@ -53,36 +75,55 @@ const TasksAppts = () => {
     
 
     return(
-        <CssBaseline>
-            <Box sx={{ marginTop: 7, flexGrow: 1 }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={2}>
-                        <Box positions="left" textAlign={"center"} sx={{
+        // <CssBaseline>
+            <Box sx={{ mt: 10, ml: 1, flexGrow: 1 }}>
+                <Grid container spacing={2} style={{ mt: 10, ml: 1, border: "10px solid blue" }}>
+                    <Grid item xs style={{ borderRight: "10px solid blue", display: "flex", justifyContent: "flex-start" }}>
+                        <Box  textAlign={"center"} sx={{
                             color: '#FFFFFF',
                             background: '#252628',
-                            height: 1,
+                            height: '100%',
                             width: '200px',
-                            padding: "10px",
                             
                         }}>
-                            <div class="container-fluid">
-                                <h1 class="mt-5">Crush It</h1>
-                                <Divider variant="middle" color="#3E3F42" sx={{ height: 2, width: '160px' }} />
-                                <Box textAlign={"center"} sx={{padding: "10px"}} >
-                                    <img src={WebIcon} width={148} height={148} alt="WebIcon" />
-                                </Box>
+                            <Typography padding= '36px' fontSize={"30px"} fontFamily={"Fredoka One"}>{`Crush It`}</Typography>
+                            <Divider variant="middle" sx={{ height: 2, width: '160px', bgcolor:'#3E3F42' }} />
 
-                                <Box textAlign={"center"}>
-                                    <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
-                                        <Button sx={{ mt: 3, mb: 2}} variant="contained">Plan Day</Button>
-                                </Box>
+                            <Box sx={{padding: "10px"}} >
+                                <img src={WebIcon} width={148} height={148} alt="WebIcon" />
+                            </Box>
+
+                            <Typography fontSize={"20px"} >{`It’s time to plan your day!`}</Typography>
+
+                            <Box>
+                                <Button sx={{ mt: 3, mb: 2,}} variant="outlined">Plan Day</Button>
+                            </Box>
+
+                            <Box>
+                                <Button startIcon={<LogoutIcon />} variant="outlined" sx={{ mt: 40, mb: 3 }} type="button"> Logout</Button>
+                            </Box>
                                 
-                            </div>
+                            
                         </Box>
                     </Grid>
                         
 
+
                     <Grid item padding="10px"  xs={8}>
+                        <Button variant="outlined" onClick={() => {
+                            if (month == 1) {
+                                setMonth(12);
+                                setYear(year - 1);
+                            }
+                            else {
+                                setMonth(month - 1);
+                            }
+                            dateRules(month, year);
+                        }}>
+                            Prev
+                        </Button>
+
+
                         <FormControl sx={{ m: 1, minWidth: 120}}>
                             <Select
                                 value={month}
@@ -102,6 +143,40 @@ const TasksAppts = () => {
                                 <MenuItem value={12}>December</MenuItem>
                             </Select>
                         </FormControl>
+                        <Button variant="outlined" onClick={() => {
+                            if (month == 12) {
+                                setMonth(1);
+                                setYear(year + 1);
+                                dateRules(1, year + 1);
+                            }
+                            else {
+                                setMonth(month + 1);
+                                dateRules(month + 1, year);
+                            }
+                        }}>
+                            Next
+                        </Button>
+                        <Button variant="outlined" onClick={() => {
+                            if (day == 1) {
+                                if (month == 1) {
+                                    setMonth(12);
+                                    setDay(31);
+                                    setYear(year - 1);
+                                }
+                                else {
+                                    //console.log(month);
+                                    setMonth(month - 1);
+                                    //console.log(month);
+                                    setDay(getMaxDay(month - 1, year));
+                                }
+                            }
+                            else {
+                                setDay(day - 1);
+                            }
+                            //dateRules(month, year);
+                        }}>
+                            Prev
+                        </Button>
                         <FormControl sx={{ m: 1, minWidth: 120}}>
                             <Select
                                 value={day}
@@ -149,6 +224,33 @@ const TasksAppts = () => {
                                 }
                             </Select>
                         </FormControl>
+                        <Button variant="outlined" onClick={() => {
+                            if (day == getMaxDay(month, year)) {
+                                if (month == 12) {
+                                    setMonth(1);
+                                    setDay(1);
+                                    setYear(year + 1);
+                                }
+                                else {
+                                    //console.log(month);
+                                    setMonth(month + 1);
+                                    //console.log(month);
+                                    setDay(1);
+                                }
+                            }
+                            else {
+                                setDay(day + 1);
+                            }
+                            //dateRules(month, year);
+                        }}>
+                            Next
+                        </Button>
+                        <Button variant="outlined" onClick={() => {
+                            setYear(year - 1);
+                            dateRules(month, year - 1);
+                        }}>
+                            Prev
+                        </Button>
                         <FormControl sx={{ m: 1, minWidth: 120}}>
                             <Select
                                 value={year}
@@ -164,6 +266,12 @@ const TasksAppts = () => {
                                 <MenuItem value={2029}>2029</MenuItem>
                             </Select>
                         </FormControl>
+                        <Button variant="outlined" onClick={() => {
+                            setYear(year + 1);
+                            dateRules(month, year + 1);
+                        }}>
+                            Next
+                        </Button>
                         <p>
                             Selected {month}/{day}/{year}
                             {isThisCurrent(month, day, year) ? <p>This is today</p> : <p>Today not selected</p>}
@@ -172,7 +280,7 @@ const TasksAppts = () => {
                     
                 </Grid>
             </Box>
-        </CssBaseline>
+        // </CssBaseline>
     );
 }
 
