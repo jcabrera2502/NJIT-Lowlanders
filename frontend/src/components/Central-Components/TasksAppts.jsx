@@ -16,8 +16,11 @@ import LogoutIcon from '@mui/icons-material/Logout';
 const TasksAppts = () => {
     const [month, setMonth] = React.useState(getCurrentMonth);
     const handleMonthChange = (event) => {
+        //console.log("choice " + event.target.value);
+        //console.log("before " + month);
         setMonth(event.target.value);
-        dateRules();
+        //console.log("after " + month);
+        dateRules(event.target.value, year);
     }
     const [day, setDay] = React.useState(getCurrentDay);
     const handleDayChange = (event) => {
@@ -26,7 +29,7 @@ const TasksAppts = () => {
     const [year, setYear] = React.useState(getCurrentYear);
     const handleYearChange = (event) => {
         setYear(event.target.value);
-        dateRules();
+        dateRules(month, event.target.value);
     }
     function leap(y) {
         if (y % 4 == 0) {
@@ -36,15 +39,33 @@ const TasksAppts = () => {
             return false;
         }
     }
-    function dateRules() {
-        if (day > 29 && leap(year) && month == 2) {
+    function dateRules(m, y) {
+        //console.log(m + "/" + day + "/" + y);
+        if (day > 29 && leap(y) && m == 2) {
+            //console.log("one");
             setDay(1);
         }
-        else if (day > 28 && month == 2) {
+        else if (day > 28 && m == 2 && !leap(y)) {
+            //console.log("two");
             setDay(1);
         }
-        else if (day > 30 && thirty.includes(month)) {
+        else if (day > 30 && thirty.includes(m)) {
+            console.log("three");
             setDay(1);
+        }
+    }
+    function getMaxDay(m, y) {
+        if (thirtyOne.includes(m)) {
+            return 31;
+        }
+        else if (thirty.includes(m)) {
+            return 30;
+        }
+        else if (m == 2 && leap(y)) {
+            return 29;
+        }
+        else {
+            return 28;
         }
     }
 
@@ -87,7 +108,22 @@ const TasksAppts = () => {
                     </Grid>
                         
 
-                    <Grid xs item >
+
+                    <Grid item padding="10px"  xs={8}>
+                        <Button variant="outlined" onClick={() => {
+                            if (month == 1) {
+                                setMonth(12);
+                                setYear(year - 1);
+                            }
+                            else {
+                                setMonth(month - 1);
+                            }
+                            dateRules(month, year);
+                        }}>
+                            Prev
+                        </Button>
+
+
                         <FormControl sx={{ m: 1, minWidth: 120}}>
                             <Select
                                 value={month}
@@ -107,6 +143,40 @@ const TasksAppts = () => {
                                 <MenuItem value={12}>December</MenuItem>
                             </Select>
                         </FormControl>
+                        <Button variant="outlined" onClick={() => {
+                            if (month == 12) {
+                                setMonth(1);
+                                setYear(year + 1);
+                                dateRules(1, year + 1);
+                            }
+                            else {
+                                setMonth(month + 1);
+                                dateRules(month + 1, year);
+                            }
+                        }}>
+                            Next
+                        </Button>
+                        <Button variant="outlined" onClick={() => {
+                            if (day == 1) {
+                                if (month == 1) {
+                                    setMonth(12);
+                                    setDay(31);
+                                    setYear(year - 1);
+                                }
+                                else {
+                                    //console.log(month);
+                                    setMonth(month - 1);
+                                    //console.log(month);
+                                    setDay(getMaxDay(month - 1, year));
+                                }
+                            }
+                            else {
+                                setDay(day - 1);
+                            }
+                            //dateRules(month, year);
+                        }}>
+                            Prev
+                        </Button>
                         <FormControl sx={{ m: 1, minWidth: 120}}>
                             <Select
                                 value={day}
@@ -154,6 +224,33 @@ const TasksAppts = () => {
                                 }
                             </Select>
                         </FormControl>
+                        <Button variant="outlined" onClick={() => {
+                            if (day == getMaxDay(month, year)) {
+                                if (month == 12) {
+                                    setMonth(1);
+                                    setDay(1);
+                                    setYear(year + 1);
+                                }
+                                else {
+                                    //console.log(month);
+                                    setMonth(month + 1);
+                                    //console.log(month);
+                                    setDay(1);
+                                }
+                            }
+                            else {
+                                setDay(day + 1);
+                            }
+                            //dateRules(month, year);
+                        }}>
+                            Next
+                        </Button>
+                        <Button variant="outlined" onClick={() => {
+                            setYear(year - 1);
+                            dateRules(month, year - 1);
+                        }}>
+                            Prev
+                        </Button>
                         <FormControl sx={{ m: 1, minWidth: 120}}>
                             <Select
                                 value={year}
@@ -169,6 +266,12 @@ const TasksAppts = () => {
                                 <MenuItem value={2029}>2029</MenuItem>
                             </Select>
                         </FormControl>
+                        <Button variant="outlined" onClick={() => {
+                            setYear(year + 1);
+                            dateRules(month, year + 1);
+                        }}>
+                            Next
+                        </Button>
                         <p>
                             Selected {month}/{day}/{year}
                             {isThisCurrent(month, day, year) ? <p>This is today</p> : <p>Today not selected</p>}
