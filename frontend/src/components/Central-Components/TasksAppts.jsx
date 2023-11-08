@@ -13,7 +13,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import axios from "axios";
-  
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 
 const TasksAppts = () => {
     const [user, setUser] = useState(null);
@@ -109,7 +110,6 @@ const TasksAppts = () => {
     const thirtyOne = [1, 3, 5, 7, 8, 10, 12];
     const thirty = [4, 6, 9, 11];
 
-    
 
     return(
         <CssBaseline>
@@ -121,6 +121,7 @@ const TasksAppts = () => {
                 height: "100vh",
                 width: '200px',
                 padding: "10px",
+                // width: `calc(100% - ${63}px)`
             }}>
                 <div class="container-fluid">
                     <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
@@ -152,12 +153,12 @@ const TasksAppts = () => {
 
                     <Grid item xs={10}>
                         <Box 
-                            sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF"}}
+                            sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF", borderRadius: '10px'}}
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
                         >
-                            <Button variant="outlined" onClick={() => {
+                            <Button sx={{maxWidth: '45px', maxHeight: '45px', minWidth: '45px', minHeight: '45px',}} variant="outlined" onClick={() => {
                                 if (month === 1) {
                                     setMonth(12);
                                     setYear(year - 1);
@@ -167,11 +168,11 @@ const TasksAppts = () => {
                                 }
                                 dateRules(month, year);
                             }}>
-                                Prev
+                                <Avatar sx={{bgcolor: "#6284FF", height: 18.33, width:18.33 }}><NavigateBeforeIcon sx={{color: "#FFF", fontSize:'medium'}} /></Avatar>
                             </Button>
 
-                            
-                            <FormControl sx={{ m: 1, minWidth: 120}}>
+
+                            <FormControl sx={{ m: 1, minWidth: 120,}}>
                                 <Select
                                     value={month}
                                     onChange={handleMonthChange}
@@ -190,7 +191,7 @@ const TasksAppts = () => {
                                     <MenuItem value={12}>December</MenuItem>
                                 </Select>
                             </FormControl>
-                            <Button variant="outlined" onClick={() => {
+                            <Button sx={{maxWidth: '45px', maxHeight: '45px', minWidth: '45px', minHeight: '45px'}} variant="outlined" onClick={() => {
                                 if (month == 12) {
                                     setMonth(1);
                                     setYear(year + 1);
@@ -200,10 +201,10 @@ const TasksAppts = () => {
                                     setMonth(month + 1);
                                     dateRules(month + 1, year);
                                 }
-                            }}>
-                                Next
+                            }} >
+                                <Avatar sx={{bgcolor: "#6284FF", height: 18.33, width:18.33 }}><NavigateNextIcon sx={{color: "#FFF", fontSize:'medium'}} /></Avatar>
                             </Button>
-                            <Button variant="outlined" onClick={() => {
+                            <Button sx={{maxWidth: '45px', maxHeight: '45px', minWidth: '45px', minHeight: '45px', ml: 10}} variant="outlined" onClick={() => {
                                 if (day == 1) {
                                     if (month == 1) {
                                         setMonth(12);
@@ -222,9 +223,9 @@ const TasksAppts = () => {
                                 }
                                 //dateRules(month, year);
                             }}>
-                                Prev
+                                <Avatar sx={{bgcolor: "#6284FF", height: 18.33, width:18.33 }}><NavigateBeforeIcon sx={{color: "#FFF", fontSize:'medium'}} /></Avatar>
                             </Button>
-                            <FormControl sx={{ m: 1, minWidth: 120}}>
+                            <FormControl sx={{ m: 1, minWidth: 120,}}>
                                 <Select
                                     value={day}
                                     onChange={handleDayChange}
@@ -271,7 +272,7 @@ const TasksAppts = () => {
                                     }
                                 </Select>
                             </FormControl>
-                            <Button variant="outlined" onClick={() => {
+                            <Button sx={{maxWidth: '45px', maxHeight: '45px', minWidth: '45px', minHeight: '45px',}} variant="outlined" onClick={() => {
                                 if (day == getMaxDay(month, year)) {
                                     if (month == 12) {
                                         setMonth(1);
@@ -290,13 +291,13 @@ const TasksAppts = () => {
                                 }
                                 //dateRules(month, year);
                             }}>
-                                Next
+                                <Avatar sx={{bgcolor: "#6284FF", height: 18.33, width:18.33 }}><NavigateNextIcon sx={{color: "#FFF", fontSize:'medium'}} /></Avatar>
                             </Button>
-                            <Button variant="outlined" onClick={() => {
+                            <Button sx={{maxWidth: '45px', maxHeight: '45px', minWidth: '45px', minHeight: '45px', ml:10}} variant="outlined" onClick={() => {
                                 setYear(year - 1);
                                 dateRules(month, year - 1);
                             }}>
-                                Prev
+                                <Avatar sx={{bgcolor: "#6284FF", height: 18.33, width:18.33 }}><NavigateBeforeIcon sx={{color: "#FFF", fontSize:'medium'}} /></Avatar>
                             </Button>
                             <FormControl sx={{ m: 1, minWidth: 120}}>
                                 <Select
@@ -313,11 +314,11 @@ const TasksAppts = () => {
                                     <MenuItem value={2029}>2029</MenuItem>
                                 </Select>
                             </FormControl>
-                            <Button variant="outlined" onClick={() => {
+                            <Button sx={{maxWidth: '45px', maxHeight: '45px', minWidth: '45px', minHeight: '45px'}} variant="outlined" onClick={() => {
                                 setYear(year + 1);
                                 dateRules(month, year + 1);
                             }}>
-                                Next
+                                <Avatar sx={{bgcolor: "#6284FF", height: 18.33, width:18.33 }}><NavigateNextIcon sx={{color: "#FFF", fontSize:'medium'}} /></Avatar>
                             </Button>
                         </Box>
                     </Grid>
