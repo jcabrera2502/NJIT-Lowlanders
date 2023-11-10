@@ -18,6 +18,10 @@ const theme = createTheme({
       contrastText: "#fff",
       light: "#E8EDFF",
     },
+    menu:
+    {
+      main: "#6284FF",
+    },
     gray:
     {
       main: "#252628",

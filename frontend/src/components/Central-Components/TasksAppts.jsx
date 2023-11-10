@@ -12,6 +12,8 @@ import { display, positions, sizing  } from '@mui/system';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import ExpandCircleDownRoundedIcon from '@mui/icons-material/ExpandCircleDownRounded';
+import ExpandCircleDownOutlinedIcon from '@mui/icons-material/ExpandCircleDownOutlined';
 import axios from "axios";
   
 
@@ -86,7 +88,7 @@ const TasksAppts = () => {
             //console.log("two");
             setDay(1);
         }
-        else if (day > 30 && thirty.includes(m)) {
+        else if (day > 28 && thirty.includes(m)) {
             console.log("three");
             setDay(1);
         }
@@ -96,7 +98,7 @@ const TasksAppts = () => {
             return 31;
         }
         else if (thirty.includes(m)) {
-            return 30;
+            return 28;
         }
         else if (m == 2 && leap(y)) {
             return 29;
@@ -136,7 +138,7 @@ const TasksAppts = () => {
                 </div>
                 
                 <Box sx={{mt: "32vh"}}>
-                    <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
+                    <Button onClick={() => (window.location.href = "http://localhost:2800/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
                 </Box>
             </Box>
         </Grid>
@@ -144,7 +146,7 @@ const TasksAppts = () => {
                 <Toolbar>
                     <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                     <Box sx={{flexGrow: 1}}></Box>
-                    <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                    <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:2800/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                 </Toolbar>
             </AppBar>
                         
@@ -166,15 +168,24 @@ const TasksAppts = () => {
                                     setMonth(month - 1);
                                 }
                                 dateRules(month, year);
-                            }}>
-                                Prev
+                            }}
+                            sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1}}
+                            color="menu">
+                                <ExpandCircleDownRoundedIcon sx={{transform: "rotate(90deg)", height: 28, width: 28}}/>
                             </Button>
-
-                            
-                            <FormControl sx={{ m: 1, minWidth: 120}}>
+                            <FormControl sx={{ mr: .5, ml: .5, mt: 1, mb: 1, minWidth: 160}}>
                                 <Select
                                     value={month}
                                     onChange={handleMonthChange}
+                                    IconComponent={ExpandCircleDownOutlinedIcon}
+                                    sx={{
+                                        fontSize: "large",
+                                        fontWeight: "bold", 
+                                        height: "50px", 
+                                        padding: 0, 
+                                        borderRadius: 3, 
+                                        '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",},
+                                         '.MuiSvgIcon-root': {fill: "#6284FF"}}}
                                 >
                                     <MenuItem value={1}>January</MenuItem>
                                     <MenuItem value={2}>February</MenuItem>
@@ -191,7 +202,7 @@ const TasksAppts = () => {
                                 </Select>
                             </FormControl>
                             <Button variant="outlined" onClick={() => {
-                                if (month == 12) {
+                                if (month === 12) {
                                     setMonth(1);
                                     setYear(year + 1);
                                     dateRules(1, year + 1);
@@ -200,11 +211,13 @@ const TasksAppts = () => {
                                     setMonth(month + 1);
                                     dateRules(month + 1, year);
                                 }
-                            }}>
-                                Next
+                            }}
+                            sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, mr: 3, border: 1}}
+                            color="menu">
+                                <ExpandCircleDownRoundedIcon sx={{transform: "rotate(270deg)", height: 28, width: 28}}/>
                             </Button>
                             <Button variant="outlined" onClick={() => {
-                                if (day == 1) {
+                                if (day === 1) {
                                     if (month == 1) {
                                         setMonth(12);
                                         setDay(31);
@@ -221,13 +234,24 @@ const TasksAppts = () => {
                                     setDay(day - 1);
                                 }
                                 //dateRules(month, year);
-                            }}>
-                                Prev
+                            }}
+                            sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1}}
+                            color="menu">
+                                <ExpandCircleDownRoundedIcon sx={{transform: "rotate(90deg)", height: 28, width: 28}}/>
                             </Button>
-                            <FormControl sx={{ m: 1, minWidth: 120}}>
+                            <FormControl sx={{ mr: .5, ml: .5, mt: 1, mb: 1, minWidth: 90}}>
                                 <Select
                                     value={day}
                                     onChange={handleDayChange}
+                                    IconComponent={ExpandCircleDownOutlinedIcon}
+                                    sx={{
+                                        fontSize: "large",
+                                        fontWeight: "bold", 
+                                        height: "50px", 
+                                        padding: 0, 
+                                        borderRadius: 3, 
+                                        '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
+                                        '.MuiSvgIcon-root': {fill: "#6284FF"}}}
                                 >
                                     <MenuItem value={1}>1</MenuItem>
                                     <MenuItem value={2}>2</MenuItem>
@@ -289,19 +313,32 @@ const TasksAppts = () => {
                                     setDay(day + 1);
                                 }
                                 //dateRules(month, year);
-                            }}>
-                                Next
+                            }}
+                            sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, mr: 3, border: 1}}
+                            color="menu">
+                                <ExpandCircleDownRoundedIcon sx={{transform: "rotate(270deg)", height: 28, width: 28}}/>
                             </Button>
                             <Button variant="outlined" onClick={() => {
                                 setYear(year - 1);
                                 dateRules(month, year - 1);
-                            }}>
-                                Prev
+                            }}
+                            sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1}}
+                            color="menu">
+                                <ExpandCircleDownRoundedIcon sx={{transform: "rotate(90deg)", height: 28, width: 28}}/>
                             </Button>
-                            <FormControl sx={{ m: 1, minWidth: 120}}>
+                            <FormControl sx={{ mr: .5, ml: .5, mt: 1, mb: 1, minWidth: 100}}>
                                 <Select
                                     value={year}
                                     onChange={handleYearChange}
+                                    IconComponent={ExpandCircleDownOutlinedIcon}
+                                    sx={{
+                                        fontSize: "large",
+                                        fontWeight: "bold", 
+                                        height: "50px", 
+                                        padding: 0, 
+                                        borderRadius: 3, 
+                                        '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
+                                        '.MuiSvgIcon-root': {fill: "#6284FF"}}}
                                 >
                                     <MenuItem value={2022}>2022</MenuItem>
                                     <MenuItem value={2023}>2023</MenuItem>
@@ -316,8 +353,10 @@ const TasksAppts = () => {
                             <Button variant="outlined" onClick={() => {
                                 setYear(year + 1);
                                 dateRules(month, year + 1);
-                            }}>
-                                Next
+                            }}
+                            sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1}}
+                            color="menu">
+                                <ExpandCircleDownRoundedIcon sx={{transform: "rotate(270deg)", height: 28, width: 28}}/>
                             </Button>
                         </Box>
                     </Grid>
