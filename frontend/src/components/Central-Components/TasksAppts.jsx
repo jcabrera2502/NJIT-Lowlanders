@@ -144,7 +144,6 @@ const TasksAppts = () => {
         </Grid>
             <AppBar elevation={12} color="white" sx={{width: `calc(100% - ${200}px)`}}>   
                 <Toolbar>
-                    <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                     <Box sx={{flexGrow: 1}}></Box>
                     <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:2800/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                 </Toolbar>
