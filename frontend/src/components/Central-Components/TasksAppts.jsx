@@ -153,7 +153,7 @@ const TasksAppts = () => {
 
                     <Grid item xs={10}>
                         <Box 
-                            sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF"}}
+                            sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF", borderRadius: 3,}}
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
