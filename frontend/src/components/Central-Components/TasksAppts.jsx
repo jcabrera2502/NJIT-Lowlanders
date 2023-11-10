@@ -88,7 +88,7 @@ const TasksAppts = () => {
             //console.log("two");
             setDay(1);
         }
-        else if (day > 28 && thirty.includes(m)) {
+        else if (day > 30 && thirty.includes(m)) {
             console.log("three");
             setDay(1);
         }
@@ -98,7 +98,7 @@ const TasksAppts = () => {
             return 31;
         }
         else if (thirty.includes(m)) {
-            return 28;
+            return 30;
         }
         else if (m == 2 && leap(y)) {
             return 29;
@@ -138,14 +138,14 @@ const TasksAppts = () => {
                 </div>
                 
                 <Box sx={{mt: "32vh"}}>
-                    <Button onClick={() => (window.location.href = "http://localhost:2800/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
+                    <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
                 </Box>
             </Box>
         </Grid>
             <AppBar elevation={12} color="white" sx={{width: `calc(100% - ${200}px)`}}>   
                 <Toolbar>
                     <Box sx={{flexGrow: 1}}></Box>
-                    <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:2800/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                    <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                 </Toolbar>
             </AppBar>
                         
