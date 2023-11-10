@@ -1,4 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
+import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
+import {List, ListItem} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar} from "@mui/material";
@@ -111,8 +113,6 @@ const TasksAppts = () => {
     const thirtyOne = [1, 3, 5, 7, 8, 10, 12];
     const thirty = [4, 6, 9, 11];
 
-    
-
     return(
         <CssBaseline>
         <Grid container>
@@ -144,6 +144,7 @@ const TasksAppts = () => {
         </Grid>
             <AppBar elevation={12} color="white" sx={{width: `calc(100% - ${200}px)`}}>   
                 <Toolbar>
+                    <Typography sx={{fontWeight: "bold"}}variant="h4">Tasks</Typography>
                     <Box sx={{flexGrow: 1}}></Box>
                     <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                 </Toolbar>
