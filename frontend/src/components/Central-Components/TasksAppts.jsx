@@ -23,6 +23,19 @@ const TasksAppts = () => {
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
+    const [month, setMonth] = React.useState(getCurrentMonth);
+    const [day, setDay] = React.useState(getCurrentDay);
+    const [year, setYear] = React.useState(getCurrentYear);
+    const [selectedDate, setSelectedDate] = React.useState(new Date(year, month - 1, day));
+// Update isThisCurrent function
+function isThisCurrent(date) {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Set current date to midnight
+    date.setHours(0, 0, 0, 0); // Set selected date to midnight
+    console.log("Current Date:", currentDate);
+    console.log("Selected Date:", date);
+    return date.getTime() === currentDate.getTime();
+  }
     const fetchUserData = async (user) => {
         if (!userPresentInDatabase) {
             const response = await axios.get("/api/email", {
@@ -55,23 +68,33 @@ const TasksAppts = () => {
         }
     }, [user]);
 
-    const [month, setMonth] = React.useState(getCurrentMonth);
-    const handleMonthChange = (event) => {
-        //console.log("choice " + event.target.value);
-        //console.log("before " + month);
+    useEffect(() => {
+        console.log("Selected Date:", selectedDate);
+      }, [selectedDate]);
+    const updateSelectedDate = (newMonth, newDay, newYear) => {
+        setSelectedDate(new Date(newYear, newMonth - 1, newDay));
+      };
+      const handleMonthChange = (event) => {
+        console.log("Selected Date Before:", selectedDate);
         setMonth(event.target.value);
-        //console.log("after " + month);
         dateRules(event.target.value, year);
-    }
-    const [day, setDay] = React.useState(getCurrentDay);
+        console.log("Selected Date After:", selectedDate);
+    };useEffect(() => {
+        updateSelectedDate(month, day, year);
+    }, [month, day, year]);
+    
     const handleDayChange = (event) => {
         setDay(event.target.value);
+        updateSelectedDate(month, event.target.value, year);
+
     }
-    const [year, setYear] = React.useState(getCurrentYear);
     const handleYearChange = (event) => {
         setYear(event.target.value);
         dateRules(month, event.target.value);
+        updateSelectedDate(month, day, event.target.value);
+
     }
+     
     function leap(y) {
         if (y % 4 == 0) {
             return true;
@@ -133,8 +156,11 @@ const TasksAppts = () => {
 
                     <Box textAlign={"center"}>
                         <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
-                            <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid"}} color="white" variant="outlined">Plan Day</Button>
-                    </Box>
+                        {isThisCurrent(selectedDate) && (
+            <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
+              Plan Day
+            </Button>
+          )}                    </Box>
                 </div>
                 
                 <Box sx={{mt: "32vh"}}>
