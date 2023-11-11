@@ -91,7 +91,7 @@ const TasksAppts = () => {
             setDay(1);
         }
         else if (day > 30 && thirty.includes(m)) {
-            console.log("three");
+            //console.log("three");
             setDay(1);
         }
     }
@@ -124,7 +124,7 @@ const TasksAppts = () => {
                 width: '200px',
                 padding: "10px",
             }}>
-                <div class="container-fluid">
+                <div>
                     <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
                     <Divider variant="middle" color="#3E3F42" sx={{ height: 2, width: '160px' }} />
                     <Box textAlign={"center"} sx={{padding: "10px"}} >
@@ -283,15 +283,15 @@ const TasksAppts = () => {
                                     <MenuItem value={28}>28</MenuItem>
                                     {thirty.includes(month) || thirtyOne.includes(month) || (month == 2 && leap(year))
                                         ? <MenuItem value={29}>29</MenuItem>
-                                        : <></> 
+                                        : null
                                     }
                                     {thirty.includes(month) || thirtyOne.includes(month)
                                         ? <MenuItem value={30}>30</MenuItem>
-                                        : <></>
+                                        : null
                                     }
                                     {thirtyOne.includes(month)
                                         ? <MenuItem value={31}>31</MenuItem>
-                                        : <></>
+                                        : null
                                     }
                                 </Select>
                             </FormControl>
