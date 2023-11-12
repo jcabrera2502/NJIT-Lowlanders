@@ -401,7 +401,7 @@ function isThisCurrent(date) {
                                         <Avatar sx={{bgcolor: "#5D8EFF"}}><AddIcon sx={{color: "#FFF"}} /></Avatar>
                                     </IconButton>
                                 </Typography>                                                    
-                                <Paper sx={{width: "90vh", height: "70vh", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                <Paper sx={{width: "100%", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
                                         <Box sx={{ 
                                             ml:2,
@@ -452,7 +452,7 @@ function isThisCurrent(date) {
                                                         </Typography>
                                                     </Grid>
                                                     <Grid item>
-                                                        <Typography display={"inline"} sx={{ml:36, fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                        <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
                                                             2
                                                         </Typography>
                                                         <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
@@ -489,8 +489,8 @@ function isThisCurrent(date) {
                                                 borderRadius: "8px",}}>
                                                 <Grid container alignItems="center">
                                                     <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="checked">
-                                                        <CheckCircleOutlineIcon sx={{ color:"black"}} />
+                                                        <IconButton sx={{}} aria-label="hourGlass">
+                                                            <HourglassEmptyRoundedIcon sx={{ color:"black"}} />
                                                         </IconButton>
 
                                                         <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
@@ -559,11 +559,11 @@ function isThisCurrent(date) {
                                                     <Grid item>
                                                         <Typography display={"inline"} sx={{fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
                                                             <IconButton sx={{}} aria-label="plusTimer">
-                                                                <AddBoxOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                <AddBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                             </IconButton>
                                                             2
                                                             <IconButton sx={{}} aria-label="minusTimer">
-                                                                <IndeterminateCheckBoxOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                             </IconButton>
                                                         </Typography>
                                                         <IconButton sx={{}} aria-label="editingTimers">
@@ -642,7 +642,15 @@ function isThisCurrent(date) {
                                         </Box>
                                     </Box>
                                 </Paper>
-                            </Box>    
+                            </Box>   
+                            <Box sx={{ml:3}}>
+                                <Typography variant="h5" sx={{fontWeight: "bold",mt:4, fontSize:'30px'}}>
+                                    Apointments
+                                </Typography>                                                    
+                                <Paper sx={{width: "90vh", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+
+                                </Paper> 
+                            </Box>
                         </Box>
                     </Grid>
                 </Grid>
