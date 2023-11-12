@@ -3,7 +3,7 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import {List, ListItem} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { getCurrentMonth, getCurrentDay, getCurrentYear, 
@@ -17,7 +17,16 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import ExpandCircleDownRoundedIcon from '@mui/icons-material/ExpandCircleDownRounded';
 import ExpandCircleDownOutlinedIcon from '@mui/icons-material/ExpandCircleDownOutlined';
 import axios from "axios";
-  
+import AddIcon from '@mui/icons-material/Add';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import OpenWithRoundedIcon from '@mui/icons-material/OpenWithRounded';
+import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
+import { initializeAnalytics } from "firebase/analytics";
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
+import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 
 const TasksAppts = () => {
     const [user, setUser] = useState(null);
@@ -157,10 +166,11 @@ function isThisCurrent(date) {
                     <Box textAlign={"center"}>
                         <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
                         {isThisCurrent(selectedDate) && (
-            <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
-              Plan Day
-            </Button>
-          )}                    </Box>
+                            <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
+                            Plan Day
+                            </Button>
+                        )}        
+                    </Box>
                 </div>
                 
                 <Box sx={{mt: "32vh"}}>
@@ -176,8 +186,6 @@ function isThisCurrent(date) {
                 </Toolbar>
             </AppBar>
                         
-
-
                     <Grid item xs={10}>
                         <Box 
                             sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF"}}
@@ -384,6 +392,265 @@ function isThisCurrent(date) {
                             color="menu">
                                 <ExpandCircleDownRoundedIcon sx={{transform: "rotate(270deg)", height: 28, width: 28}}/>
                             </Button>
+                        </Box>
+                        <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                            <Box>
+                                <Typography variant="h5" sx={{fontWeight: "bold",mt:2, fontSize:'30px'}}>
+                                    Tasks
+                                    <IconButton sx={{}} aria-label="addTask">
+                                        <Avatar sx={{bgcolor: "#5D8EFF"}}><AddIcon sx={{color: "#FFF"}} /></Avatar>
+                                    </IconButton>
+                                </Typography>                                                    
+                                <Paper sx={{width: "100%", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                    <Box sx={{display: "flex", flexDirection: "column", }}>
+                                        <Box sx={{ 
+                                            ml:2,
+                                            width: "95%", 
+                                            height: "100%",  
+                                            bgcolor: "#F5F7F9",
+                                            borderRadius: "8px",}}>
+                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                                Top Priority
+                                            </Typography>
+                                            <Box sx={{ 
+                                                ml:2,
+                                                mt:1,
+                                                width: "95%", 
+                                                height: "70%",  
+                                                bgcolor: "#FFF",
+                                                borderRadius: "8px",}}>
+                                                
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <IconButton sx={{}} aria-label="checked">
+                                                        <CheckCircleOutlineIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+
+                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
+                                                            Complete Math Homework
+                                                        </Typography> 
+                                                    </Grid>
+                                                    <Grid item>
+                                                        <IconButton aria-label="drag">
+                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+
+                                                        <IconButton sx={{}} aria-label="expandTask">
+                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid>                                                                                                
+
+
+                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+
+
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                            Number of Pomodoro Timers (30 mins each)
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item>
+                                                        <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                            2
+                                                        </Typography>
+                                                        <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
+                                                            <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid> 
+
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                            Notes
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item>
+                                                        <IconButton sx={{ml: 2}} aria-label="editNote">
+                                                            <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid>
+                                                <Box sx={{ml:2, mt:1, width: "85%"}}>
+                                                    <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                                    </Typography>    
+                                                </Box>
+                                            </Box>
+                                            <Box sx={{ 
+                                                ml:2,
+                                                mt:1,
+                                                mb:1,
+                                                width: "95%", 
+                                                height: "70%",  
+                                                bgcolor: "#FFF",
+                                                borderRadius: "8px",}}>
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <IconButton sx={{}} aria-label="hourGlass">
+                                                            <HourglassEmptyRoundedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+
+                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
+                                                            Assign Leader For Task 1
+                                                        </Typography> 
+                                                    </Grid>
+                                                    <Grid item>
+                                                        <IconButton aria-label="drag">
+                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+
+                                                        <IconButton sx={{}} aria-label="expandTask">
+                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid>  
+                                            </Box>
+                                        </Box>
+                                        <Box sx={{ 
+                                            mt:1,
+                                            ml:2,
+                                            width: "95%", 
+                                            height: "100%",  
+                                            bgcolor: "#F5F7F9",
+                                            borderRadius: "8px",}}>
+                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                                Important
+                                            </Typography>
+                                            <Box sx={{ 
+                                                ml:2,
+                                                mt:1,
+                                                mb:1,
+                                                width: "95%", 
+                                                height: "70%",  
+                                                bgcolor: "#FFF",
+                                                borderRadius: "8px",}}>
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <IconButton sx={{}} aria-label="checked">
+                                                            <CheckCircleOutlineIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+
+                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
+                                                            Complete Math Homework
+                                                        </Typography> 
+                                                    </Grid>
+                                                    <Grid item>
+                                                        <IconButton aria-label="drag">
+                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+
+                                                        <IconButton sx={{}} aria-label="expandTask">
+                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid>
+
+                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                            Number of Pomodoro Timers (30 mins each)
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item>
+                                                        <Typography display={"inline"} sx={{fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                            <IconButton sx={{}} aria-label="plusTimer">
+                                                                <AddBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
+                                                            </IconButton>
+                                                            2
+                                                            <IconButton sx={{}} aria-label="minusTimer">
+                                                                <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
+                                                            </IconButton>
+                                                        </Typography>
+                                                        <IconButton sx={{}} aria-label="editingTimers">
+                                                            <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid> 
+                                            </Box>
+                                            <Box sx={{ 
+                                                ml:2,
+                                                mt:1,
+                                                mb:1,
+                                                width: "95%", 
+                                                height: "70%",  
+                                                bgcolor: "#FFF",
+                                                borderRadius: "8px",}}>
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <IconButton sx={{}} aria-label="switchLeader">
+                                                            <SyncAltIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
+                                                        Assign Leader For Task 1
+                                                        </Typography> 
+                                                    </Grid>
+
+                                                    <Grid item>
+                                                        <IconButton aria-label="drag">
+                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                        <IconButton sx={{}} aria-label="expandTask">
+                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid>
+                                            </Box>
+                                        </Box>
+                                        <Box sx={{ 
+                                            mt:1,
+                                            ml:2,
+                                            width: "95%", 
+                                            height: "100%",  
+                                            bgcolor: "#F5F7F9",
+                                            borderRadius: "8px",}}>
+                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                                Other
+                                            </Typography>
+                                            <Box sx={{ 
+                                                ml:2,
+                                                mt:1,
+                                                mb:1,
+                                                width: "95%", 
+                                                height: "70%",  
+                                                bgcolor: "#FFF",
+                                                borderRadius: "8px",}}>
+                                                <Grid container alignItems="center">
+                                                    <Grid item xs>
+                                                        <IconButton sx={{}} aria-label="hourGlass">
+                                                            <HourglassEmptyRoundedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
+                                                        Complete Math Homework
+                                                        </Typography> 
+                                                    </Grid>
+
+                                                    <Grid item>
+                                                        <IconButton aria-label="drag">
+                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                        <IconButton sx={{}} aria-label="expandTask">
+                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </Grid>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </Paper>
+                            </Box>   
+                            <Box sx={{ml:3}}>
+                                <Typography variant="h5" sx={{fontWeight: "bold",mt:4, fontSize:'30px'}}>
+                                    Apointments
+                                </Typography>                                                    
+                                <Paper sx={{width: "90vh", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+
+                                </Paper> 
+                            </Box>
                         </Box>
                     </Grid>
                 </Grid>
