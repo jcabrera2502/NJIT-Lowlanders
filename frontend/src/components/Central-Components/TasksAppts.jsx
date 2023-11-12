@@ -442,7 +442,7 @@ function isThisCurrent(date) {
                                                 </Grid>                                                                                                
 
 
-                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: '660px' }} />
+                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
 
 
                                                 <Grid container alignItems="center">
@@ -548,7 +548,7 @@ function isThisCurrent(date) {
                                                     </Grid>
                                                 </Grid>
 
-                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: '660px' }} />
+                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
 
                                                 <Grid container alignItems="center">
                                                     <Grid item xs>
