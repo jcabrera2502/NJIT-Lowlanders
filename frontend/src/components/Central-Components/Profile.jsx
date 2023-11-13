@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, 
     CssBaseline, Divider, Box, Avatar, FormControl, Grid, AppBar, Toolbar,
-    IconButton} from "@mui/material";
+    IconButton, Menu, MenuItem} from "@mui/material";
 import WebIcon from "../../Images/Logo.svg";
 import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -202,6 +202,16 @@ const Profile = () => {
         }
     };
 
+    // Handles dropdown menu from profile picture
+    const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const open2 = Boolean(anchorEl2);
+    const handleClick = (event) => {
+        setAnchorEl2(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl2(null);
+    };
+
     return (
         <CssBaseline>
             {/* Nav bar on the top and crush it on the left*/}
@@ -237,7 +247,16 @@ const Profile = () => {
                         <Toolbar>
                             <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                             <Box sx={{flexGrow: 1}}></Box>
-                            <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                            <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                            <Menu
+                                id="profile-menu"
+                                anchorEl={anchorEl2}
+                                open={open2}
+                                onClose={handleClose}
+                            >
+                                <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
+                                <MenuItem onClick={() => (window.location.href = "http://localhost:3000/TasksAppts")}>Tasks</MenuItem>
+                            </Menu>
                         </Toolbar>
                     </AppBar>
                 {/* Page information*/}
