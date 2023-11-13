@@ -38,8 +38,8 @@ function isThisCurrent(date) {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set current date to midnight
     date.setHours(0, 0, 0, 0); // Set selected date to midnight
-    console.log("Current Date:", currentDate);
-    console.log("Selected Date:", date);
+    //console.log("Current Date:", currentDate);
+    //console.log("Selected Date:", date);
     return date.getTime() === currentDate.getTime();
   }
     const fetchUserData = async (user) => {
@@ -52,8 +52,8 @@ function isThisCurrent(date) {
 
             if (response) {
                 setUserPresentInDatabase(true);
-                console.log("User already in database");
-                console.log(response.data);
+                //console.log("User already in database");
+                //console.log(response.data);
                 setData(response.data);
             }
         }
@@ -75,16 +75,16 @@ function isThisCurrent(date) {
     }, [user]);
 
     useEffect(() => {
-        console.log("Selected Date:", selectedDate);
+        //console.log("Selected Date:", selectedDate);
       }, [selectedDate]);
     const updateSelectedDate = (newMonth, newDay, newYear) => {
         setSelectedDate(new Date(newYear, newMonth - 1, newDay));
       };
       const handleMonthChange = (event) => {
-        console.log("Selected Date Before:", selectedDate);
+        //console.log("Selected Date Before:", selectedDate);
         setMonth(event.target.value);
         dateRules(event.target.value, year);
-        console.log("Selected Date After:", selectedDate);
+        //console.log("Selected Date After:", selectedDate);
     };useEffect(() => {
         updateSelectedDate(month, day, year);
     }, [month, day, year]);
@@ -120,7 +120,7 @@ function isThisCurrent(date) {
             setDay(1);
         }
         else if (day > 30 && thirty.includes(m)) {
-            console.log("three");
+            //console.log("three");
             setDay(1);
         }
     }
@@ -373,15 +373,15 @@ function isThisCurrent(date) {
                                     <MenuItem value={28}>28</MenuItem>
                                     {thirty.includes(month) || thirtyOne.includes(month) || (month == 2 && leap(year))
                                         ? <MenuItem value={29}>29</MenuItem>
-                                        : <></> 
+                                        : <Typography></Typography> 
                                     }
                                     {thirty.includes(month) || thirtyOne.includes(month)
                                         ? <MenuItem value={30}>30</MenuItem>
-                                        : <></>
+                                        : <Typography></Typography> 
                                     }
                                     {thirtyOne.includes(month)
                                         ? <MenuItem value={31}>31</MenuItem>
-                                        : <></>
+                                        : <Typography></Typography> 
                                     }
                                 </Select>
                             </FormControl>
