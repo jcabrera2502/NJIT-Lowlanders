@@ -213,6 +213,7 @@ const Profile = () => {
                         height: "100vh",
                         width: '200px',
                         padding: "10px",
+                        position: "fixed",
                     }}>
                         <div class="container-fluid">
                             <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
