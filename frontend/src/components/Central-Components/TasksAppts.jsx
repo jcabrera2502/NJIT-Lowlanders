@@ -1,16 +1,13 @@
 import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
-import {List, ListItem} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, Select, List, ListItem} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import { getCurrentMonth, getCurrentDay, getCurrentYear, 
     printDate, printThisDate, printTime, printThis12Time, 
     printThis24Time, isThisCurrent } from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
-import { display, positions, sizing  } from '@mui/system';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
@@ -184,8 +181,7 @@ function isThisCurrent(date) {
                     <Box sx={{flexGrow: 1}}></Box>
                     <Button sx={{textTransform: "none"}} onClick={() => (window.location.href = "http://localhost:3000/Profile")}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                 </Toolbar>
-            </AppBar>
-                        
+            </AppBar>                 
                     <Grid item xs={10}>
                         <Box 
                             sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF", borderRadius: 3,}}
@@ -648,7 +644,7 @@ function isThisCurrent(date) {
                                     Apointments
                                 </Typography>                                                    
                                 <Paper sx={{width: "90vh", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
-
+                                        { /*Appointment info will go here*/}
                                 </Paper> 
                             </Box>
                         </Box>
