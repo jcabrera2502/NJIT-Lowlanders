@@ -867,14 +867,6 @@ function isThisCurrent(date) {
                                     </Box>
                                 </Paper>
                             </Box>   
-                            <Box sx={{ml:3}}>
-                                <Typography variant="h5" sx={{fontWeight: "bold",mt:4, fontSize:'30px'}}>
-                                    Apointments
-                                </Typography>                                                    
-                                <Paper sx={{width: "90vh", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
-
-                                </Paper> 
-                            </Box>
                         </Box>
                     </Grid>
                 </Grid>
