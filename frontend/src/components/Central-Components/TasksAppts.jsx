@@ -193,7 +193,8 @@ function isThisCurrent(date) {
                 height: "100vh",
                 width: '200px',
                 padding: "10px",
-            }}>
+                position: "fixed",            
+                }}>
                 <div class="container-fluid">
                     <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
                     <Divider variant="middle" color="#3E3F42" sx={{ height: 2, width: '160px' }} />
@@ -551,7 +552,7 @@ function isThisCurrent(date) {
                                                                     <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                 </IconButton>
 
-                                                                <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
+                                                                <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                                                                     <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
                                                                 </IconButton>
                                                             </Grid>
