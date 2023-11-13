@@ -3,7 +3,8 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import {List, ListItem} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, 
+    Toolbar, Avatar, Paper, IconButton, Collapse, Popover, TextField } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { getCurrentMonth, getCurrentDay, getCurrentYear, 
@@ -145,6 +146,47 @@ function isThisCurrent(date) {
     const thirtyOne = [1, 3, 5, 7, 8, 10, 12];
     const thirty = [4, 6, 9, 11];
 
+    
+    
+    
+
+    //For Expanding Tasks
+    const [isExpanded, setExpanded] = useState(false);
+    const handleToggle = () => {
+        setExpanded(!isExpanded);
+    };
+
+    // Popup for adding Tasks
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [taskTitle, setTaskTitle] = useState('');
+    const [numTimers, setNumTimers] = useState(1);
+    const [taskNote, setTaskNote] = useState('');
+    
+
+    const handleOpenPopover = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClosePopover = () => {
+        setAnchorEl(null);
+        setTaskTitle(''); // Clear input when the popover is closed
+        setNumTimers(1);
+        setTaskNote('');
+
+      };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
+    //For Adding Tasks to Important
+    const [subBoxes, setSubBoxes] = useState([]);
+    const handleAddSubBox = () => {
+        const newKey = subBoxes.length + 1;
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote }]);
+        handleClosePopover();
+    };
+
+    
+
     return(
         <CssBaseline>
         <Grid container>
@@ -187,6 +229,7 @@ function isThisCurrent(date) {
             </AppBar>
                         
                     <Grid item xs={10}>
+                        {/* Date Navbar */}
                         <Box 
                             sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF"}}
                             display="flex"
@@ -393,15 +436,199 @@ function isThisCurrent(date) {
                                 <ExpandCircleDownRoundedIcon sx={{transform: "rotate(270deg)", height: 28, width: 28}}/>
                             </Button>
                         </Box>
+                        {/* End of Date Navbar */}
+
                         <Box sx={{display: 'flex', flexDirection: 'row'}}>
                             <Box>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:2, fontSize:'30px'}}>
                                     Tasks
-                                    <IconButton sx={{}} aria-label="addTask">
+                                    <IconButton sx={{}} aria-label="addTask" onClick={handleOpenPopover}>
                                         <Avatar sx={{bgcolor: "#5D8EFF"}}><AddIcon sx={{color: "#FFF"}} /></Avatar>
                                     </IconButton>
+                                    <Popover
+                                      id={id}
+                                      open={open}
+                                      anchorEl={anchorEl}
+                                      onClose={handleClosePopover}
+                                      anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'left',
+                                      }}
+                                      transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'left',
+                                      }}
+                                    >
+                                      <Box p={2}>
+                                        <Typography sx={{mb:0.5}}>Task Title*</Typography>
+                                        <TextField
+                                            sx={{mb:2}}
+                                            label="Title"
+                                            required
+                                            variant="outlined"
+                                            fullWidth
+                                            value={taskTitle}
+                                            onChange={(e) => setTaskTitle(e.target.value)}
+                                        />
+                                        <Typography sx={{mb:0.5}}>Number of Pomodoro Timers</Typography>
+                                        <TextField
+                                            sx={{mb:2}}
+                                            type='number'
+                                            InputProps={{
+                                                inputProps: { min: 1 }
+                                            }}
+                                            label="Pomodoro Timers"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={numTimers}
+                                            onChange={(e) => setNumTimers(e.target.value)}
+                                        />
+                                        <Typography sx={{mb:0.5}}>Note (Optional)</Typography>
+                                        <TextField
+                                            sx={{mb:2}}
+                                            label="Note"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={taskNote}
+                                            onChange={(e) => setTaskNote(e.target.value)}
+                                        />
+                                        
+
+                                        <Button color="primary" onClick={handleAddSubBox}>
+                                          Add Box
+                                        </Button>
+                                      </Box>
+                                    </Popover>
                                 </Typography>                                                    
-                                <Paper sx={{width: "100%", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                    <Box sx={{display: "flex", flexDirection: "column", }}>
+                                        <Box sx={{ 
+                                            ml:2,
+                                            width: "95%", 
+                                            height: "100%",  
+                                            bgcolor: "#F5F7F9",
+                                            borderRadius: "8px",}}>
+                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                                Top Priority
+                                            </Typography>
+                                            <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                There are Currently no Tasks in here
+                                            </Typography>
+                                        </Box>
+                                        <Box sx={{ 
+                                            mt:1,
+                                            ml:2,
+                                            width: "95%", 
+                                            height: "100%",  
+                                            bgcolor: "#F5F7F9",
+                                            borderRadius: "8px",}}>
+                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                                Important
+                                            </Typography>
+                                            {subBoxes.length === 0 ? (
+                                            // Display a message when there are no sub-boxes
+                                                <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                    There are Currently no Tasks in here
+                                                </Typography>
+                                            ) : (
+                                                // Display sub-boxes when there are some
+                                                subBoxes.map((subBox) => (
+                                                    <Box key={subBox.key} sx={{ 
+                                                        ml:2,
+                                                        mt:1,
+                                                        mb:1,
+                                                        width: "95%", 
+                                                        height: "70%",  
+                                                        bgcolor: "#FFF",
+                                                        borderRadius: "8px",}}>
+                                                        <Grid container alignItems="center">
+                                                            <Grid item xs>
+                                                                <IconButton sx={{}} aria-label="checked">
+                                                                <CheckCircleOutlineIcon sx={{ color:"black"}} />
+                                                                </IconButton>
+
+                                                                <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
+                                                                    {subBox.title}
+                                                                </Typography> 
+                                                            </Grid>
+                                                            <Grid item>
+                                                                <IconButton aria-label="drag">
+                                                                    <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                </IconButton>
+
+                                                                <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
+                                                                    <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
+                                                                </IconButton>
+                                                            </Grid>
+                                                        </Grid>                                                                                                
+
+                                                        <Collapse in={isExpanded}>
+                                                            <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+
+
+                                                            <Grid container alignItems="center">
+                                                                <Grid item xs>
+                                                                    <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                        Number of Pomodoro Timers (30 mins each)
+                                                                    </Typography>
+                                                                </Grid>
+                                                                <Grid item>
+                                                                    <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                        {subBox.pomTimers}
+                                                                    </Typography>
+                                                                    <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
+                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                    </IconButton>
+                                                                </Grid>
+                                                            </Grid> 
+
+
+                                                            <Grid container alignItems="center">
+                                                                <Grid item xs>
+                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                        Notes
+                                                                    </Typography>
+                                                                </Grid>
+                                                                <Grid item>
+                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
+                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                    </IconButton>
+                                                                </Grid>
+                                                            </Grid>
+                                                            <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
+                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                    {subBox.note}
+                                                                </Typography>    
+                                                            </Box>
+                                                        </Collapse>
+                                                    </Box>
+                                                ))
+                                            )}
+                                        </Box>
+                                        <Box sx={{ 
+                                            mt:1,
+                                            ml:2,
+                                            width: "95%", 
+                                            height: "100%",  
+                                            bgcolor: "#F5F7F9",
+                                            borderRadius: "8px",}}>
+                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                                Other
+                                            </Typography>
+                                            <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                There are Currently no Tasks in here
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Paper>
+                            </Box>   
+                            
+                            {/* Appointments */}
+                            <Box sx={{ml:3}}>
+                                <Typography variant="h5" sx={{fontWeight: "bold",mt:3,mb:1, fontSize:'30px'}}>
+                                    Appointments
+                                </Typography>                                                    
+                                <Paper sx={{width: "100%", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
                                         <Box sx={{ 
                                             ml:2,
@@ -435,49 +662,51 @@ function isThisCurrent(date) {
                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                         </IconButton>
 
-                                                        <IconButton sx={{}} aria-label="expandTask">
+                                                        <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
                                                             <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
                                                         </IconButton>
                                                     </Grid>
                                                 </Grid>                                                                                                
 
+                                                <Collapse in={isExpanded}>
+                                                    <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
 
-                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
 
+                                                    <Grid container alignItems="center">
+                                                        <Grid item xs>
+                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                Number of Pomodoro Timers (30 mins each)
+                                                            </Typography>
+                                                        </Grid>
+                                                        <Grid item>
+                                                            <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                2
+                                                            </Typography>
+                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
+                                                                <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                            </IconButton>
+                                                        </Grid>
+                                                    </Grid> 
+                                                
 
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                            Number of Pomodoro Timers (30 mins each)
-                                                        </Typography>
+                                                    <Grid container alignItems="center">
+                                                        <Grid item xs>
+                                                            <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                Notes
+                                                            </Typography>
+                                                        </Grid>
+                                                        <Grid item>
+                                                            <IconButton sx={{ml: 2}} aria-label="editNote">
+                                                                <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                            </IconButton>
+                                                        </Grid>
                                                     </Grid>
-                                                    <Grid item>
-                                                        <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                            2
-                                                        </Typography>
-                                                        <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
-                                                            <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid> 
-
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
-                                                            Notes
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                            <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-                                                <Box sx={{ml:2, mt:1, width: "85%"}}>
-                                                    <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
-                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                                    </Typography>    
-                                                </Box>
+                                                    <Box sx={{ml:2, mt:1, width: "85%"}}>
+                                                        <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                                        </Typography>    
+                                                    </Box>
+                                                </Collapse>
                                             </Box>
                                             <Box sx={{ 
                                                 ml:2,
@@ -641,14 +870,6 @@ function isThisCurrent(date) {
                                             </Box>
                                         </Box>
                                     </Box>
-                                </Paper>
-                            </Box>   
-                            <Box sx={{ml:3}}>
-                                <Typography variant="h5" sx={{fontWeight: "bold",mt:4, fontSize:'30px'}}>
-                                    Apointments
-                                </Typography>                                                    
-                                <Paper sx={{width: "90vh", height: "90%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
-
                                 </Paper> 
                             </Box>
                         </Box>
