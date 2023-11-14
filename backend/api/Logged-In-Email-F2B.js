@@ -75,5 +75,19 @@ router.get('/api/getTasks', async (req, res) =>
     const result = await collection.find({email: req.query.email, day: day, month: month, year: year}).toArray();
     res.send(result);
 });
+
+router.put('/api/updateTask', async (req, res) =>
+{
+    const collection = mongoose.connection.db.collection("user-tasks");
+    console.log("Req" , req.body.params)
+    const result = await collection.updateOne({email: req.body.params.email, 
+                                              taskTitle: req.body.params.title, 
+                                              day: req.body.params.day, 
+                                              month: req.body.params.month,
+                                              year: req.body.params.year},
+                                              {$set: {note: req.body.params.note,
+                                                      pomodoroCount: req.body.params.pomodoroCount}})
+    res.send(result);
+});
   
 export default router;

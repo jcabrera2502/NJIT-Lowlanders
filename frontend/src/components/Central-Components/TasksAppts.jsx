@@ -2,10 +2,13 @@ import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
-import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
+import { getCurrentMonth, getCurrentDay, getCurrentYear, 
+    printDate, printThisDate, printTime, printThis12Time, 
+    printThis24Time, isThisCurrent } from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
+import LogoutIcon from '@mui/icons-material/Logout';
 import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import ExpandCircleDownRoundedIcon from '@mui/icons-material/ExpandCircleDownRounded';
@@ -15,12 +18,13 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import OpenWithRoundedIcon from '@mui/icons-material/OpenWithRounded';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
+import { initializeAnalytics } from "firebase/analytics";
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
-
+import { get, set } from "mongoose";
 
 const TasksAppts = () => {
     const [user, setUser] = useState(null);
@@ -85,34 +89,25 @@ function isThisCurrent(date) {
         //console.log("Selected Date Before:", selectedDate);
         setMonth(event.target.value);
         dateRules(event.target.value, year);
-        getUserTasks(user); // Add this line to fetch tasks when the day changes
-
         //console.log("Selected Date After:", selectedDate);
     };useEffect(() => {
         updateSelectedDate(month, day, year);
-        
     }, [month, day, year]);
-    //ADDITIONAL ADD
-    useEffect(() => {
-        getUserTasks(user);
-    }, [day, month, year, user]);
+    
     const handleDayChange = (event) => {
         setDay(event.target.value);
         updateSelectedDate(month, event.target.value, year);
-        getUserTasks(user); // Add this line to fetch tasks when the day changes
 
     }
     const handleYearChange = (event) => {
         setYear(event.target.value);
         dateRules(month, event.target.value);
         updateSelectedDate(month, day, event.target.value);
-        getUserTasks(user); // Add this line to fetch tasks when the day changes
 
     }
-
      
     function leap(y) {
-        if (y % 4 === 0) {
+        if (y % 4 == 0) {
             return true;
         }
         else {
@@ -121,11 +116,11 @@ function isThisCurrent(date) {
     }
     function dateRules(m, y) {
         //console.log(m + "/" + day + "/" + y);
-        if (day > 29 && leap(y) && m === 2) {
+        if (day > 29 && leap(y) && m == 2) {
             //console.log("one");
             setDay(1);
         }
-        else if (day > 28 && m === 2 && !leap(y)) {
+        else if (day > 28 && m == 2 && !leap(y)) {
             //console.log("two");
             setDay(1);
         }
@@ -141,7 +136,7 @@ function isThisCurrent(date) {
         else if (thirty.includes(m)) {
             return 30;
         }
-        else if (m === 2 && leap(y)) {
+        else if (m == 2 && leap(y)) {
             return 29;
         }
         else {
@@ -153,12 +148,20 @@ function isThisCurrent(date) {
     const thirty = [4, 6, 9, 11];
 
     
+    
+    
+
+    //For Expanding Tasks
+    const [isExpanded, setExpanded] = useState(false);
+    const handleToggle = () => {
+        setExpanded(!isExpanded);
+    };
+
     // Popup for adding Tasks
     const [anchorEl, setAnchorEl] = useState(null);
     const [taskTitle, setTaskTitle] = useState('');
     const [numTimers, setNumTimers] = useState(1);
     const [taskNote, setTaskNote] = useState('');
-    const [isExpanded, setExpanded] = useState(false);
     
 
     const handleOpenPopover = (event) => {
@@ -181,28 +184,12 @@ function isThisCurrent(date) {
         const newKey = subBoxes.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote}]);
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote }]);
         insertUserTask(user);
         handleClosePopover();
     };
 
-    //progress icons 
 
-    const icons = [
-        <CheckCircleOutlineIcon sx={{ color: '#9FA3A8' }} />,
-        <SyncAltIcon sx={{ color: '#9FA3A8' }} />,
-        <HourglassEmptyRoundedIcon x={{ color: '#9FA3A8' }} />,
-      ];
-
-    //Changes progress icons
-
-    const [currentIcon, setCurrentIcon] = useState(0);
-
-    const iconClick = () => {
-        setCurrentIcon((currentIcon + 1) % icons.length);
-        
-    }
-    
     // Handles dropdown menu from profile picture
     const [anchorEl2, setAnchorEl2] = React.useState(null);
     const open2 = Boolean(anchorEl2);
@@ -211,20 +198,6 @@ function isThisCurrent(date) {
     };
     const handleClose = () => {
         setAnchorEl2(null);
-    };
-
-    // Edit Number of Timers
-    const [editNumTask, setEditNumTask] = useState(false);
-
-    const handleEditTaskToggle = () => {
-        setEditNumTask(!editNumTask);
-    };
-
-    // Edit Note
-    const [editNote, setEditNote] = useState(false);
-
-    const handleEditNoteToggle = () => {
-        setEditNote(!editNote);
     };
 
 
@@ -252,34 +225,9 @@ function isThisCurrent(date) {
             setInsertTaskData(response.data);
         }
     };
-    const getUserTasks = async (user) => {
-        try {
-            const response = await axios.get("/api/getTasks", {
-                params: {
-                    email: user.email,
-                    day: day,
-                    month: month,
-                    year: year,
-                }
-            });
-    
-            if (response && response.data && Array.isArray(response.data)) {
-                const filteredTasks = response.data.filter(task => {
-                    const taskDate = new Date(task.year, task.month - 1, task.day);
-                    return isSameDay(taskDate, new Date(year, month - 1, day));
-                });
-    
-                setGetUserTaskData(filteredTasks);
-                insertIntoSubBoxes(filteredTasks);
-            } else {
-                console.error("Invalid or missing data in the API response");
-            }
-        } catch (error) {
-            console.error("Error fetching user tasks:", error);
-        }
-    }
 
-/* ROGINAL
+
+
     const getUserTasks = async (user) => 
     {
         const response = await axios.get("/api/getTasks", {
@@ -295,109 +243,38 @@ function isThisCurrent(date) {
             console.log(response.data);
             setGetUserTaskData(response.data);
             //loop through response.data and add to subBoxes
-            console.log("Here is the response.data.length" , response.data.length);
-            //add all the tasks to subBoxes
-            insertIntoSubBoxes(response);
-        }
-    }
-*/
-
-
-/* VERSION 2
-const getUserTasks = async (user) => {
-    try {
-        const response = await axios.get("/api/getTasks", {
-            params: {
-                email: user.email,
-                day: day,
-                month: month,
-                year: year,
+            for (var i = 0; i < response.data.length; i++) {
+                const newKey = subBoxes.length + 1;
+                setSubBoxes([...subBoxes, { key: newKey, title: response.data[i].title, pomTimers: response.data[i].pomodoroCount, note: response.data[i].note }]);
             }
-        });
-
-        if (response && response.data && Array.isArray(response.data)) {
-            const filteredTasks = response.data.filter(task => {
-                const taskDate = new Date(task.year, task.month - 1, task.day);
-                return isSameDay(taskDate, selectedDate);
-            });
-
-            setGetUserTaskData(filteredTasks);
-            insertIntoSubBoxes(filteredTasks);
-        } else {
-            console.error("Invalid or missing data in the API response");
         }
-    } catch (error) {
-        console.error("Error fetching user tasks:", error);
     }
-} */
-// Function to check if two dates are on the same day
-const isSameDay = (date1, date2) => {
-    return (
-        date1.getDate() === date2.getDate() &&
-        date1.getMonth() === date2.getMonth() &&
-        date1.getFullYear() === date2.getFullYear()
-    );
-};
 
-const insertIntoSubBoxes = (response) => {
-    const newSubBoxes = response.map((task, index) => ({
-        key: index + 1,
-        title: task.taskTitle,
-        pomTimers: task.pomodoroCount,
-        note: task.note,
-    }));
-
-    setSubBoxes(newSubBoxes);
-};
-
-const updateUserTasks = async (user, subBox) =>
-{
-    const response = await axios.put("/api/updateTask", {
-        params: {
-            email: user.email,
-            title: subBox.title,
-            day: day,
-            month: month,
-            year: year,
-            note: subBox.note,
-            pomodoroCount: subBox.pomTimers,
-        }
-    });
-    if (response) {
-        console.log(response.data);
-    }
-}
-/*  const insertIntoSubBoxes = (response) =>
+    useEffect(() => 
     {
-        //add to the array
-        var newKey = 1;
-        console.log("Here is the newKey", newKey);
-        //make a empty list
-        var tempList = [];
-
-        for (var j = 0; j < response.data.length; j++)
-        {
-            const temp = { key: newKey, title: response.data[j].taskTitle, pomTimers: response.data[j].pomodoroCount, note: response.data[j].note };
-            tempList.push(temp);
-            newKey++;
-        }
-
-        //check if length is 0
-        if (tempList.length === 1)
-            setSubBoxes([...subBoxes, tempList[0]]);
-        else if (tempList.length === 2)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1]]);
-        else if (tempList.length === 3)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2]]);
-        else if (tempList.length === 4)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3]]);
-        else if (tempList.length === 5)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]]);
-        else if (tempList.length === 6)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5]]);
+        //store the day, month, and year into localStorage so after a window refresh, the date will be the same
+        localStorage.setItem("day", day);
+        localStorage.setItem("month", month);
+        localStorage.setItem("year", year);
     }
-*/
-   
+    , [day, month, year]);
+
+    useEffect(() =>
+    {
+        if (localStorage.getItem("day") && localStorage.getItem("month") && localStorage.getItem("year"))
+        {
+        setDay(localStorage.getItem("day"));
+        setMonth(localStorage.getItem("month"));
+        setYear(localStorage.getItem("year"));
+        }
+    }
+    , []);
+
+    const resetSubBoxes = (user) => 
+    {
+        window.location.reload();
+        getUserTasks(user);
+    }
     return(
         <CssBaseline>
         <Grid container>
@@ -444,7 +321,7 @@ const updateUserTasks = async (user, subBox) =>
                         onClose={handleClose}
                     >
                         <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/TasksAppts")}>Tasks</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>                 
@@ -515,7 +392,7 @@ const updateUserTasks = async (user, subBox) =>
                             </Button>
                             <Button variant="outlined" onClick={() => {
                                 if (day === 1) {
-                                    if (month === 1) {
+                                    if (month == 1) {
                                         setMonth(12);
                                         setDay(31);
                                         setYear(year - 1);
@@ -578,7 +455,7 @@ const updateUserTasks = async (user, subBox) =>
                                     <MenuItem value={26}>26</MenuItem>
                                     <MenuItem value={27}>27</MenuItem>
                                     <MenuItem value={28}>28</MenuItem>
-                                    {thirty.includes(month) || thirtyOne.includes(month) || (month === 2 && leap(year))
+                                    {thirty.includes(month) || thirtyOne.includes(month) || (month == 2 && leap(year))
                                         ? <MenuItem value={29}>29</MenuItem>
                                         : <Typography></Typography> 
                                     }
@@ -593,8 +470,8 @@ const updateUserTasks = async (user, subBox) =>
                                 </Select>
                             </FormControl>
                             <Button variant="outlined" onClick={() => {
-                                if (day === getMaxDay(month, year)) {
-                                    if (month === 12) {
+                                if (day == getMaxDay(month, year)) {
+                                    if (month == 12) {
                                         setMonth(1);
                                         setDay(1);
                                         setYear(year + 1);
@@ -608,6 +485,7 @@ const updateUserTasks = async (user, subBox) =>
                                 }
                                 else {
                                     setDay(day + 1);
+                                    resetSubBoxes(user);
                                 }
                                 //dateRules(month, year);
                             }}
@@ -703,7 +581,7 @@ const updateUserTasks = async (user, subBox) =>
                                             value={numTimers}
                                             onChange={(e) => setNumTimers(e.target.value)}
                                         />
-                                        <Typography sx={{mb:0.5}}>Notes (Optional)</Typography>
+                                        <Typography sx={{mb:0.5}}>Note (Optional)</Typography>
                                         <TextField
                                             sx={{mb:2}}
                                             label="Note"
@@ -711,7 +589,6 @@ const updateUserTasks = async (user, subBox) =>
                                             fullWidth
                                             value={taskNote}
                                             onChange={(e) => setTaskNote(e.target.value)}
-                                            multiline
                                         />
                                         
 
@@ -723,8 +600,6 @@ const updateUserTasks = async (user, subBox) =>
                                 </Typography>                                                    
                                 <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
-
-                                        {/* Top Priority Task Box*/}
                                         <Box sx={{ 
                                             ml:2,
                                             width: "95%", 
@@ -734,26 +609,9 @@ const updateUserTasks = async (user, subBox) =>
                                             <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
                                                 Top Priority
                                             </Typography>
-                                            <Box
-                                            display="flex"
-                                            justifyContent="center"
-                                            alignItems="center"
-                                            flexDirection="column"
-                                            >
-                                                {true ? ( //TODO Needs to be replaced with a new array for Top Priority
-                                                // Display a message when there are no sub-boxes
-                                                    <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
-                                                        There are Currently no Tasks in here
-                                                    </Typography>
-                                                ) : (
-
-                                                    // Display sub-boxes when there are some
-                                                    <Typography>Placeholder</Typography>
-                                                    // Task module starts here
-                                                    
-                                                    // Task module Ends here
-                                                )}
-                                            </Box>
+                                            <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                There are Currently no Tasks in here
+                                            </Typography>
                                         </Box>
                                         <Box sx={{ 
                                             mt:1,
@@ -761,172 +619,90 @@ const updateUserTasks = async (user, subBox) =>
                                             width: "95%", 
                                             height: "100%",  
                                             bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",
-                                            }}
-                                        >
-                                            <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
+                                            borderRadius: "8px",}}>
+                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
                                                 Important
                                             </Typography>
+                                            {subBoxes.length === 0 ? (
+                                            // Display a message when there are no sub-boxes
+                                                <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                    There are Currently no Tasks in here
+                                                </Typography>
+                                            ) : (
+                                                // Display sub-boxes when there are some
+                                                subBoxes.map((subBox) => (
+                                                    <Box key={subBox.key} sx={{ 
+                                                        ml:2,
+                                                        mt:1,
+                                                        mb:1,
+                                                        width: "95%", 
+                                                        height: "70%",  
+                                                        bgcolor: "#FFF",
+                                                        borderRadius: "8px",}}>
+                                                        <Grid container alignItems="center">
+                                                            <Grid item xs>
+                                                                <IconButton sx={{}} aria-label="checked">
+                                                                <CheckCircleOutlineIcon sx={{ color:"black"}} />
+                                                                </IconButton>
 
-                                            { /* Important Task Box*/}
-                                            <Box
-                                            display="flex"
-                                            justifyContent="center"
-                                            alignItems="center"
-                                            flexDirection="column"
-                                            >
-                                                {subBoxes.length === 0 ? (
-                                                // Display a message when there are no sub-boxes
-                                                    <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
-                                                        There are Currently no Tasks in here
-                                                    </Typography>
-                                                ) : (
-                                                    // Display sub-boxes when there are some
+                                                                <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
+                                                                    {subBox.title}
+                                                                </Typography> 
+                                                            </Grid>
+                                                            <Grid item>
+                                                                <IconButton aria-label="drag">
+                                                                    <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                </IconButton>
 
-                                                    // Task module starts here
-                                                    subBoxes.map((subBox) => (
-                                                        <Box sx={{width: "100%", mb: 1}}
-                                                            display="flex"
-                                                            justifyContent="center"
-                                                            alignItems="center"
-                                                            flexDirection="column"
-                                                        >
-                                                        <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                                <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                                                                    <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
+                                                                </IconButton>
+                                                            </Grid>
+                                                        </Grid>                                                                                                
 
-                                                            <AccordionSummary 
-                                                            expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
-                                                            sx={{ 
-                                                                width: "100%", 
-                                                                height: "3vh",  
-                                                                borderRadius: "8px",
-                                                                paddingLeft: 0,
-                                                            }}
-                                                            elevation={0}
-                                                            >
-                                                                <Toolbar disableGutters sx={{width: "100%"}}>
-                                                                    <IconButton onClick={iconClick} sx={{}} aria-label="checked">
-                                                                        {icons[currentIcon]}
-                                                                    </IconButton>
-                                                                    <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                                                                        {subBox.title}
+                                                        <Collapse in={isExpanded}>
+                                                            <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+
+
+                                                            <Grid container alignItems="center">
+                                                                <Grid item xs>
+                                                                    <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                        Number of Pomodoro Timers (30 mins each)
                                                                     </Typography>
-                                                                    <IconButton aria-label="drag">
-                                                                        <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                                    </IconButton>                                                                                              
-                                                           </Toolbar>
-                                                
-                                                            </AccordionSummary>
-                                                            <AccordionDetails>
-                                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+                                                                </Grid>
+                                                                <Grid item>
+                                                                    <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                        {subBox.pomTimers}
+                                                                    </Typography>
+                                                                    <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
+                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                    </IconButton>
+                                                                </Grid>
+                                                            </Grid> 
 
 
-                                                                <Grid container alignItems="center">
-                                                                    <Grid item xs>
-                                                                        <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                            Number of Pomodoro Timers (30 mins each)
-                                                                        </Typography>
-                                                                    </Grid>
-                                                                    <Grid item>
-                                                                    {editNumTask ? (
-                                                                        <>
-                                                                            <IconButton aria-label="plusTimer" onClick={() => {
-                                                                                subBox.pomTimers=subBox.pomTimers + 1;
-                                                                                setNumTimers(subBox.pomTimers);
-                                                                                updateUserTasks(user, subBox);
-                                                                            }}>
-                                                                                <AddBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
-                                                                            </IconButton>
-
-                                                                                <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                                                    {subBox.pomTimers}
-                                                                                </Typography>
-
-                                                                                <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                setNumTimers(subBox.pomTimers);
-                                                                                updateUserTasks(user, subBox);
-                                                                            }}>
-                                                                                <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
-                                                                            </IconButton>
-
-                                                                            <IconButton aria-label="editingTimers" onClick={handleEditTaskToggle}>
-                                                                                <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
-                                                                            </IconButton>
-                                                                          </>
-                                                                        ) : (
-                                                                          <>
-                                                                            <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                                                {subBox.pomTimers}
-                                                                            </Typography>
-                                                                        
-                                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={handleEditTaskToggle}>
-                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                </IconButton>
-                                                                          </>
-                                                                    )}
-                                                                    </Grid>
-                                                                </Grid> 
-                                                            {editNote ? (
-                                                                <>
-                                                                    <Grid container alignItems="center">
-                                                                        <Grid item xs>
-                                                                            <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
-                                                                                Notes (Editing)
-                                                                            </Typography>
-                                                                        </Grid>
-                                                                        <Grid item>
-                                                                            <IconButton aria-label="editingTimers" onClick={handleEditNoteToggle}>
-                                                                                <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
-                                                                            </IconButton>
-                                                                        </Grid>
-                                                                    </Grid>
-                                                                    <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                            
-                                                                            <TextField
-                                                                                label="Note"
-                                                                                variant="outlined"
-                                                                                fullWidth
-                                                                                defaultValue={subBox.note}
-                                                                                onChange={(e) => {
-                                                                                    subBox.note= e.target.value;
-                                                                                    setTaskNote(subBox.note)
-                                                                                    updateUserTasks(user, subBox);
-                                                                                }}
-                                                                                multiline
-                                                                            />
-                                                                    </Box>
-                                                                  </>
-                                                                ) : (
-                                                              <>
-                                                                        <Grid container alignItems="center">
-                                                                            <Grid item xs>
-                                                                                <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
-                                                                                    Notes
-                                                                                </Typography>
-                                                                            </Grid>
-                                                                            <Grid item>
-                                                                                <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={handleEditNoteToggle} />
-                                                                                </IconButton>
-                                                                            </Grid>
-                                                                        </Grid>
-                                                                        <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                            <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
-                                                                                {subBox.note}
-                                                                            </Typography>    
-                                                                        </Box> 
-                                                              </>
-                                                            )}
-                                                            </AccordionDetails>
-                                                        </Accordion>
+                                                            <Grid container alignItems="center">
+                                                                <Grid item xs>
+                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                        Notes
+                                                                    </Typography>
+                                                                </Grid>
+                                                                <Grid item>
+                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
+                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                    </IconButton>
+                                                                </Grid>
+                                                            </Grid>
+                                                            <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
+                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                    {subBox.note}
+                                                                </Typography>    
+                                                            </Box>
+                                                        </Collapse>
                                                     </Box>
-                                                    ))
-                                                    // Task module Ends here
-                                                )}
-                                            </Box>
+                                                ))
+                                            )}
                                         </Box>
-
-                                        {/* Other Task Box */}
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
@@ -937,26 +713,9 @@ const updateUserTasks = async (user, subBox) =>
                                             <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
                                             </Typography>
-                                            <Box
-                                            display="flex"
-                                            justifyContent="center"
-                                            alignItems="center"
-                                            flexDirection="column"
-                                            >
-                                                {true ? ( //TODO Needs to be replaced with a new array for Other
-                                                // Display a message when there are no sub-boxes
-                                                    <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
-                                                        There are Currently no Tasks in here
-                                                    </Typography>
-                                                ) : (
-
-                                                    // Display sub-boxes when there are some
-                                                    <Typography>Placeholder</Typography>
-                                                    // Task module starts here
-                                                    
-                                                    // Task module Ends here
-                                                )}
-                                            </Box>
+                                            <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                There are Currently no Tasks in here
+                                            </Typography>
                                         </Box>
                                     </Box>
                                 </Paper>
@@ -1001,7 +760,7 @@ const updateUserTasks = async (user, subBox) =>
                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                         </IconButton>
 
-                                                        <IconButton sx={{}}  aria-label="expandTask" style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
+                                                        <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
                                                             <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
                                                         </IconButton>
                                                     </Grid>
