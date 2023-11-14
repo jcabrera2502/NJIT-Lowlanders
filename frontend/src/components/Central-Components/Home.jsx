@@ -160,7 +160,8 @@ function isThisCurrent(date) {
     const [numTimers, setNumTimers] = useState(1);
     const [taskNote, setTaskNote] = useState('');
     const [isExpanded, setExpanded] = useState(false);
-    
+    const [editNumTimer, setEditNumTimer] = useState(false);
+    const [editNote, setEditNote] = useState(false);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -170,7 +171,6 @@ function isThisCurrent(date) {
         setTaskTitle(''); // Clear input when the popover is closed
         setNumTimers(1);
         setTaskNote('');
-
       };
 
     const open = Boolean(anchorEl);
@@ -182,7 +182,7 @@ function isThisCurrent(date) {
         const newKey = subBoxes.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote}]);
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote, editNumTimer: editNumTimer, editNote: editNote }]);
         insertUserTask(user);
         handleClosePopover();
     };
@@ -216,14 +216,14 @@ function isThisCurrent(date) {
     };
 
     // Edit Number of Timers
-    const [editNumTask, setEditNumTask] = useState(false);
+    // const [editNumTimer, setEditNumTimer] = useState(false);
 
     const handleEditTaskToggle = () => {
-        setEditNumTask(!editNumTask);
+        setEditNumTimer(!editNumTimer);
     };
 
     // Edit Note
-    const [editNote, setEditNote] = useState(false);
+    // const [editNote, setEditNote] = useState(false);
 
     const handleEditNoteToggle = () => {
         setEditNote(!editNote);
@@ -748,7 +748,7 @@ const updateUserTasks = async (user, subBox) =>
                                                                         </Typography>
                                                                     </Grid>
                                                                     <Grid item>
-                                                                    {editNumTask ? (
+                                                                    {subBox.editNumTimer ? (
                                                                         <>
                                                                             <IconButton aria-label="plusTimer" onClick={() => {
                                                                                 subBox.pomTimers=subBox.pomTimers + 1;
@@ -770,7 +770,10 @@ const updateUserTasks = async (user, subBox) =>
                                                                                 <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                             </IconButton>
 
-                                                                            <IconButton aria-label="editingTimers" onClick={handleEditTaskToggle}>
+                                                                            <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
                                                                                 <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                             </IconButton>
                                                                           </>
@@ -780,14 +783,17 @@ const updateUserTasks = async (user, subBox) =>
                                                                                 {subBox.pomTimers}
                                                                             </Typography>
                                                                         
-                                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={handleEditTaskToggle}>
+                                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
                                                                                     <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                           </>
                                                                     )}
                                                                     </Grid>
                                                                 </Grid> 
-                                                            {editNote ? (
+                                                            {subBox.editNote ? (
                                                                 <>
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
@@ -796,7 +802,10 @@ const updateUserTasks = async (user, subBox) =>
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
-                                                                            <IconButton aria-label="editingTimers" onClick={handleEditNoteToggle}>
+                                                                            <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNote=!(subBox.editNote);
+                                                                                setEditNote(subBox.editNote);
+                                                                            }}>
                                                                                 <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                             </IconButton>
                                                                         </Grid>
@@ -827,7 +836,10 @@ const updateUserTasks = async (user, subBox) =>
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={handleEditNoteToggle} />
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                        subBox.editNote=!(subBox.editNote);
+                                                                                        setEditNote(subBox.editNote);
+                                                                                    }} />
                                                                                 </IconButton>
                                                                             </Grid>
                                                                         </Grid>
