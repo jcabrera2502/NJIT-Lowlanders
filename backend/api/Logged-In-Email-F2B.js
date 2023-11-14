@@ -45,5 +45,35 @@ router.put('/api/updateProfile', async (req, res) =>
     res.send(result);
    
 });
+
+router.post('/api/insertTask', async (req, res) =>
+{
+    const collection = mongoose.connection.db.collection("user-tasks");
+    console.log("Req" , req.body.params)
+
+    const result = await collection.insertOne({email: req.body.params.email,
+                                               taskTitle: req.body.params.title,
+                                               type: req.body.params.type, 
+                                               completed: req.body.params.completed, 
+                                               pomodoroCount: req.body.params.pomodoroCount, 
+                                               note: req.body.params.note, 
+                                               date: req.body.params.date,
+                                               status: req.body.params.status,
+                                               day:req.body.params.day,
+                                               month:req.body.params.month,
+                                               year:req.body.params.year})
+    res.send(result);
+   
+});
+
+router.get('/api/getTasks', async (req, res) =>
+{
+    const collection = mongoose.connection.db.collection("user-tasks");
+    const day = parseInt(req.query.day);
+    const month = parseInt(req.query.month);
+    const year = parseInt(req.query.year);
+    const result = await collection.find({email: req.query.email, day: day, month: month, year: year}).toArray();
+    res.send(result);
+});
   
 export default router;

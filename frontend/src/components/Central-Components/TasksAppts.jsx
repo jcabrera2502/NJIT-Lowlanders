@@ -24,11 +24,14 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
+import { get, set } from "mongoose";
 
 const TasksAppts = () => {
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
+    const [insertTaskData, setInsertTaskData] = useState(null);
+    const [getUserTaskData, setGetUserTaskData] = useState(null);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
@@ -43,6 +46,7 @@ function isThisCurrent(date) {
     return date.getTime() === currentDate.getTime();
   }
     const fetchUserData = async (user) => {
+        console.log(subBoxes)
         if (!userPresentInDatabase) {
             const response = await axios.get("/api/email", {
                 params: {
@@ -62,6 +66,8 @@ function isThisCurrent(date) {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUser(user);
+                getUserTasks(user);
+
             } else {
                 setUser(null);
             }
@@ -70,7 +76,6 @@ function isThisCurrent(date) {
     useEffect(() => {
         if (user) {
             fetchUserData(user);
-
         }
     }, [user]);
 
@@ -177,9 +182,13 @@ function isThisCurrent(date) {
     const [subBoxes, setSubBoxes] = useState([]);
     const handleAddSubBox = () => {
         const newKey = subBoxes.length + 1;
+        //loop through all the subBoxes and add the new subBox to the end
+        
         setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote }]);
+        insertUserTask(user);
         handleClosePopover();
     };
+
 
     // Handles dropdown menu from profile picture
     const [anchorEl2, setAnchorEl2] = React.useState(null);
@@ -190,6 +199,56 @@ function isThisCurrent(date) {
     const handleClose = () => {
         setAnchorEl2(null);
     };
+
+
+    const insertUserTask = async (user) => {
+        console.log(user);
+
+            const response = await axios.post("/api/insertTask", {
+            params: 
+            {
+                email: user.email,
+                title: taskTitle,
+                type: "important",
+                completed: false,
+                taskNote: taskNote,
+                pomodoroCount: numTimers,
+                note: taskNote,
+                day: day,
+                month: month,
+                year: year,
+            } 
+        });
+        //Only sets the data if there is a result
+        if(response){ 
+            console.log(response)
+            setInsertTaskData(response.data);
+        }
+    };
+
+
+
+    const getUserTasks = async (user) => 
+    {
+        const response = await axios.get("/api/getTasks", {
+            params: {
+                email: user.email,
+                day: day,
+                month: month,
+                year: year,
+            }
+        });
+        if (response) {
+            console.log("Here is the response")
+            console.log(response.data);
+            setGetUserTaskData(response.data);
+            //loop through response.data and add to subBoxes
+            for (var i = 0; i < response.data.length; i++) {
+                const newKey = subBoxes.length + 1;
+                setSubBoxes([...subBoxes, { key: newKey, title: response.data[i].title, pomTimers: response.data[i].pomodoroCount, note: response.data[i].note }]);
+            }
+        }
+    }
 
     return(
         <CssBaseline>
