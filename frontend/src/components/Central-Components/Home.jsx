@@ -2,13 +2,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
-import { getCurrentMonth, getCurrentDay, getCurrentYear, 
-    printDate, printThisDate, printTime, printThis12Time, 
-    printThis24Time, isThisCurrent } from "./date_functions";
+import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
-import LogoutIcon from '@mui/icons-material/Logout';
 import PermIdentityRoundedIcon from '@mui/icons-material/PermIdentityRounded';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import ExpandCircleDownRoundedIcon from '@mui/icons-material/ExpandCircleDownRounded';
@@ -18,13 +15,11 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import OpenWithRoundedIcon from '@mui/icons-material/OpenWithRounded';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
-import { initializeAnalytics } from "firebase/analytics";
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
-import { get, set } from "mongoose";
 
 const TasksAppts = () => {
     const [user, setUser] = useState(null);
@@ -107,7 +102,7 @@ function isThisCurrent(date) {
     }
      
     function leap(y) {
-        if (y % 4 == 0) {
+        if (y % 4 === 0) {
             return true;
         }
         else {
@@ -116,11 +111,11 @@ function isThisCurrent(date) {
     }
     function dateRules(m, y) {
         //console.log(m + "/" + day + "/" + y);
-        if (day > 29 && leap(y) && m == 2) {
+        if (day > 29 && leap(y) && m === 2) {
             //console.log("one");
             setDay(1);
         }
-        else if (day > 28 && m == 2 && !leap(y)) {
+        else if (day > 28 && m === 2 && !leap(y)) {
             //console.log("two");
             setDay(1);
         }
@@ -136,7 +131,7 @@ function isThisCurrent(date) {
         else if (thirty.includes(m)) {
             return 30;
         }
-        else if (m == 2 && leap(y)) {
+        else if (m === 2 && leap(y)) {
             return 29;
         }
         else {
@@ -148,20 +143,12 @@ function isThisCurrent(date) {
     const thirty = [4, 6, 9, 11];
 
     
-    
-    
-
-    //For Expanding Tasks
-    const [isExpanded, setExpanded] = useState(false);
-    const handleToggle = () => {
-        setExpanded(!isExpanded);
-    };
-
     // Popup for adding Tasks
     const [anchorEl, setAnchorEl] = useState(null);
     const [taskTitle, setTaskTitle] = useState('');
     const [numTimers, setNumTimers] = useState(1);
     const [taskNote, setTaskNote] = useState('');
+    const [isExpanded, setExpanded] = useState(false);
     
 
     const handleOpenPopover = (event) => {
@@ -188,7 +175,6 @@ function isThisCurrent(date) {
         insertUserTask(user);
         handleClosePopover();
     };
-
 
     // Handles dropdown menu from profile picture
     const [anchorEl2, setAnchorEl2] = React.useState(null);
@@ -243,11 +229,40 @@ function isThisCurrent(date) {
             console.log(response.data);
             setGetUserTaskData(response.data);
             //loop through response.data and add to subBoxes
-            for (var i = 0; i < response.data.length; i++) {
-                const newKey = subBoxes.length + 1;
-                setSubBoxes([...subBoxes, { key: newKey, title: response.data[i].taskTitle, pomTimers: response.data[i].pomodoroCount, note: response.data[i].note }]);
-            }
+            console.log("Here is the response.data.length" , response.data.length);
+            //add all the tasks to subBoxes
+            insertIntoSubBoxes(response);
         }
+    }
+
+    const insertIntoSubBoxes = (response) =>
+    {
+        //add to the array
+        var newKey = 1;
+        console.log("Here is the newKey", newKey);
+        //make a empty list
+        var tempList = [];
+
+        for (var j = 0; j < response.data.length; j++)
+        {
+            const temp = { key: newKey, title: response.data[j].taskTitle, pomTimers: response.data[j].pomodoroCount, note: response.data[j].note };
+            tempList.push(temp);
+            newKey++;
+        }
+
+        //check if length is 0
+        if (tempList.length === 1)
+            setSubBoxes([...subBoxes, tempList[0]]);
+        else if (tempList.length === 2)
+            setSubBoxes([...subBoxes, tempList[0], tempList[1]]);
+        else if (tempList.length === 3)
+            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2]]);
+        else if (tempList.length === 4)
+            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3]]);
+        else if (tempList.length === 5)
+            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]]);
+        else if (tempList.length === 6)
+            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5]]);
     }
 
     return(
@@ -367,7 +382,7 @@ function isThisCurrent(date) {
                             </Button>
                             <Button variant="outlined" onClick={() => {
                                 if (day === 1) {
-                                    if (month == 1) {
+                                    if (month === 1) {
                                         setMonth(12);
                                         setDay(31);
                                         setYear(year - 1);
@@ -445,8 +460,8 @@ function isThisCurrent(date) {
                                 </Select>
                             </FormControl>
                             <Button variant="outlined" onClick={() => {
-                                if (day == getMaxDay(month, year)) {
-                                    if (month == 12) {
+                                if (day === getMaxDay(month, year)) {
+                                    if (month === 12) {
                                         setMonth(1);
                                         setDay(1);
                                         setYear(year + 1);
@@ -605,36 +620,32 @@ function isThisCurrent(date) {
                                             ) : (
                                                 // Display sub-boxes when there are some
                                                 subBoxes.map((subBox) => (
-                                                    <Box key={subBox.key} sx={{ 
+                                                    <Accordion key={subBox.key} sx={{ 
                                                         ml:2,
                                                         mt:1,
                                                         mb:1,
                                                         width: "95%", 
                                                         height: "70%",  
                                                         bgcolor: "#FFF",
-                                                        borderRadius: "8px",}}>
-                                                        <Grid container alignItems="center">
-                                                            <Grid item xs>
+                                                        borderRadius: "8px",
+                                                    }}>
+                                                        <AccordionSummary expandIcon={<ExpandCircleDownOutlinedIcon />}>
+                                                            <Toolbar>
                                                                 <IconButton sx={{}} aria-label="checked">
                                                                 <CheckCircleOutlineIcon sx={{ color:"black"}} />
                                                                 </IconButton>
 
                                                                 <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
                                                                     {subBox.title}
-                                                                </Typography> 
-                                                            </Grid>
-                                                            <Grid item>
+                                                                </Typography>
+                                                            
+                                                                 
                                                                 <IconButton aria-label="drag">
                                                                     <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                                </IconButton>
-
-                                                                <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                                                                    <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                                </IconButton>
-                                                            </Grid>
-                                                        </Grid>                                                                                                
-
-                                                        <Collapse in={isExpanded}>
+                                                                </IconButton>                                                                                              
+                                                            </Toolbar>
+                                                        </AccordionSummary>
+                                                        <AccordionDetails>
                                                             <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
 
 
@@ -672,8 +683,8 @@ function isThisCurrent(date) {
                                                                     {subBox.note}
                                                                 </Typography>    
                                                             </Box>
-                                                        </Collapse>
-                                                    </Box>
+                                                        </AccordionDetails>
+                                                    </Accordion>
                                                 ))
                                             )}
                                         </Box>
@@ -734,7 +745,7 @@ function isThisCurrent(date) {
                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                         </IconButton>
 
-                                                        <IconButton sx={{}}  aria-label="expandTask" onClick={handleToggle} style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
+                                                        <IconButton sx={{}}  aria-label="expandTask" style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
                                                             <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
                                                         </IconButton>
                                                     </Grid>
