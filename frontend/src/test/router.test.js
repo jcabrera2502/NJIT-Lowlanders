@@ -1,7 +1,7 @@
 const request = require('supertest');
 const express = require('express');
 const mongoose = require('mongoose');
-const router = require('./your-router-file'); // Adjust the path accordingly
+const router = require('../../../backend/api/Logged-In-Email-F2B.js');
 jest.mock('mongoose', () => ({
     connection: {
       db: {
