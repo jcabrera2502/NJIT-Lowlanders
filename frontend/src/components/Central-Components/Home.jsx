@@ -84,22 +84,31 @@ function isThisCurrent(date) {
         //console.log("Selected Date Before:", selectedDate);
         setMonth(event.target.value);
         dateRules(event.target.value, year);
+        getUserTasks(user); // Add this line to fetch tasks when the day changes
+
         //console.log("Selected Date After:", selectedDate);
     };useEffect(() => {
         updateSelectedDate(month, day, year);
+        
     }, [month, day, year]);
-    
+    //ADDITIONAL ADD
+    useEffect(() => {
+        getUserTasks(user);
+    }, [day, month, year, user]);
     const handleDayChange = (event) => {
         setDay(event.target.value);
         updateSelectedDate(month, event.target.value, year);
+        getUserTasks(user); // Add this line to fetch tasks when the day changes
 
     }
     const handleYearChange = (event) => {
         setYear(event.target.value);
         dateRules(month, event.target.value);
         updateSelectedDate(month, day, event.target.value);
+        getUserTasks(user); // Add this line to fetch tasks when the day changes
 
     }
+
      
     function leap(y) {
         if (y % 4 === 0) {
@@ -225,9 +234,34 @@ function isThisCurrent(date) {
             setInsertTaskData(response.data);
         }
     };
+    const getUserTasks = async (user) => {
+        try {
+            const response = await axios.get("/api/getTasks", {
+                params: {
+                    email: user.email,
+                    day: day,
+                    month: month,
+                    year: year,
+                }
+            });
+    
+            if (response && response.data && Array.isArray(response.data)) {
+                const filteredTasks = response.data.filter(task => {
+                    const taskDate = new Date(task.year, task.month - 1, task.day);
+                    return isSameDay(taskDate, new Date(year, month - 1, day));
+                });
+    
+                setGetUserTaskData(filteredTasks);
+                insertIntoSubBoxes(filteredTasks);
+            } else {
+                console.error("Invalid or missing data in the API response");
+            }
+        } catch (error) {
+            console.error("Error fetching user tasks:", error);
+        }
+    }
 
-
-
+/* ROGINAL
     const getUserTasks = async (user) => 
     {
         const response = await axios.get("/api/getTasks", {
@@ -248,8 +282,60 @@ function isThisCurrent(date) {
             insertIntoSubBoxes(response);
         }
     }
+*/
 
-    const insertIntoSubBoxes = (response) =>
+
+/* VERSION 2
+const getUserTasks = async (user) => {
+    try {
+        const response = await axios.get("/api/getTasks", {
+            params: {
+                email: user.email,
+                day: day,
+                month: month,
+                year: year,
+            }
+        });
+
+        if (response && response.data && Array.isArray(response.data)) {
+            const filteredTasks = response.data.filter(task => {
+                const taskDate = new Date(task.year, task.month - 1, task.day);
+                return isSameDay(taskDate, selectedDate);
+            });
+
+            setGetUserTaskData(filteredTasks);
+            insertIntoSubBoxes(filteredTasks);
+        } else {
+            console.error("Invalid or missing data in the API response");
+        }
+    } catch (error) {
+        console.error("Error fetching user tasks:", error);
+    }
+} */
+// Function to check if two dates are on the same day
+const isSameDay = (date1, date2) => {
+    return (
+        date1.getDate() === date2.getDate() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getFullYear() === date2.getFullYear()
+    );
+};
+
+const insertIntoSubBoxes = (response) => {
+    const newSubBoxes = response.map((task, index) => ({
+        key: index + 1,
+        title: task.taskTitle,
+        pomTimers: task.pomodoroCount,
+        note: task.note,
+    }));
+
+    setSubBoxes(newSubBoxes);
+};
+
+
+
+
+/*  const insertIntoSubBoxes = (response) =>
     {
         //add to the array
         var newKey = 1;
@@ -278,7 +364,8 @@ function isThisCurrent(date) {
         else if (tempList.length === 6)
             setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5]]);
     }
-
+*/
+   
     return(
         <CssBaseline>
         <Grid container>
