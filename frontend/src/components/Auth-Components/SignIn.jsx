@@ -135,6 +135,7 @@ const SignIn = () => {
         window.location.href = "http://localhost:3000/";}
         
       })
+      
       .catch((error) => {
         const errorCode = error.code;
         setError(authErrors[errorCode] || error.message);
