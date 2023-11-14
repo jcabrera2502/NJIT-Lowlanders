@@ -26,12 +26,12 @@ function Home()
         <CssBaseline>
             <Nav />
             <Box sx={{margin: "110px auto"}}>
-                {user ? (
-                    
-                    <div>
+               {user ? (
+        // If the user is authenticated
+        <div>
                         <Typography textAlign={"center"} variant="h3">Welcome {user.email}</Typography>
                         <Box textAlign={"center"} sx={{padding: "10px"}} >
-                            <img src={WebIcon} width={542} height={542} alt="WebIcon" />
+                         <img src={WebIcon} width={542} height={542} alt="WebIcon" />
                         </Box>
                     </div>
                 ) : (
