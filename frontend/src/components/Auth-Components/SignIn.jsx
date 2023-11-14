@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import {auth} from "../../firebase"
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { Button, TextField, Paper, Typography, Container, 
-         CssBaseline, Link, Box, Avatar} from "@mui/material";
+import { Button, TextField, Paper, Typography, Grid, 
+         CssBaseline, Link, Box, InputLabel} from "@mui/material";
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Logo from '../../Images/Logo.svg';
+import CrushIt from '../../Images/CrushIt.svg';
 
 function Copyright(props) {
   return (
@@ -104,8 +107,8 @@ const paperStyle =
 {
   padding: 30,
   height: "80vh",
-  width: "45%",
-  margin: "110px auto"
+  width: "60%",
+  marginLeft: "35%",
 };
 
 const SignIn = () => {
@@ -158,26 +161,33 @@ const SignIn = () => {
   return (
     <>
     <CssBaseline>
-        <Container>
-          <Paper elevation={5} variant="elevation" square={false} style={paperStyle}>
-            <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
+        <Grid container sx={{height: "100vh"}}>
+          <Grid item xs={6}>
+            <Box 
+              sx={{width: "148%", height: "100%", backgroundColor: "#252628"}}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
             >
-              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                <LockOutlinedIcon />
-              </Avatar>
-            </Box>
+              <img src={CrushIt} alt="Crush It Logo"/>
+              <img src={Logo} alt="Crush It Logo" width="700" height="700" /></Box>
+          </Grid>
+          <Grid item xs={6} sx={{mt: 14}}>
+            <Paper 
+              elevation={6} 
+              variant="elevation" 
+              square={false} 
+              style={paperStyle}
+              sx={{borderRadius: 2}}
+            >
               <form onSubmit={signIn}>
-                <Box sx={{ mt: 2, mb: 2 }}>
-                  <Typography variant="h3" textAlign={"center"}>Log In to your Account</Typography>
+                <Box sx={{ mt: 1, mb: 5 }}>
+                  <Typography variant="h4" textAlign={"left"}>Sign In</Typography>
                 </Box>
+                <InputLabel shrink><MailOutlineIcon color="purple" sx={{height: 25, width: 25, mr: 1}} />Email/username</InputLabel>
                 <TextField
-                  margin = "normal"
-                  variant="standard"
+                  variant="outlined"
                   type="email"
                   placeholder="Enter your email"
                   value={email}
@@ -185,29 +195,52 @@ const SignIn = () => {
                   autoFocus
                   required
                   fullWidth
+                  sx={{mb: 3}}
+                  InputProps={{ sx: {borderRadius: 2}}}
                 />
+                <InputLabel shrink><LockOutlinedIcon color="purple" sx={{height: 25, width: 25, mr: 1}} />Password</InputLabel>
                 <TextField
-                  margin = "normal"
-                  variant="standard"
+                  variant="outlined"
                   type="password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   fullWidth
+                  sx={{mb: 3}}
+                  InputProps={{ sx: {borderRadius: 2}}}
                 />
-                <Button 
-                  sx={{ mt: 3, mb: 2 }} 
-                  variant="contained" 
-                  type="submit"
-                  fullWidth
-                >Log In</Button>
-                <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Button>
+                <Box 
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  sx={{borderRadius: 2}}
+                >
+                  <Button 
+                    sx={{ mt: 3, mb: 4, width: 225, height: 50, borderRadius: 3 }} 
+                    variant="contained" 
+                    type="submit"
+                    color="purple"
+                  >Log In</Button>
+                </Box>
+                <Box sx={{height: 125}}></Box>
               </form>
               {!resetEmailSent ? (
-                <div>
-                  <Button disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>
-                </div>
+                <Box 
+                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2}}
+                  display="flex"
+                  justifyContent="left"
+                  alignItems="left"
+                >
+                  <Grid container>
+                    <Grid item xs={12}>
+                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>
+                    </Grid>
+                  </Grid>
+                </Box>
 
               ) : (
                 <div>
@@ -216,11 +249,10 @@ const SignIn = () => {
 
               )
             }
-            {error && <p style={{ color: "red" }}>{error}</p>}
-
-              <Copyright sx={{ mt: 8, mb: 4 }} />
-            </Paper>
-          </Container>
+            {error && <Typography style={{ color: "red" }}>{error}</Typography>}    
+              </Paper>
+            </Grid>
+          </Grid>
       </CssBaseline>
     </>
   );

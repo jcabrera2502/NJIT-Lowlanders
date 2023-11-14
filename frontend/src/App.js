@@ -3,24 +3,34 @@ import SignIn from './components/Auth-Components/SignIn';
 import SignUp from './components/Auth-Components/SignUp';
 import AuthDetails from './components/Auth-Components/AuthDetails';
 import Home from './components/Central-Components/Home';
-import Nav from './components/Central-Components/Nav';
 import Settings from './components/Central-Components/Settings';
-import TasksAppts from './components/Central-Components/TasksAppts';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Profile from './components/Central-Components/Profile';
 import { createTheme, ThemeProvider} from "@mui/material/styles";
-import { grey, deepOrange } from "@mui/material/colors";
 
 const theme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: deepOrange,
-    divider: deepOrange[700],
-    text: {
-      primary: "#fff",
-      secondary: grey[500],
+  palette:
+  {
+    purple:
+    {
+      main: "#5779F4",
+      contrastText: "#fff",
+      light: "#E8EDFF",
     },
-  },
+    menu:
+    {
+      main: "#6284FF",
+    },
+    gray:
+    {
+      main: "#252628",
+      light: "#F5F7F9",
+    },
+    white:
+    {
+      main: "#FFF"
+    },
+  }
 });
 
 function App() {
@@ -29,7 +39,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <div className="App">
-          <Nav />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/SignIn" element={<SignIn />} />
@@ -37,7 +46,6 @@ function App() {
             <Route path="/AuthDetails" element={<AuthDetails />} />
             <Route path="/Settings" element={<Settings />} />
             <Route path="/Profile" element={<Profile />} />
-            <Route path="/TasksAppts" element={<TasksAppts />} />
           </Routes>
         </div>
       </Router>

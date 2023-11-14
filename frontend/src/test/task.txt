@@ -1,0 +1,12 @@
+import React from "react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
+import TasksAppts from "../components/Central-Components/TasksAppts";
+
+// Mocking the axios module to prevent actual API calls
+jest.mock("axios");
+
+test('renders Settings component', () => {
+    render(<TasksAppts />);
+    // You can add more specific assertions if needed
+  });
+//d more test cases based on the component's behavior and features
