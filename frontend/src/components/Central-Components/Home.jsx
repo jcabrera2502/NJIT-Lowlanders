@@ -2,7 +2,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, List, ListItem} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
@@ -317,6 +317,24 @@ const updateUserTasks = async (user, subBox) =>
         console.log(response.data);
     }
 }
+
+const taskStatus = {
+    Important: {
+      name: "Important",
+      items: subBoxes
+    },
+    TopPriority: {
+      name: "Top Priority",
+      items: []
+    },
+    Other: {
+      name: "Other",
+      items: []
+    },
+  };
+
+const [itemId, setItemId] = useState(0);
+
    
     return(
         <CssBaseline>
@@ -640,11 +658,14 @@ const updateUserTasks = async (user, subBox) =>
                                         </Button>
                                       </Box>
                                     </Popover>
-                                </Typography>                                                    
+                                </Typography>
+                                                                                    
                                 <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                    <DragDropContext>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
-
                                         {/* Top Priority Task Box*/}
+                                        <Droppable droppableId="Top_Priority">
+                                        {(provided, snapshot) => (
                                         <Box sx={{ 
                                             ml:2,
                                             width: "95%", 
@@ -675,6 +696,11 @@ const updateUserTasks = async (user, subBox) =>
                                                 )}
                                             </Box>
                                         </Box>
+                                        )}
+                                        </Droppable>
+
+                                        { /* Important Task Box*/}
+                                        
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
@@ -688,13 +714,15 @@ const updateUserTasks = async (user, subBox) =>
                                                 Important
                                             </Typography>
 
-                                            { /* Important Task Box*/}
                                             <Box
                                             display="flex"
                                             justifyContent="center"
                                             alignItems="center"
                                             flexDirection="column"
                                             >
+                                            <Droppable droppableId="Important">
+                                            {(provided, snapshot) => (
+                                            <List ref={provided.innerRef} {...provided.droppableProps} sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
                                                 {subBoxes.length === 0 ? (
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
@@ -702,9 +730,18 @@ const updateUserTasks = async (user, subBox) =>
                                                     </Typography>
                                                 ) : (
                                                     // Display sub-boxes when there are some
-
+                                                    
                                                     // Task module starts here
+                                                    <Draggable draggableId={"test"}>
+                                                    {(provided, snapshot) => (
                                                     subBoxes.map((subBox) => (
+                                                        
+                                                        <ListItem
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        sx={{padding: 0, borderRadius: 8}}
+                                                        >
                                                         <Box sx={{width: "100%", mb: 1}}
                                                             display="flex"
                                                             justifyContent="center"
@@ -818,7 +855,7 @@ const updateUserTasks = async (user, subBox) =>
                                                                     </Box>
                                                                   </>
                                                                 ) : (
-                                                              <>
+                                                                    <>
                                                                         <Grid container alignItems="center">
                                                                             <Grid item xs>
                                                                                 <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
@@ -836,18 +873,27 @@ const updateUserTasks = async (user, subBox) =>
                                                                                 {subBox.note}
                                                                             </Typography>    
                                                                         </Box> 
-                                                              </>
-                                                            )}
-                                                            </AccordionDetails>
-                                                        </Accordion>
-                                                    </Box>
+                                                                    </>
+                                                                )}
+                                                                </AccordionDetails>
+                                                            </Accordion>
+                                                        </Box>
+                                                        </ListItem>   
                                                     ))
+                                                    )}
+                                                    </Draggable>
                                                     // Task module Ends here
                                                 )}
+                                            </List>
+                                            )}    
+                                            </Droppable>
                                             </Box>
+                                            
                                         </Box>
 
                                         {/* Other Task Box */}
+                                        <Droppable droppableId="Task_Box">
+                                        {(provided, snapshot) => (
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
@@ -858,6 +904,8 @@ const updateUserTasks = async (user, subBox) =>
                                             <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
                                             </Typography>
+
+                                            
                                             <Box
                                             display="flex"
                                             justifyContent="center"
@@ -878,9 +926,14 @@ const updateUserTasks = async (user, subBox) =>
                                                     // Task module Ends here
                                                 )}
                                             </Box>
+                                            
                                         </Box>
+                                        )}
+                                        </Droppable>
                                     </Box>
+                                    </DragDropContext>
                                 </Paper>
+                                
                             </Box>   
                             
                             {/* Appointments */}
