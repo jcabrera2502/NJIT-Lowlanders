@@ -604,6 +604,8 @@ function isThisCurrent(date) {
                                 </Typography>                                                    
                                 <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
+
+                                        {/* Top Priority Task Box*/}
                                         <Box sx={{ 
                                             ml:2,
                                             width: "95%", 
@@ -613,9 +615,26 @@ function isThisCurrent(date) {
                                             <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
                                                 Top Priority
                                             </Typography>
-                                            <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
-                                                There are Currently no Tasks in here
-                                            </Typography>
+                                            <Box
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            flexDirection="column"
+                                            >
+                                                {true ? ( //TODO Needs to be replaced with a new array for Top Priority
+                                                // Display a message when there are no sub-boxes
+                                                    <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                        There are Currently no Tasks in here
+                                                    </Typography>
+                                                ) : (
+
+                                                    // Display sub-boxes when there are some
+                                                    <Typography>Placeholder</Typography>
+                                                    // Task module starts here
+                                                    
+                                                    // Task module Ends here
+                                                )}
+                                            </Box>
                                         </Box>
                                         <Box sx={{ 
                                             mt:1,
@@ -629,6 +648,8 @@ function isThisCurrent(date) {
                                             <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Important
                                             </Typography>
+
+                                            { /* Important Task Box*/}
                                             <Box
                                             display="flex"
                                             justifyContent="center"
@@ -642,6 +663,8 @@ function isThisCurrent(date) {
                                                     </Typography>
                                                 ) : (
                                                     // Display sub-boxes when there are some
+
+                                                    // Task module starts here
                                                     subBoxes.map((subBox) => (
                                                         <Box sx={{width: "100%", mb: 1}}
                                                             display="flex"
@@ -777,9 +800,12 @@ function isThisCurrent(date) {
                                                         </Accordion>
                                                     </Box>
                                                     ))
+                                                    // Task module Ends here
                                                 )}
                                             </Box>
                                         </Box>
+
+                                        {/* Other Task Box */}
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
@@ -790,9 +816,26 @@ function isThisCurrent(date) {
                                             <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
                                             </Typography>
-                                            <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
-                                                There are Currently no Tasks in here
-                                            </Typography>
+                                            <Box
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            flexDirection="column"
+                                            >
+                                                {true ? ( //TODO Needs to be replaced with a new array for Other
+                                                // Display a message when there are no sub-boxes
+                                                    <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                        There are Currently no Tasks in here
+                                                    </Typography>
+                                                ) : (
+
+                                                    // Display sub-boxes when there are some
+                                                    <Typography>Placeholder</Typography>
+                                                    // Task module starts here
+                                                    
+                                                    // Task module Ends here
+                                                )}
+                                            </Box>
                                         </Box>
                                     </Box>
                                 </Paper>
