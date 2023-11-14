@@ -21,6 +21,7 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 
+
 const TasksAppts = () => {
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
@@ -185,6 +186,23 @@ function isThisCurrent(date) {
         handleClosePopover();
     };
 
+    //progress icons 
+
+    const icons = [
+        <CheckCircleOutlineIcon sx={{ color: '#9FA3A8' }} />,
+        <SyncAltIcon sx={{ color: '#9FA3A8' }} />,
+        <HourglassEmptyRoundedIcon x={{ color: '#9FA3A8' }} />,
+      ];
+
+    //Changes progress icons
+
+    const [currentIcon, setCurrentIcon] = useState(0);
+
+    const iconClick = () => {
+        setCurrentIcon((currentIcon + 1) % icons.length);
+        
+    }
+    
     // Handles dropdown menu from profile picture
     const [anchorEl2, setAnchorEl2] = React.useState(null);
     const open2 = Boolean(anchorEl2);
@@ -772,18 +790,17 @@ const insertIntoSubBoxes = (response) => {
                                                             elevation={0}
                                                             >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
-                                                                    <IconButton sx={{}} aria-label="checked">
-                                                                    <CheckCircleOutlineIcon sx={{ color:"black"}} />
+                                                                    <IconButton onClick={iconClick} sx={{}} aria-label="checked">
+                                                                        {icons[currentIcon]}
                                                                     </IconButton>
-
                                                                     <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
                                                                         {subBox.title}
                                                                     </Typography>
                                                                     <IconButton aria-label="drag">
                                                                         <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                     </IconButton>                                                                                              
-                                                                </Toolbar>
-                                                                
+                                                           </Toolbar>
+                                                
                                                             </AccordionSummary>
                                                             <AccordionDetails>
                                                                 <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
