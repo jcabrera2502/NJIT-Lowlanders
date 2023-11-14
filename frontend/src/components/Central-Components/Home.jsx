@@ -183,7 +183,7 @@ function isThisCurrent(date) {
         const newKey = subBoxes.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote, editNumTimer: editNumTimer, editNote: editNote }]);
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote, editNumTimer: editNumTimer, editNote: editNote, }]);
         insertUserTask(user);
         handleClosePopover();
     };
@@ -764,10 +764,12 @@ const updateUserTasks = async (user, subBox) =>
                                                                                     {subBox.pomTimers}
                                                                                 </Typography>
 
-                                                                                <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                setNumTimers(subBox.pomTimers);
-                                                                                updateUserTasks(user, subBox);
+                                                                            <IconButton aria-label="minusTimer" onClick={() => {
+                                                                                if(subBox.pomTimers > 1){
+                                                                                    subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                    setNumTimers(subBox.pomTimers);
+                                                                                    updateUserTasks(user, subBox);
+                                                                                }
                                                                             }}>
                                                                                 <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                             </IconButton>
