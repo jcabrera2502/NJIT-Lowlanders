@@ -4,7 +4,6 @@ import SignUp from './components/Auth-Components/SignUp';
 import AuthDetails from './components/Auth-Components/AuthDetails';
 import Home from './components/Central-Components/Home';
 import Settings from './components/Central-Components/Settings';
-import TasksAppts from './components/Central-Components/TasksAppts';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Profile from './components/Central-Components/Profile';
 import { createTheme, ThemeProvider} from "@mui/material/styles";
@@ -47,7 +46,6 @@ function App() {
             <Route path="/AuthDetails" element={<AuthDetails />} />
             <Route path="/Settings" element={<Settings />} />
             <Route path="/Profile" element={<Profile />} />
-            <Route path="/TasksAppts" element={<TasksAppts />} />
           </Routes>
         </div>
       </Router>

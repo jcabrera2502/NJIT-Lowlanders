@@ -255,7 +255,7 @@ const Profile = () => {
                                 onClose={handleClose}
                             >
                                 <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
-                                <MenuItem onClick={() => (window.location.href = "http://localhost:3000/TasksAppts")}>Tasks</MenuItem>
+                                <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
                             </Menu>
                         </Toolbar>
                     </AppBar>
