@@ -317,36 +317,6 @@ const updateUserTasks = async (user, subBox) =>
         console.log(response.data);
     }
 }
-/*  const insertIntoSubBoxes = (response) =>
-    {
-        //add to the array
-        var newKey = 1;
-        console.log("Here is the newKey", newKey);
-        //make a empty list
-        var tempList = [];
-
-        for (var j = 0; j < response.data.length; j++)
-        {
-            const temp = { key: newKey, title: response.data[j].taskTitle, pomTimers: response.data[j].pomodoroCount, note: response.data[j].note };
-            tempList.push(temp);
-            newKey++;
-        }
-
-        //check if length is 0
-        if (tempList.length === 1)
-            setSubBoxes([...subBoxes, tempList[0]]);
-        else if (tempList.length === 2)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1]]);
-        else if (tempList.length === 3)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2]]);
-        else if (tempList.length === 4)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3]]);
-        else if (tempList.length === 5)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]]);
-        else if (tempList.length === 6)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5]]);
-    }
-*/
    
     return(
         <CssBaseline>
