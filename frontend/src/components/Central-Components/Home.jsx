@@ -187,7 +187,6 @@ function isThisCurrent(date) {
 
     //Changes progress icons
 
-    const [isIconClicked, setIsIconClicked] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
 
     const iconClick = () => {
