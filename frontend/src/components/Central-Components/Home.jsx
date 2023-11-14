@@ -311,7 +311,7 @@ function isThisCurrent(date) {
                         onClose={handleClose}
                     >
                         <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/TasksAppts")}>Tasks</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>                 
@@ -608,85 +608,102 @@ function isThisCurrent(date) {
                                             width: "95%", 
                                             height: "100%",  
                                             bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                            borderRadius: "8px",
+                                            }}
+                                        >
+                                            <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Important
                                             </Typography>
-                                            {subBoxes.length === 0 ? (
-                                            // Display a message when there are no sub-boxes
-                                                <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
-                                                    There are Currently no Tasks in here
-                                                </Typography>
-                                            ) : (
-                                                // Display sub-boxes when there are some
-                                                subBoxes.map((subBox) => (
-                                                    <Accordion key={subBox.key} sx={{ 
-                                                        ml:2,
-                                                        mt:1,
-                                                        mb:1,
-                                                        width: "95%", 
-                                                        height: "70%",  
-                                                        bgcolor: "#FFF",
-                                                        borderRadius: "8px",
-                                                    }}>
-                                                        <AccordionSummary expandIcon={<ExpandCircleDownOutlinedIcon />}>
-                                                            <Toolbar>
-                                                                <IconButton sx={{}} aria-label="checked">
-                                                                <CheckCircleOutlineIcon sx={{ color:"black"}} />
-                                                                </IconButton>
+                                            <Box
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            flexDirection="column"
+                                            >
+                                                {subBoxes.length === 0 ? (
+                                                // Display a message when there are no sub-boxes
+                                                    <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
+                                                        There are Currently no Tasks in here
+                                                    </Typography>
+                                                ) : (
+                                                    // Display sub-boxes when there are some
+                                                    subBoxes.map((subBox) => (
+                                                        <Box sx={{width: "100%", mb: 1}}
+                                                            display="flex"
+                                                            justifyContent="center"
+                                                            alignItems="center"
+                                                            flexDirection="column"
+                                                        >
+                                                        <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
-                                                                <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                                    {subBox.title}
-                                                                </Typography>
-                                                            
-                                                                 
-                                                                <IconButton aria-label="drag">
-                                                                    <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                                </IconButton>                                                                                              
-                                                            </Toolbar>
-                                                        </AccordionSummary>
-                                                        <AccordionDetails>
-                                                            <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
-
-
-                                                            <Grid container alignItems="center">
-                                                                <Grid item xs>
-                                                                    <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                        Number of Pomodoro Timers (30 mins each)
-                                                                    </Typography>
-                                                                </Grid>
-                                                                <Grid item>
-                                                                    <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                                        {subBox.pomTimers}
-                                                                    </Typography>
-                                                                    <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
-                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                            <AccordionSummary 
+                                                            expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                            sx={{ 
+                                                                width: "100%", 
+                                                                height: "3vh",  
+                                                                borderRadius: "8px",
+                                                                paddingLeft: 0,
+                                                            }}
+                                                            elevation={0}
+                                                            >
+                                                                <Toolbar disableGutters sx={{width: "100%"}}>
+                                                                    <IconButton sx={{}} aria-label="checked">
+                                                                    <CheckCircleOutlineIcon sx={{ color:"black"}} />
                                                                     </IconButton>
-                                                                </Grid>
-                                                            </Grid> 
 
-
-                                                            <Grid container alignItems="center">
-                                                                <Grid item xs>
-                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
-                                                                        Notes
+                                                                    <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
+                                                                        {subBox.title}
                                                                     </Typography>
+                                                                    <IconButton aria-label="drag">
+                                                                        <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                    </IconButton>                                                                                              
+                                                                </Toolbar>
+                                                                
+                                                            </AccordionSummary>
+                                                            <AccordionDetails>
+                                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+
+
+                                                                <Grid container alignItems="center">
+                                                                    <Grid item xs>
+                                                                        <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            Number of Pomodoro Timers (30 mins each)
+                                                                        </Typography>
+                                                                    </Grid>
+                                                                    <Grid item>
+                                                                        <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                            {subBox.pomTimers}
+                                                                        </Typography>
+                                                                        <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
+                                                                            <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                        </IconButton>
+                                                                    </Grid>
+                                                                </Grid> 
+
+
+                                                                <Grid container alignItems="center">
+                                                                    <Grid item xs>
+                                                                        <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                            Notes
+                                                                        </Typography>
+                                                                    </Grid>
+                                                                    <Grid item>
+                                                                        <IconButton sx={{ml: 2}} aria-label="editNote">
+                                                                            <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                        </IconButton>
+                                                                    </Grid>
                                                                 </Grid>
-                                                                <Grid item>
-                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                    </IconButton>
-                                                                </Grid>
-                                                            </Grid>
-                                                            <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
-                                                                    {subBox.note}
-                                                                </Typography>    
-                                                            </Box>
-                                                        </AccordionDetails>
-                                                    </Accordion>
-                                                ))
-                                            )}
+                                                                <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
+                                                                    <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                        {subBox.note}
+                                                                    </Typography>    
+                                                                </Box>
+                                                            </AccordionDetails>
+                                                        </Accordion>
+                                                    </Box>
+                                                    ))
+                                                )}
+                                            </Box>
                                         </Box>
                                         <Box sx={{ 
                                             mt:1,
