@@ -21,6 +21,7 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import { set } from "mongoose";
 
 
 const TasksAppts = () => {
@@ -200,9 +201,9 @@ function isThisCurrent(date) {
 
     const [currentIcon, setCurrentIcon] = useState(0);
 
-    const iconClick = () => {
+    const iconClick = (subBox) => 
+    {
         setCurrentIcon((currentIcon + 1) % icons.length);
-        
     }
     
     // Handles dropdown menu from profile picture
@@ -365,6 +366,7 @@ const updateUserTasks = async (user, subBox) =>
                     >
                         <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
                         <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Log Out</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>                 

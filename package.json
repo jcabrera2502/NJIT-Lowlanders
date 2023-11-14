@@ -30,6 +30,7 @@
     "testEnvironment": "jsdom"
   },
   "dependencies": {
-    "use-resize-observer": "^9.1.0"
+    "use-resize-observer": "^9.1.0",
+    "vest": "^5.1.4"
   }
 }
