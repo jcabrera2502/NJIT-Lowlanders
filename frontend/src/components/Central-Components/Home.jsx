@@ -22,6 +22,7 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { set } from "mongoose";
+import { PomoPopup } from "./Popup";
 
 
 const TasksAppts = () => {
@@ -153,6 +154,26 @@ function isThisCurrent(date) {
 
     const thirtyOne = [1, 3, 5, 7, 8, 10, 12];
     const thirty = [4, 6, 9, 11];
+
+    // Functions and stuff for pomo pop-up
+    const [pomoOpen, setPomoOpen] = React.useState(false);
+    const [focusTask, setFocusTask] = React.useState(null);
+
+    //TODO: make these times pull from user settings
+    const [taskTime, setTaskTime] = React.useState(30);
+    const [shortTime, setShortTime] = React.useState(5);
+    const [longTime, setLongTime] = React.useState(15);
+
+    const handleOpenPomo = (task) => {
+        //console.log("click");
+        setFocusTask(task);
+        setPomoOpen(true);
+    };
+    const handlePomoClose = () => {
+        setPomoOpen(false);
+        //console.log("close");
+    };
+
 
     
     // Popup for adding Tasks
@@ -580,6 +601,17 @@ const updateUserTasks = async (user, subBox) =>
                         </Box>
                         {/* End of Date Navbar */}
 
+                        {/*Pomo Popup*/}
+                        <PomoPopup 
+                            pomoOpen={pomoOpen}
+                            onPomoClose={handlePomoClose}
+                            taskTitle={focusTask}
+                            taskTime={taskTime}
+                            shortTime={shortTime}
+                            longTime={longTime}
+                        />
+                        {/*End of Pomo Popup*/}
+
                         <Box sx={{display: 'flex', flexDirection: 'row'}}>
                             <Box>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:2, fontSize:'30px'}}>
@@ -730,9 +762,10 @@ const updateUserTasks = async (user, subBox) =>
                                                                     <IconButton onClick={iconClick} sx={{color: 'black'}} aria-label="checked">
                                                                         {icons[currentIcon]}
                                                                     </IconButton>
-                                                                    <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
+                                                                    <Button onClick={() => {handleOpenPomo(subBox.title)}}>
                                                                         {subBox.title}
-                                                                    </Typography>
+                                                                    </Button>
+                        
                                                                     <IconButton aria-label="drag">
                                                                         <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                     </IconButton>                                                                                              
