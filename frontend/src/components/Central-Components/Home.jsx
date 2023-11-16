@@ -126,15 +126,15 @@ function isThisCurrent(date) {
         //console.log(m + "/" + day + "/" + y);
         if (day > 29 && leap(y) && m === 2) {
             //console.log("one");
-            setDay(1);
+            setDay(29);
         }
         else if (day > 28 && m === 2 && !leap(y)) {
             //console.log("two");
-            setDay(1);
+            setDay(28);
         }
         else if (day > 30 && thirty.includes(m)) {
             //console.log("three");
-            setDay(1);
+            setDay(30);
         }
     }
     function getMaxDay(m, y) {
@@ -407,7 +407,7 @@ const updateUserTasks = async (user, subBox) =>
                                 else {
                                     setMonth(month - 1);
                                 }
-                                dateRules(month, year);
+                                dateRules(month - 1, year);
                             }}
                             sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1}}
                             color="menu">
