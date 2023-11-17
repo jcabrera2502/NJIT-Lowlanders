@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Dialog from '@mui/material/Dialog';
 import PropTypes from 'prop-types';
 import { Typography, Button, Box } from "@mui/material";
@@ -7,9 +7,13 @@ import Tab from '@mui/material/Tab';
 
 export function PomoPopup(props) {
     //popup
-    const { onPomoClose, pomoOpen, taskTitle, taskTime, shortTime, longTime } = props;
+    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime } = props;
     const handlePomoClose = () => {
         //console.log("closed");
+        if (ticking) {
+            toggleTimer();
+        }
+        resetTimer();
         onPomoClose();
     };
 
@@ -42,12 +46,104 @@ export function PomoPopup(props) {
             id: `tab-${index}`,
             'aria-controls': `tabpanel-${index}`,
         };
-    }
+    };
     const [tabValue, setTabValue] = React.useState(0);
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
+        setTimer('00:' + chooseTime(newValue) + ':00');
     };
 
+    //timer
+    const Ref = useRef(null);
+    const [timer, setTimer] = React.useState('00:' + chooseTime(tabValue) + ':00');
+    const getRemaining = (t) => {
+        //console.log(ticking);
+        const total = Date.parse(t) - Date.parse(new Date());
+        const seconds = Math.floor((total / 1000) % 60);
+        const minutes = Math.floor((total / 1000 / 60) % 60);
+        const hours = Math.floor((total / 1000 / 60 / 60) % 24);
+        return {
+            total, hours, minutes, seconds
+        };
+    };
+    const startTimer = (t, tick) => {
+        //console.log("start " + tick);
+        //console.log(Ref.current);
+        if (tick) {
+            var { total, hours, minutes, seconds } = getRemaining(t);
+            if (total >= 0) {
+                setTimer(
+                    (hours > 9 ? hours : '0' + hours) + ':' +
+                    (minutes > 9 ? minutes : '0' + minutes) + ':' +
+                    (seconds > 9 ? seconds : '0' + seconds)
+                )
+            }
+            else {
+                clearInterval(Ref.current);
+                console.log("TIMER END");
+            }
+        }
+    };
+    const clearTimer = (t, tick) => {
+        //console.log("clear " + !tick);
+        if (!tick) {
+            clearInterval(Ref.current);
+        }
+        else {
+            //setTimer('00:' + chooseTime(tabValue) + ':00');
+            if (Ref.current) {
+                clearInterval(Ref.current);
+            }
+            const id = setInterval(() => {
+                startTimer(t, tick);
+            }, 1000)
+            Ref.current = id;
+        }  
+    };
+    const getDeadTime = () => {
+        let deadline = new Date();
+        //console.log(timer.substring(0,2) + ":" + timer.substring(3,5) + ":" + timer.substring(6,8));
+        deadline.setHours(deadline.getHours() + parseInt(timer.substring(0,2)));
+        deadline.setMinutes(deadline.getMinutes() + parseInt(timer.substring(3,5)));
+        deadline.setSeconds(deadline.getSeconds() + parseInt(timer.substring(6,8)));
+        return deadline;
+    };
+    const resetTimer = () => {
+        setTimer('00:' + chooseTime(tabValue) + ':00');
+    };
+    function chooseTime(tab) {
+        if (tab == 0) {
+            return (taskTime > 9 ? taskTime : '0' + taskTime);
+        }
+        if (tab == 1) {
+            return (shortTime > 9 ? shortTime : '0' + shortTime);
+        }
+        if (tab == 2) {
+            return (longTime > 9 ? longTime : '0' + longTime);
+        }
+    };
+    function displayTimer() {
+        if (taskTime > 59 || shortTime > 59 || longTime > 59) {
+            return timer;
+        }
+        else {
+            return timer.substring(3);
+        }
+    };
+    const [ticking, setTicking] = React.useState(false);
+    const toggleTimer = () => {
+        if (ticking) {
+            setTicking(false);
+            clearTimer(getDeadTime(), false);
+        }
+        else {
+            setTicking(true);
+            //console.log("here " + ticking);
+            clearTimer(getDeadTime(), true);
+        }
+    };
+
+    //display
     return (
         <Dialog onClose={handlePomoClose} open={pomoOpen}>
             <Box>
@@ -58,6 +154,7 @@ export function PomoPopup(props) {
                         <Tab label="Long Break" {...tabProps(2)} />
                     </Tabs>
                 </Box>
+                {/*
                 <TabPanel value={tabValue} index={0}>
                     po
                 </TabPanel>
@@ -67,21 +164,22 @@ export function PomoPopup(props) {
                 <TabPanel value={tabValue} index={2}>
                     lo
                 </TabPanel>
+                */}
             </Box>
-            <Button variant="contained">
-                Start
+            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
+                {displayTimer()}
+            </Typography>
+            <Button variant="contained" onClick={toggleTimer}>
+                {(ticking ? "STOP" : "START")}
             </Button>
             <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                {taskTitle}
+                title {taskTitle}
             </Typography>
             <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                {taskTime}
+                desc {taskDesc}
             </Typography>
             <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                {shortTime}
-            </Typography>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                {longTime}
+                timers {taskTimers}
             </Typography>
         </Dialog>
     );

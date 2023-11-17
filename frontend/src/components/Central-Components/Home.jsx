@@ -158,15 +158,19 @@ function isThisCurrent(date) {
     // Functions and stuff for pomo pop-up
     const [pomoOpen, setPomoOpen] = React.useState(false);
     const [focusTask, setFocusTask] = React.useState(null);
+    const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
+    const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
 
     //TODO: make these times pull from user settings
     const [taskTime, setTaskTime] = React.useState(30);
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
 
-    const handleOpenPomo = (task) => {
+    const handleOpenPomo = (task, desc, timers) => {
         //console.log("click");
         setFocusTask(task);
+        setFocusTaskDesc(desc);
+        setFocusTaskTimers(timers);
         setPomoOpen(true);
     };
     const handlePomoClose = () => {
@@ -606,6 +610,8 @@ const updateUserTasks = async (user, subBox) =>
                             pomoOpen={pomoOpen}
                             onPomoClose={handlePomoClose}
                             taskTitle={focusTask}
+                            taskDesc={focusTaskDesc}
+                            taskTimers={focusTaskTimers}
                             taskTime={taskTime}
                             shortTime={shortTime}
                             longTime={longTime}
@@ -762,7 +768,7 @@ const updateUserTasks = async (user, subBox) =>
                                                                     <IconButton onClick={iconClick} sx={{color: 'black'}} aria-label="checked">
                                                                         {icons[currentIcon]}
                                                                     </IconButton>
-                                                                    <Button onClick={() => {handleOpenPomo(subBox.title)}}>
+                                                                    <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}}>
                                                                         {subBox.title}
                                                                     </Button>
                         
