@@ -22,6 +22,7 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { set } from "mongoose";
+import { PomoPopup } from "./Popup";
 
 
 const TasksAppts = () => {
@@ -125,15 +126,15 @@ function isThisCurrent(date) {
         //console.log(m + "/" + day + "/" + y);
         if (day > 29 && leap(y) && m === 2) {
             //console.log("one");
-            setDay(1);
+            setDay(29);
         }
         else if (day > 28 && m === 2 && !leap(y)) {
             //console.log("two");
-            setDay(1);
+            setDay(28);
         }
         else if (day > 30 && thirty.includes(m)) {
             //console.log("three");
-            setDay(1);
+            setDay(30);
         }
     }
     function getMaxDay(m, y) {
@@ -153,6 +154,30 @@ function isThisCurrent(date) {
 
     const thirtyOne = [1, 3, 5, 7, 8, 10, 12];
     const thirty = [4, 6, 9, 11];
+
+    // Functions and stuff for pomo pop-up
+    const [pomoOpen, setPomoOpen] = React.useState(false);
+    const [focusTask, setFocusTask] = React.useState(null);
+    const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
+    const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
+
+    //TODO: make these times pull from user settings
+    const [taskTime, setTaskTime] = React.useState(30);
+    const [shortTime, setShortTime] = React.useState(5);
+    const [longTime, setLongTime] = React.useState(15);
+
+    const handleOpenPomo = (task, desc, timers) => {
+        //console.log("click");
+        setFocusTask(task);
+        setFocusTaskDesc(desc);
+        setFocusTaskTimers(timers);
+        setPomoOpen(true);
+    };
+    const handlePomoClose = () => {
+        setPomoOpen(false);
+        //console.log("close");
+    };
+
 
     
     // Popup for adding Tasks
@@ -386,7 +411,7 @@ const updateUserTasks = async (user, subBox) =>
                                 else {
                                     setMonth(month - 1);
                                 }
-                                dateRules(month, year);
+                                dateRules(month - 1, year);
                             }}
                             sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1}}
                             color="menu">
@@ -580,6 +605,19 @@ const updateUserTasks = async (user, subBox) =>
                         </Box>
                         {/* End of Date Navbar */}
 
+                        {/*Pomo Popup*/}
+                        <PomoPopup 
+                            pomoOpen={pomoOpen}
+                            onPomoClose={handlePomoClose}
+                            taskTitle={focusTask}
+                            taskDesc={focusTaskDesc}
+                            taskTimers={focusTaskTimers}
+                            taskTime={taskTime}
+                            shortTime={shortTime}
+                            longTime={longTime}
+                        />
+                        {/*End of Pomo Popup*/}
+
                         <Box sx={{display: 'flex', flexDirection: 'row'}}>
                             <Box>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:2, fontSize:'30px'}}>
@@ -730,9 +768,10 @@ const updateUserTasks = async (user, subBox) =>
                                                                     <IconButton onClick={iconClick} sx={{color: 'black'}} aria-label="checked">
                                                                         {icons[currentIcon]}
                                                                     </IconButton>
-                                                                    <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
+                                                                    <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}}>
                                                                         {subBox.title}
-                                                                    </Typography>
+                                                                    </Button>
+                        
                                                                     <IconButton aria-label="drag">
                                                                         <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                     </IconButton>                                                                                              
