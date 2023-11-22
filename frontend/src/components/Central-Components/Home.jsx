@@ -20,6 +20,9 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import { set } from "mongoose";
+import { PomoPopup } from "./Popup";
 
 
 const TasksAppts = () => {
@@ -123,15 +126,15 @@ function isThisCurrent(date) {
         //console.log(m + "/" + day + "/" + y);
         if (day > 29 && leap(y) && m === 2) {
             //console.log("one");
-            setDay(1);
+            setDay(29);
         }
         else if (day > 28 && m === 2 && !leap(y)) {
             //console.log("two");
-            setDay(1);
+            setDay(28);
         }
         else if (day > 30 && thirty.includes(m)) {
             //console.log("three");
-            setDay(1);
+            setDay(30);
         }
     }
     function getMaxDay(m, y) {
@@ -152,6 +155,30 @@ function isThisCurrent(date) {
     const thirtyOne = [1, 3, 5, 7, 8, 10, 12];
     const thirty = [4, 6, 9, 11];
 
+    // Functions and stuff for pomo pop-up
+    const [pomoOpen, setPomoOpen] = React.useState(false);
+    const [focusTask, setFocusTask] = React.useState(null);
+    const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
+    const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
+
+    //TODO: make these times pull from user settings
+    const [taskTime, setTaskTime] = React.useState(30);
+    const [shortTime, setShortTime] = React.useState(5);
+    const [longTime, setLongTime] = React.useState(15);
+
+    const handleOpenPomo = (task, desc, timers) => {
+        //console.log("click");
+        setFocusTask(task);
+        setFocusTaskDesc(desc);
+        setFocusTaskTimers(timers);
+        setPomoOpen(true);
+    };
+    const handlePomoClose = () => {
+        setPomoOpen(false);
+        //console.log("close");
+    };
+
+
     
     // Popup for adding Tasks
     const [anchorEl, setAnchorEl] = useState(null);
@@ -159,7 +186,8 @@ function isThisCurrent(date) {
     const [numTimers, setNumTimers] = useState(1);
     const [taskNote, setTaskNote] = useState('');
     const [isExpanded, setExpanded] = useState(false);
-    
+    const [editNumTimer, setEditNumTimer] = useState(false);
+    const [editNote, setEditNote] = useState(false);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -169,7 +197,6 @@ function isThisCurrent(date) {
         setTaskTitle(''); // Clear input when the popover is closed
         setNumTimers(1);
         setTaskNote('');
-
       };
 
     const open = Boolean(anchorEl);
@@ -181,7 +208,7 @@ function isThisCurrent(date) {
         const newKey = subBoxes.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote}]);
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote, editNumTimer: editNumTimer, editNote: editNote, }]);
         insertUserTask(user);
         handleClosePopover();
     };
@@ -189,18 +216,19 @@ function isThisCurrent(date) {
     //progress icons 
 
     const icons = [
-        <CheckCircleOutlineIcon sx={{ color: '#9FA3A8' }} />,
-        <SyncAltIcon sx={{ color: '#9FA3A8' }} />,
-        <HourglassEmptyRoundedIcon x={{ color: '#9FA3A8' }} />,
+        <CircleOutlinedIcon sx={{ color: 'black' }} />,
+        <HourglassEmptyRoundedIcon sx={{ color: 'black' }} />,
+        <CheckCircleOutlineIcon sx={{ color: 'black' }} />,
+        <SyncAltIcon sx={{ color: 'black' }} />,
       ];
 
     //Changes progress icons
 
     const [currentIcon, setCurrentIcon] = useState(0);
 
-    const iconClick = () => {
+    const iconClick = (subBox) => 
+    {
         setCurrentIcon((currentIcon + 1) % icons.length);
-        
     }
     
     // Handles dropdown menu from profile picture
@@ -214,14 +242,14 @@ function isThisCurrent(date) {
     };
 
     // Edit Number of Timers
-    const [editNumTask, setEditNumTask] = useState(false);
+    // const [editNumTimer, setEditNumTimer] = useState(false);
 
     const handleEditTaskToggle = () => {
-        setEditNumTask(!editNumTask);
+        setEditNumTimer(!editNumTimer);
     };
 
     // Edit Note
-    const [editNote, setEditNote] = useState(false);
+    // const [editNote, setEditNote] = useState(false);
 
     const handleEditNoteToggle = () => {
         setEditNote(!editNote);
@@ -279,58 +307,6 @@ function isThisCurrent(date) {
         }
     }
 
-/* ROGINAL
-    const getUserTasks = async (user) => 
-    {
-        const response = await axios.get("/api/getTasks", {
-            params: {
-                email: user.email,
-                day: day,
-                month: month,
-                year: year,
-            }
-        });
-        if (response) {
-            console.log("Here is the response")
-            console.log(response.data);
-            setGetUserTaskData(response.data);
-            //loop through response.data and add to subBoxes
-            console.log("Here is the response.data.length" , response.data.length);
-            //add all the tasks to subBoxes
-            insertIntoSubBoxes(response);
-        }
-    }
-*/
-
-
-/* VERSION 2
-const getUserTasks = async (user) => {
-    try {
-        const response = await axios.get("/api/getTasks", {
-            params: {
-                email: user.email,
-                day: day,
-                month: month,
-                year: year,
-            }
-        });
-
-        if (response && response.data && Array.isArray(response.data)) {
-            const filteredTasks = response.data.filter(task => {
-                const taskDate = new Date(task.year, task.month - 1, task.day);
-                return isSameDay(taskDate, selectedDate);
-            });
-
-            setGetUserTaskData(filteredTasks);
-            insertIntoSubBoxes(filteredTasks);
-        } else {
-            console.error("Invalid or missing data in the API response");
-        }
-    } catch (error) {
-        console.error("Error fetching user tasks:", error);
-    }
-} */
-// Function to check if two dates are on the same day
 const isSameDay = (date1, date2) => {
     return (
         date1.getDate() === date2.getDate() &&
@@ -367,36 +343,6 @@ const updateUserTasks = async (user, subBox) =>
         console.log(response.data);
     }
 }
-/*  const insertIntoSubBoxes = (response) =>
-    {
-        //add to the array
-        var newKey = 1;
-        console.log("Here is the newKey", newKey);
-        //make a empty list
-        var tempList = [];
-
-        for (var j = 0; j < response.data.length; j++)
-        {
-            const temp = { key: newKey, title: response.data[j].taskTitle, pomTimers: response.data[j].pomodoroCount, note: response.data[j].note };
-            tempList.push(temp);
-            newKey++;
-        }
-
-        //check if length is 0
-        if (tempList.length === 1)
-            setSubBoxes([...subBoxes, tempList[0]]);
-        else if (tempList.length === 2)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1]]);
-        else if (tempList.length === 3)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2]]);
-        else if (tempList.length === 4)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3]]);
-        else if (tempList.length === 5)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]]);
-        else if (tempList.length === 6)
-            setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5]]);
-    }
-*/
    
     return(
         <CssBaseline>
@@ -445,6 +391,7 @@ const updateUserTasks = async (user, subBox) =>
                     >
                         <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
                         <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Log Out</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>                 
@@ -464,7 +411,7 @@ const updateUserTasks = async (user, subBox) =>
                                 else {
                                     setMonth(month - 1);
                                 }
-                                dateRules(month, year);
+                                dateRules(month - 1, year);
                             }}
                             sx={{minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1}}
                             color="menu">
@@ -658,6 +605,19 @@ const updateUserTasks = async (user, subBox) =>
                         </Box>
                         {/* End of Date Navbar */}
 
+                        {/*Pomo Popup*/}
+                        <PomoPopup 
+                            pomoOpen={pomoOpen}
+                            onPomoClose={handlePomoClose}
+                            taskTitle={focusTask}
+                            taskDesc={focusTaskDesc}
+                            taskTimers={focusTaskTimers}
+                            taskTime={taskTime}
+                            shortTime={shortTime}
+                            longTime={longTime}
+                        />
+                        {/*End of Pomo Popup*/}
+
                         <Box sx={{display: 'flex', flexDirection: 'row'}}>
                             <Box>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:2, fontSize:'30px'}}>
@@ -795,6 +755,7 @@ const updateUserTasks = async (user, subBox) =>
 
                                                             <AccordionSummary 
                                                             expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                            aria-controls="panel1a-content"
                                                             sx={{ 
                                                                 width: "100%", 
                                                                 height: "3vh",  
@@ -804,12 +765,13 @@ const updateUserTasks = async (user, subBox) =>
                                                             elevation={0}
                                                             >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
-                                                                    <IconButton onClick={iconClick} sx={{}} aria-label="checked">
+                                                                    <IconButton onClick={iconClick} sx={{color: 'black'}} aria-label="checked">
                                                                         {icons[currentIcon]}
                                                                     </IconButton>
-                                                                    <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
+                                                                    <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}}>
                                                                         {subBox.title}
-                                                                    </Typography>
+                                                                    </Button>
+                        
                                                                     <IconButton aria-label="drag">
                                                                         <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                     </IconButton>                                                                                              
@@ -827,7 +789,7 @@ const updateUserTasks = async (user, subBox) =>
                                                                         </Typography>
                                                                     </Grid>
                                                                     <Grid item>
-                                                                    {editNumTask ? (
+                                                                    {subBox.editNumTimer ? (
                                                                         <>
                                                                             <IconButton aria-label="plusTimer" onClick={() => {
                                                                                 subBox.pomTimers=subBox.pomTimers + 1;
@@ -841,15 +803,20 @@ const updateUserTasks = async (user, subBox) =>
                                                                                     {subBox.pomTimers}
                                                                                 </Typography>
 
-                                                                                <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                setNumTimers(subBox.pomTimers);
-                                                                                updateUserTasks(user, subBox);
+                                                                            <IconButton aria-label="minusTimer" onClick={() => {
+                                                                                if(subBox.pomTimers > 1){
+                                                                                    subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                    setNumTimers(subBox.pomTimers);
+                                                                                    updateUserTasks(user, subBox);
+                                                                                }
                                                                             }}>
                                                                                 <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                             </IconButton>
 
-                                                                            <IconButton aria-label="editingTimers" onClick={handleEditTaskToggle}>
+                                                                            <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
                                                                                 <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                             </IconButton>
                                                                           </>
@@ -859,14 +826,17 @@ const updateUserTasks = async (user, subBox) =>
                                                                                 {subBox.pomTimers}
                                                                             </Typography>
                                                                         
-                                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={handleEditTaskToggle}>
+                                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
                                                                                     <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                           </>
                                                                     )}
                                                                     </Grid>
                                                                 </Grid> 
-                                                            {editNote ? (
+                                                            {subBox.editNote ? (
                                                                 <>
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
@@ -875,7 +845,10 @@ const updateUserTasks = async (user, subBox) =>
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
-                                                                            <IconButton aria-label="editingTimers" onClick={handleEditNoteToggle}>
+                                                                            <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNote=!(subBox.editNote);
+                                                                                setEditNote(subBox.editNote);
+                                                                            }}>
                                                                                 <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                             </IconButton>
                                                                         </Grid>
@@ -906,7 +879,10 @@ const updateUserTasks = async (user, subBox) =>
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={handleEditNoteToggle} />
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                        subBox.editNote=!(subBox.editNote);
+                                                                                        setEditNote(subBox.editNote);
+                                                                                    }} />
                                                                                 </IconButton>
                                                                             </Grid>
                                                                         </Grid>
