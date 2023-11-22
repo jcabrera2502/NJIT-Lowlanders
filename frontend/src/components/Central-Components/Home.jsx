@@ -676,7 +676,7 @@ const updateUserTasks = async (user, subBox) =>
                                                     
                                                     // Task module Ends here
                                                 )}
-                                                {provided.placeholder}
+                                                
                                                 </List>
                                                 )}
                                                 </Droppable>
@@ -868,7 +868,7 @@ const updateUserTasks = async (user, subBox) =>
                                                     ))
                                                     // Task module Ends here
                                                 )}
-                                                {provided.placeholder}
+                                                
                                             </List>
                                             )}    
                                             </Droppable>
@@ -910,7 +910,7 @@ const updateUserTasks = async (user, subBox) =>
                                                     
                                                     // Task module Ends here
                                                 )}
-                                                {provided.placeholder}
+                                                
                                                 </List>
                                                 )}
                                                 </Droppable>
