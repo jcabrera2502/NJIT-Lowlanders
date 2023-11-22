@@ -316,7 +316,7 @@ const updateUserTasks = async (user, subBox) =>
         console.log(response.data);
     }
 }
-   
+
     return(
         <CssBaseline>
         <Grid container>
@@ -645,8 +645,6 @@ const updateUserTasks = async (user, subBox) =>
                                     <DragDropContext>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
                                         {/* Top Priority Task Box*/}
-                                        <Droppable droppableId="Top_Priority">
-                                        {(provided, snapshot) => (
                                         <Box sx={{ 
                                             ml:2,
                                             width: "95%", 
@@ -662,6 +660,9 @@ const updateUserTasks = async (user, subBox) =>
                                             alignItems="center"
                                             flexDirection="column"
                                             >
+                                                <Droppable droppableId="Top_Priority">
+                                                {(provided) => (
+                                                <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
                                                 {true ? ( //TODO Needs to be replaced with a new array for Top Priority
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
@@ -675,10 +676,13 @@ const updateUserTasks = async (user, subBox) =>
                                                     
                                                     // Task module Ends here
                                                 )}
+                                                {provided.placeholder}
+                                                </List>
+                                                )}
+                                                </Droppable>
                                             </Box>
                                         </Box>
-                                        )}
-                                        </Droppable>
+                                        
 
                                         { /* Important Task Box*/}
                                         
@@ -702,8 +706,8 @@ const updateUserTasks = async (user, subBox) =>
                                             flexDirection="column"
                                             >
                                             <Droppable droppableId="Important">
-                                            {(provided, snapshot) => (
-                                            <List ref={provided.innerRef} {...provided.droppableProps} sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
+                                            {(provided) => (
+                                            <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
                                                 {subBoxes.length === 0 ? (
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
@@ -713,9 +717,9 @@ const updateUserTasks = async (user, subBox) =>
                                                     // Display sub-boxes when there are some
                                                     
                                                     // Task module starts here
-                                                    subBoxes.map((subBox) => (
-                                                        <Draggable draggableId={subBox.key}>
-                                                        {(provided, snapshot) => (
+                                                    subBoxes.map((subBox, index) => (
+                                                        <Draggable key={String(subBox.key)} draggableId={String(subBox.key)} index={index}>
+                                                        {(provided) => (
                                                         <ListItem
                                                         ref={provided.innerRef}
                                                         {...provided.draggableProps}
@@ -864,6 +868,7 @@ const updateUserTasks = async (user, subBox) =>
                                                     ))
                                                     // Task module Ends here
                                                 )}
+                                                {provided.placeholder}
                                             </List>
                                             )}    
                                             </Droppable>
@@ -872,8 +877,6 @@ const updateUserTasks = async (user, subBox) =>
                                         </Box>
 
                                         {/* Other Task Box */}
-                                        <Droppable droppableId="Task_Box">
-                                        {(provided, snapshot) => (
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
@@ -885,14 +888,16 @@ const updateUserTasks = async (user, subBox) =>
                                                 Other
                                             </Typography>
 
-                                            
                                             <Box
                                             display="flex"
                                             justifyContent="center"
                                             alignItems="center"
                                             flexDirection="column"
                                             >
-                                                {true ? ( //TODO Needs to be replaced with a new array for Other
+                                                <Droppable droppableId="Other">
+                                                {(provided) => (
+                                                <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
+                                                {true ? ( //TODO Needs to be replaced with a new array for Top Priority
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
                                                         There are Currently no Tasks in here
@@ -905,11 +910,12 @@ const updateUserTasks = async (user, subBox) =>
                                                     
                                                     // Task module Ends here
                                                 )}
-                                            </Box>
-                                            
+                                                {provided.placeholder}
+                                                </List>
+                                                )}
+                                                </Droppable>
+                                            </Box>  
                                         </Box>
-                                        )}
-                                        </Droppable>
                                     </Box>
                                     </DragDropContext>
                                 </Paper>
