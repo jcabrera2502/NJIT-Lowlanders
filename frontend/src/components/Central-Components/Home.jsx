@@ -2,7 +2,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, getSelectUtilityClasses} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
@@ -188,6 +188,7 @@ function isThisCurrent(date) {
     const [isExpanded, setExpanded] = useState(false);
     const [editNumTimer, setEditNumTimer] = useState(false);
     const [editNote, setEditNote] = useState(false);
+    const [currentIcon, setCurrentIcon] = useState(0);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -208,7 +209,9 @@ function isThisCurrent(date) {
         const newKey = subBoxes.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, note: taskNote, editNumTimer: editNumTimer, editNote: editNote, }]);
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon }]);
+        // console.log(currentIcon);
         insertUserTask(user);
         handleClosePopover();
     };
@@ -223,13 +226,10 @@ function isThisCurrent(date) {
       ];
 
     //Changes progress icons
-
-    const [currentIcon, setCurrentIcon] = useState(0);
-
-    const iconClick = (subBox) => 
-    {
-        setCurrentIcon((currentIcon + 1) % icons.length);
-    }
+    // const iconClick = (subBox) => 
+    // {
+    //     setCurrentIcon((currentIcon + 1) % icons.length);
+    // }
     
     // Handles dropdown menu from profile picture
     const [anchorEl2, setAnchorEl2] = React.useState(null);
@@ -241,19 +241,6 @@ function isThisCurrent(date) {
         setAnchorEl2(null);
     };
 
-    // Edit Number of Timers
-    // const [editNumTimer, setEditNumTimer] = useState(false);
-
-    const handleEditTaskToggle = () => {
-        setEditNumTimer(!editNumTimer);
-    };
-
-    // Edit Note
-    // const [editNote, setEditNote] = useState(false);
-
-    const handleEditNoteToggle = () => {
-        setEditNote(!editNote);
-    };
 
 
     const insertUserTask = async (user) => {
@@ -639,51 +626,54 @@ const updateUserTasks = async (user, subBox) =>
                                         horizontal: 'left',
                                       }}
                                     >
-                                      <Box p={2}>
-                                        <Typography sx={{mb:0.5}}>Task Title*</Typography>
-                                        <TextField
-                                            sx={{mb:2}}
-                                            label="Title"
-                                            required
-                                            variant="outlined"
-                                            fullWidth
-                                            value={taskTitle}
-                                            onChange={(e) => setTaskTitle(e.target.value)}
-                                        />
-                                        <Typography sx={{mb:0.5}}>Number of Pomodoro Timers</Typography>
-                                        <TextField
-                                            sx={{mb:2}}
-                                            type='number'
-                                            InputProps={{
-                                                inputProps: { min: 1 }
-                                            }}
-                                            label="Pomodoro Timers"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={numTimers}
-                                            onChange={(e) => setNumTimers(e.target.value)}
-                                        />
-                                        <Typography sx={{mb:0.5}}>Notes (Optional)</Typography>
-                                        <TextField
-                                            sx={{mb:2}}
-                                            label="Note"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={taskNote}
-                                            onChange={(e) => setTaskNote(e.target.value)}
-                                            multiline
-                                        />
-                                        
+                                        <FormControl>
+                                            <Box p={2}>
+                                                <Typography sx={{mb:0.5}}>Task Title*</Typography>
+                                                <TextField
+                                                    sx={{mb:2}}
+                                                    label="Title"
+                                                    required
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    value={taskTitle}
+                                                    onChange={(e) => setTaskTitle(e.target.value)}
+                                                />
+                                                <Typography sx={{mb:0.5}}>Number of Pomodoro Timers</Typography>
+                                                <TextField
+                                                    sx={{mb:2}}
+                                                    type='number'
+                                                    InputProps={{
+                                                        inputProps: { min: 1 }
+                                                    }}
+                                                    label="Pomodoro Timers"
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    value={numTimers}
+                                                    onChange={(e) => {
+                                                        setNumTimers(e.target.value);
+                                                    }}
+                                                />
+                                                <Typography sx={{mb:0.5}}>Notes (Optional)</Typography>
+                                                <TextField
+                                                    sx={{mb:2}}
+                                                    label="Note"
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    value={taskNote}
+                                                    onChange={(e) => setTaskNote(e.target.value)}
+                                                    multiline
+                                                />
+                                                
 
-                                        <Button color="primary" onClick={handleAddSubBox}>
-                                          Add Box
-                                        </Button>
-                                      </Box>
+                                                <Button type="submit" color="primary" onClick={handleAddSubBox}>
+                                                    Add Task
+                                                </Button>
+                                            </Box>
+                                        </FormControl>
                                     </Popover>
                                 </Typography>                                                    
                                 <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
-
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
                                             ml:2,
@@ -765,8 +755,13 @@ const updateUserTasks = async (user, subBox) =>
                                                             elevation={0}
                                                             >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
-                                                                    <IconButton onClick={iconClick} sx={{color: 'black'}} aria-label="checked">
-                                                                        {icons[currentIcon]}
+                                                                    <IconButton onClick={() => {
+                                                                        subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
+                                                                        setCurrentIcon(subBox.currentIcon);
+                                                                    }}
+                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                        {icons[subBox.currentIcon]}
+                                                                        {/* {subBox.currentIcon} */}
                                                                     </IconButton>
                                                                     <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}}>
                                                                         {subBox.title}
