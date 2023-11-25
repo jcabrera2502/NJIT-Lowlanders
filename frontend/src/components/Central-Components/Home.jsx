@@ -1,4 +1,4 @@
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, setPersistence } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
@@ -44,7 +44,6 @@ function isThisCurrent(date) {
     return date.getTime() === currentDate.getTime();
   }
     const fetchUserData = async (user) => {
-        console.log(subBoxes)
         if (!userPresentInDatabase) {
             const response = await axios.get("/api/email", {
                 params: {
@@ -65,7 +64,6 @@ function isThisCurrent(date) {
             if (user) {
                 setUser(user);
                 getUserTasks(user);
-
             } else {
                 setUser(null);
             }
@@ -243,7 +241,7 @@ function isThisCurrent(date) {
 
 
     const insertUserTask = async (user) => {
-        console.log(user);
+        //console.log(user);
 
             const response = await axios.post("/api/insertTask", {
             params: 
@@ -262,7 +260,7 @@ function isThisCurrent(date) {
         });
         //Only sets the data if there is a result
         if(response){ 
-            console.log(response)
+            //console.log(response)
             setInsertTaskData(response.data);
         }
     };
@@ -326,8 +324,80 @@ const updateUserTasks = async (user, subBox) =>
         }
     });
     if (response) {
-        console.log(response.data);
+        //console.log(response.data);
     }
+}
+
+// Status of tasks
+
+const taskStatus = 
+{
+    topPriority:
+    {
+        items: []
+    },
+    important:
+    {
+        items: subBoxes
+    },
+    other:
+    {
+        items: []
+    }
+};
+
+// State for draggable ordering
+const [priority, setPriority] = useState(taskStatus);
+
+function handleOnDragEnd(result) {
+    //remove once other issues are resolved
+    //----------------------------------------------------------------
+    if (!result.destination) return;
+    const items = Array.from(subBoxes);
+    const [reorder] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorder);
+    setSubBoxes(items);
+    //----------------------------------------------------------------
+    if(result.source.droppableId !== result.destination.droppableId)
+    {
+        //take array items and throw them into the appropriate arrays
+    
+    const sourcePriority = priority[result.source.droppableId];
+    const destPriority = priority[result.destination.droppableId];
+    const sourceItems = [...sourcePriority.items];
+    const destItems = [...destPriority.items];
+    const [removed] = sourceItems.splice(result.source.index, 1);
+    destItems.splice(result.destination.index, 0, removed);
+    setPriority({
+      ...priority,
+      [result.source.droppableId]: {
+        ...sourcePriority,
+        items: sourceItems
+      },
+      [result.destination.droppableId]: {
+        ...destPriority,
+        items: destItems
+      }
+    });
+    }
+    /* 
+    else 
+    {
+        const column = priority[result.source.droppableId];
+        const copiedItems = [...column.items];
+        const [removed] = copiedItems.splice(result.source.index, 1);
+        copiedItems.splice(result.destination.index, 0, removed);
+        setPriority({
+          ...priority,
+          [result.source.droppableId]: {
+            ...column,
+            items: copiedItems
+          }
+        });
+      }
+    */
+    console.log(priority);
+    console.log(taskStatus);
 }
 
     return(
@@ -608,7 +678,7 @@ const updateUserTasks = async (user, subBox) =>
                             <Box>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:2, fontSize:'30px'}}>
                                     Tasks
-                                    <IconButton sx={{}} aria-label="addTask" onClick={handleOpenPopover}>
+                                    <IconButton aria-label="addTask" onClick={handleOpenPopover}>
                                         <Avatar sx={{bgcolor: "#5D8EFF"}}><AddIcon sx={{color: "#FFF"}} /></Avatar>
                                     </IconButton>
                                     <Popover
@@ -673,7 +743,7 @@ const updateUserTasks = async (user, subBox) =>
                                 </Typography>
                                                                                     
                                 <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
-                                    <DragDropContext>
+                                    <DragDropContext onDragEnd={handleOnDragEnd}>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
@@ -691,23 +761,188 @@ const updateUserTasks = async (user, subBox) =>
                                             alignItems="center"
                                             flexDirection="column"
                                             >
-                                                <Droppable droppableId="Top_Priority">
+                                                <Droppable droppableId="topPriority">
                                                 {(provided) => (
                                                 <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
-                                                {true ? ( //TODO Needs to be replaced with a new array for Top Priority
+                                                {taskStatus.topPriority.items.length === 0 ? ( //TODO Needs to be replaced with a new array for Top Priority
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
                                                         There are Currently no Tasks in here
                                                     </Typography>
                                                 ) : (
 
-                                                    // Display sub-boxes when there are some
-                                                    <Typography>Placeholder</Typography>
-                                                    // Task module starts here
+                                                    taskStatus.topPriority.items.map((subBox, index) => (
+                                                        <Draggable key={String(subBox.key)} draggableId={String(subBox.key)} index={index}>
+                                                        {(provided) => (
+                                                        <ListItem
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        sx={{padding: 0, borderRadius: 8}}
+                                                        >
+                                                            <Box sx={{width: "100%", mb: 1}}
+                                                                display="flex"
+                                                                justifyContent="center"
+                                                                alignItems="center"
+                                                                flexDirection="column"
+                                                            >
+                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+
+                                                                <AccordionSummary 
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                aria-controls="panel1a-content"
+                                                                sx={{ 
+                                                                    width: "100%", 
+                                                                    height: "3vh",  
+                                                                    borderRadius: "8px",
+                                                                    paddingLeft: 0,
+                                                                }}
+                                                                elevation={0}
+                                                                >
+                                                                <Toolbar disableGutters sx={{width: "100%"}}>
+                                                                        <IconButton onClick={() => {
+                                                                        subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
+                                                                        setCurrentIcon(subBox.currentIcon);
+                                                                    }}
+                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                            {icons[subBox.currentIcon]}
+                                                                        {/* {subBox.currentIcon} */}
+                                                                        </IconButton>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                            {subBox.title}
+                                                                        </Button>
+                                                                        <Box sx={{flexGrow: 1}} />
+                                                                        <IconButton aria-label="drag">
+                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                        </IconButton> 
+                                                                        <Box sx={{ mr: ".3em"}} />                                                                                             
+                                                            </Toolbar>
                                                     
-                                                    // Task module Ends here
+                                                                </AccordionSummary>
+                                                                <AccordionDetails>
+                                                                    <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+
+
+                                                                    <Grid container alignItems="center">
+                                                                        <Grid item xs>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                            </Typography>
+                                                                        </Grid>
+                                                                        <Grid item>
+                                                                        {subBox.editNumTimer ? (
+                                                                            <>
+                                                                                <IconButton aria-label="plusTimer" onClick={() => {
+                                                                                    subBox.pomTimers=subBox.pomTimers + 1;
+                                                                                    setNumTimers(subBox.pomTimers);
+                                                                                    updateUserTasks(user, subBox);
+                                                                                }}>
+                                                                                    <AddBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
+                                                                                </IconButton>
+
+                                                                                    <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                                        {subBox.pomTimers}
+                                                                                    </Typography>
+
+                                                                                <IconButton aria-label="minusTimer" onClick={() => {
+                                                                                if(subBox.pomTimers > 1){
+                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                        setNumTimers(subBox.pomTimers);
+                                                                                        updateUserTasks(user, subBox);
+                                                                                }
+                                                                                }}>
+                                                                                    <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
+                                                                                </IconButton>
+
+                                                                                <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
+                                                                                    <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
+                                                                            </>
+                                                                            ) : (
+                                                                            <>
+                                                                                <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                                    {subBox.pomTimers}
+                                                                                </Typography>
+                                                                            
+                                                                                <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                    </IconButton>
+                                                                            </>
+                                                                        )}
+                                                                        </Grid>
+                                                                    </Grid> 
+                                                                {subBox.editNote ? (
+                                                                    <>
+                                                                        <Grid container alignItems="center">
+                                                                            <Grid item xs>
+                                                                                <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    Notes (Editing)
+                                                                                </Typography>
+                                                                            </Grid>
+                                                                            <Grid item>
+                                                                                <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNote=!(subBox.editNote);
+                                                                                setEditNote(subBox.editNote);
+                                                                            }}>
+                                                                                    <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
+                                                                            </Grid>
+                                                                        </Grid>
+                                                                        <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
+                                                                
+                                                                                <TextField
+                                                                                    label="Note"
+                                                                                    variant="outlined"
+                                                                                    fullWidth
+                                                                                    defaultValue={subBox.note}
+                                                                                    onChange={(e) => {
+                                                                                        subBox.note= e.target.value;
+                                                                                        setTaskNote(subBox.note)
+                                                                                        updateUserTasks(user, subBox);
+                                                                                    }}
+                                                                                    multiline
+                                                                                />
+                                                                        </Box>
+                                                                    </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Grid container alignItems="center">
+                                                                                <Grid item xs>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                        Notes
+                                                                                    </Typography>
+                                                                                </Grid>
+                                                                                <Grid item>
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                        subBox.editNote=!(subBox.editNote);
+                                                                                        setEditNote(subBox.editNote);
+                                                                                    }} />
+                                                                                    </IconButton>
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                            <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                    {subBox.note}
+                                                                                </Typography>    
+                                                                            </Box> 
+                                                                        </>
+                                                                    )}
+                                                                    </AccordionDetails>
+                                                                </Accordion>
+                                                            </Box>
+                                                        </ListItem>
+                                                        )}
+                                                        </Draggable>
+                                                    ))
                                                 )}
-                                                
+                                                {provided.placeholder}
                                                 </List>
                                                 )}
                                                 </Droppable>
@@ -736,10 +971,10 @@ const updateUserTasks = async (user, subBox) =>
                                             alignItems="center"
                                             flexDirection="column"
                                             >
-                                            <Droppable droppableId="Important">
+                                            <Droppable droppableId="important">
                                             {(provided) => (
                                             <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
-                                                {subBoxes.length === 0 ? (
+                                                {taskStatus.important.items.length === 0 ? (
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
                                                         There are Currently no Tasks in here
@@ -748,7 +983,7 @@ const updateUserTasks = async (user, subBox) =>
                                                     // Display sub-boxes when there are some
                                                     
                                                     // Task module starts here
-                                                    subBoxes.map((subBox, index) => (
+                                                    taskStatus.important.items.map((subBox, index) => (
                                                         <Draggable key={String(subBox.key)} draggableId={String(subBox.key)} index={index}>
                                                         {(provided) => (
                                                         <ListItem
@@ -776,7 +1011,7 @@ const updateUserTasks = async (user, subBox) =>
                                                                 }}
                                                                 elevation={0}
                                                                 >
-                                                                    <Toolbar disableGutters sx={{width: "100%"}}>
+                                                                <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
@@ -785,13 +1020,14 @@ const updateUserTasks = async (user, subBox) =>
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
-                        
+                                                                        <Box sx={{flexGrow: 1}} />
                                                                         <IconButton aria-label="drag">
                                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                                        </IconButton>                                                                                              
+                                                                        </IconButton> 
+                                                                        <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
                                                     
                                                                 </AccordionSummary>
@@ -919,7 +1155,7 @@ const updateUserTasks = async (user, subBox) =>
                                                     ))
                                                     // Task module Ends here
                                                 )}
-                                                
+                                                {provided.placeholder}
                                             </List>
                                             )}    
                                             </Droppable>
@@ -945,23 +1181,189 @@ const updateUserTasks = async (user, subBox) =>
                                             alignItems="center"
                                             flexDirection="column"
                                             >
-                                                <Droppable droppableId="Other">
+                                                <Droppable droppableId="other">
                                                 {(provided) => (
                                                 <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
-                                                {true ? ( //TODO Needs to be replaced with a new array for Top Priority
+                                                {taskStatus.other.items.length === 0 ? ( //TODO Needs to be replaced with a new array for Top Priority
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
                                                         There are Currently no Tasks in here
                                                     </Typography>
                                                 ) : (
-
                                                     // Display sub-boxes when there are some
-                                                    <Typography>Placeholder</Typography>
-                                                    // Task module starts here
+                                                    taskStatus.other.items.map((subBox, index) => (
+                                                        <Draggable key={String(subBox.key)} draggableId={String(subBox.key)} index={index}>
+                                                        {(provided) => (
+                                                        <ListItem
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        sx={{padding: 0, borderRadius: 8}}
+                                                        >
+                                                            <Box sx={{width: "100%", mb: 1}}
+                                                                display="flex"
+                                                                justifyContent="center"
+                                                                alignItems="center"
+                                                                flexDirection="column"
+                                                            >
+                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+
+                                                                <AccordionSummary 
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                aria-controls="panel1a-content"
+                                                                sx={{ 
+                                                                    width: "100%", 
+                                                                    height: "3vh",  
+                                                                    borderRadius: "8px",
+                                                                    paddingLeft: 0,
+                                                                }}
+                                                                elevation={0}
+                                                                >
+                                                                <Toolbar disableGutters sx={{width: "100%"}}>
+                                                                        <IconButton onClick={() => {
+                                                                        subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
+                                                                        setCurrentIcon(subBox.currentIcon);
+                                                                    }}
+                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                            {icons[subBox.currentIcon]}
+                                                                        {/* {subBox.currentIcon} */}
+                                                                        </IconButton>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                            {subBox.title}
+                                                                        </Button>
+                                                                        <Box sx={{flexGrow: 1}} />
+                                                                        <IconButton aria-label="drag">
+                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                        </IconButton> 
+                                                                        <Box sx={{ mr: ".3em"}} />                                                                                             
+                                                            </Toolbar>
                                                     
-                                                    // Task module Ends here
+                                                                </AccordionSummary>
+                                                                <AccordionDetails>
+                                                                    <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
+
+
+                                                                    <Grid container alignItems="center">
+                                                                        <Grid item xs>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                            </Typography>
+                                                                        </Grid>
+                                                                        <Grid item>
+                                                                        {subBox.editNumTimer ? (
+                                                                            <>
+                                                                                <IconButton aria-label="plusTimer" onClick={() => {
+                                                                                    subBox.pomTimers=subBox.pomTimers + 1;
+                                                                                    setNumTimers(subBox.pomTimers);
+                                                                                    updateUserTasks(user, subBox);
+                                                                                }}>
+                                                                                    <AddBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
+                                                                                </IconButton>
+
+                                                                                    <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                                        {subBox.pomTimers}
+                                                                                    </Typography>
+
+                                                                                <IconButton aria-label="minusTimer" onClick={() => {
+                                                                                if(subBox.pomTimers > 1){
+                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                        setNumTimers(subBox.pomTimers);
+                                                                                        updateUserTasks(user, subBox);
+                                                                                }
+                                                                                }}>
+                                                                                    <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
+                                                                                </IconButton>
+
+                                                                                <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
+                                                                                    <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
+                                                                            </>
+                                                                            ) : (
+                                                                            <>
+                                                                                <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
+                                                                                    {subBox.pomTimers}
+                                                                                </Typography>
+                                                                            
+                                                                                <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
+                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                setEditNumTimer(subBox.editNumTimer);
+                                                                            }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                    </IconButton>
+                                                                            </>
+                                                                        )}
+                                                                        </Grid>
+                                                                    </Grid> 
+                                                                {subBox.editNote ? (
+                                                                    <>
+                                                                        <Grid container alignItems="center">
+                                                                            <Grid item xs>
+                                                                                <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    Notes (Editing)
+                                                                                </Typography>
+                                                                            </Grid>
+                                                                            <Grid item>
+                                                                                <IconButton aria-label="editingTimers" onClick={() => {
+                                                                                subBox.editNote=!(subBox.editNote);
+                                                                                setEditNote(subBox.editNote);
+                                                                            }}>
+                                                                                    <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
+                                                                            </Grid>
+                                                                        </Grid>
+                                                                        <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
+                                                                
+                                                                                <TextField
+                                                                                    label="Note"
+                                                                                    variant="outlined"
+                                                                                    fullWidth
+                                                                                    defaultValue={subBox.note}
+                                                                                    onChange={(e) => {
+                                                                                        subBox.note= e.target.value;
+                                                                                        setTaskNote(subBox.note)
+                                                                                        updateUserTasks(user, subBox);
+                                                                                    }}
+                                                                                    multiline
+                                                                                />
+                                                                        </Box>
+                                                                    </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Grid container alignItems="center">
+                                                                                <Grid item xs>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                        Notes
+                                                                                    </Typography>
+                                                                                </Grid>
+                                                                                <Grid item>
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                        subBox.editNote=!(subBox.editNote);
+                                                                                        setEditNote(subBox.editNote);
+                                                                                    }} />
+                                                                                    </IconButton>
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                            <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                    {subBox.note}
+                                                                                </Typography>    
+                                                                            </Box> 
+                                                                        </>
+                                                                    )}
+                                                                    </AccordionDetails>
+                                                                </Accordion>
+                                                            </Box>
+                                                        </ListItem>
+                                                        )}
+                                                        </Draggable>
+                                                    ))
+                                                    
                                                 )}
-                                                
+                                                {provided.placeholder}
                                                 </List>
                                                 )}
                                                 </Droppable>
@@ -970,7 +1372,6 @@ const updateUserTasks = async (user, subBox) =>
                                     </Box>
                                     </DragDropContext>
                                 </Paper>
-                                
                             </Box>   
                             
                             {/* Appointments */}
