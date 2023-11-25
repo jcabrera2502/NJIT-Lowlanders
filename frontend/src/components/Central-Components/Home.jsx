@@ -329,7 +329,6 @@ const updateUserTasks = async (user, subBox) =>
 }
 
 // Status of tasks
-
 const taskStatus = 
 {
     topPriority:
@@ -349,15 +348,17 @@ const taskStatus =
 // State for draggable ordering
 const [priority, setPriority] = useState(taskStatus);
 
+// Overwrites empty priority array
+useEffect(() => {
+    if (subBoxes.length !== 0)
+    {
+        setPriority(taskStatus);
+        console.log(priority);
+    }
+}, [subBoxes]);
+
+// Handles arrays for draggable objects
 function handleOnDragEnd(result) {
-    //remove once other issues are resolved
-    //----------------------------------------------------------------
-    if (!result.destination) return;
-    const items = Array.from(subBoxes);
-    const [reorder] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorder);
-    setSubBoxes(items);
-    //----------------------------------------------------------------
     if(result.source.droppableId !== result.destination.droppableId)
     {
         //take array items and throw them into the appropriate arrays
@@ -380,24 +381,21 @@ function handleOnDragEnd(result) {
       }
     });
     }
-    /* 
+     
     else 
     {
-        const column = priority[result.source.droppableId];
-        const copiedItems = [...column.items];
+        const prio = priority[result.source.droppableId];
+        const copiedItems = [...prio.items];
         const [removed] = copiedItems.splice(result.source.index, 1);
         copiedItems.splice(result.destination.index, 0, removed);
         setPriority({
           ...priority,
           [result.source.droppableId]: {
-            ...column,
+            ...prio,
             items: copiedItems
           }
         });
       }
-    */
-    console.log(priority);
-    console.log(taskStatus);
 }
 
     return(
@@ -764,14 +762,14 @@ function handleOnDragEnd(result) {
                                                 <Droppable droppableId="topPriority">
                                                 {(provided) => (
                                                 <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
-                                                {taskStatus.topPriority.items.length === 0 ? ( //TODO Needs to be replaced with a new array for Top Priority
+                                                {priority.topPriority.items.length === 0 ? ( //TODO Needs to be replaced with a new array for Top Priority
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
                                                         There are Currently no Tasks in here
                                                     </Typography>
                                                 ) : (
 
-                                                    taskStatus.topPriority.items.map((subBox, index) => (
+                                                    priority.topPriority.items.map((subBox, index) => (
                                                         <Draggable key={String(subBox.key)} draggableId={String(subBox.key)} index={index}>
                                                         {(provided) => (
                                                         <ListItem
@@ -974,7 +972,7 @@ function handleOnDragEnd(result) {
                                             <Droppable droppableId="important">
                                             {(provided) => (
                                             <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
-                                                {taskStatus.important.items.length === 0 ? (
+                                                {priority.important.items.length === 0 ? (
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
                                                         There are Currently no Tasks in here
@@ -983,7 +981,7 @@ function handleOnDragEnd(result) {
                                                     // Display sub-boxes when there are some
                                                     
                                                     // Task module starts here
-                                                    taskStatus.important.items.map((subBox, index) => (
+                                                    priority.important.items.map((subBox, index) => (
                                                         <Draggable key={String(subBox.key)} draggableId={String(subBox.key)} index={index}>
                                                         {(provided) => (
                                                         <ListItem
@@ -1184,14 +1182,14 @@ function handleOnDragEnd(result) {
                                                 <Droppable droppableId="other">
                                                 {(provided) => (
                                                 <List {...provided.droppableProps} ref={provided.innerRef}  sx={{width: "100%", borderRadius: 8, margin: 0, padding: 0}}>
-                                                {taskStatus.other.items.length === 0 ? ( //TODO Needs to be replaced with a new array for Top Priority
+                                                {priority.other.items.length === 0 ? ( //TODO Needs to be replaced with a new array for Top Priority
                                                 // Display a message when there are no sub-boxes
                                                     <Typography justifyContent={"center"} sx={{ml:2,mt:2, mb:2, fontWeight: 100, fontSize:'20px'}}>
                                                         There are Currently no Tasks in here
                                                     </Typography>
                                                 ) : (
                                                     // Display sub-boxes when there are some
-                                                    taskStatus.other.items.map((subBox, index) => (
+                                                    priority.other.items.map((subBox, index) => (
                                                         <Draggable key={String(subBox.key)} draggableId={String(subBox.key)} index={index}>
                                                         {(provided) => (
                                                         <ListItem
