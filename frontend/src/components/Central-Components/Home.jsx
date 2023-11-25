@@ -238,8 +238,6 @@ function isThisCurrent(date) {
         setAnchorEl2(null);
     };
 
-
-
     const insertUserTask = async (user) => {
         //console.log(user);
 
@@ -350,11 +348,8 @@ const [priority, setPriority] = useState(taskStatus);
 
 // Overwrites empty priority array
 useEffect(() => {
-    if (subBoxes.length !== 0)
-    {
-        setPriority(taskStatus);
-        console.log(priority);
-    }
+    setPriority(taskStatus);
+    console.log(priority);
 }, [subBoxes]);
 
 // Handles arrays for draggable objects
