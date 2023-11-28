@@ -34,7 +34,10 @@ const TasksAppts = () => {
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
     const [selectedDate, setSelectedDate] = React.useState(new Date(year, month - 1, day));
-// Update isThisCurrent function
+    const [nonRecurringEvents, setNonRecurringEvents] = useState([]);
+    const [recurringEvents, setRecurringEvents] = useState([]);
+
+    // Update isThisCurrent function
 function isThisCurrent(date) {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set current date to midnight
@@ -262,6 +265,26 @@ function isThisCurrent(date) {
             setInsertTaskData(response.data);
         }
     };
+
+
+
+
+        const handleConnectClick = async () => {
+          try {
+            const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
+
+            //http://localhost:3001/google-proxy
+            console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
+            console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
+            // Redirect the user to the authorization URL received from the server
+            window.location.href = response.data.url;
+          } catch (error) {
+            console.error('Error connecting to Google Calendar:', error.message);
+          }
+        };
+      
+       
+      
     const getUserTasks = async (user) => {
         try {
             const response = await axios.get("/api/getTasks", {
@@ -393,6 +416,193 @@ function handleOnDragEnd(result) {
       }
 }
 
+
+/*
+BEGINNING OF GOOGLE API STUFF
+
+
+*/
+const [events, setEvents] = useState([]);
+
+const [user2, setUser2] = useState({});
+const [accessToken, setAccessToken] = useState(null);
+const [oauthCalled, setOauthCalled] = useState(() => {
+  // Initialize from localStorage or default to false
+  return JSON.parse(localStorage.getItem("oauthCalled")) || false;
+});
+
+//idk if this works yet
+const handleSignOut = async (event) => {
+    setUser2({});
+    setAccessToken(null);
+    setOauthCalled(false);
+  
+    // Revoke the access token
+    if (accessToken) {
+      try {
+        const revokeEndpoint = 'https://accounts.google.com/o/oauth2/revoke';
+        const revokeUrl = `${revokeEndpoint}?token=${accessToken}`;
+        await fetch(revokeUrl, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+  
+        console.log('Access token revoked successfully');
+      } catch (error) {
+        console.error('Error revoking access token:', error);
+      }
+    }
+  
+    // Other cleanup or redirection logic can be added here
+    document.getElementById("signInDiv").hidden = false;
+  };
+
+
+
+const handleCallbackResponse = async (response) => {
+console.log("User's email:", response.email);
+const calendarId = response.email;
+
+};
+//instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
+useEffect(() => {
+  const fetchData = async () => {
+    if (oauthCalled) {
+      const searchParams = new URLSearchParams(window.location.hash.substring(1));
+     //get access token from URL
+      const accessToken = searchParams.get("access_token");
+
+      if (accessToken) {
+        try {
+          // Fetch user's email from the UserInfo endpoint
+          const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`;
+          const emailFetch = await fetch(emailSite);
+          const emailData = await emailFetch.json();
+          const userEmail = emailData.email;
+
+          // Log and store the email
+          console.log("User's email:", userEmail);
+
+          // Make the Google Calendar API request
+          const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${accessToken}&q=Appointment`;
+          const response = await fetch(calendarApiUrl);
+          const data = await response.json();
+
+          // Log and process the Google Calendar API response
+          console.log("Google Calendar API Response:", data);
+          listUpcomingEvents(data.items); // Set the events state
+          handleCallbackResponse({ email: userEmail });
+
+        } catch (e) {
+          console.log("Error:", e);
+        }
+        setAccessToken(accessToken);
+        // Do whatever you want with the access token here
+      } else {
+        console.log("NO ACCESS TOKEN");
+      }
+    }
+  };
+
+  fetchData();
+}, [oauthCalled]);
+
+//this function just extracts the yeaar,month,day from the startDate field in the json
+const parseAndDisplayDateTime = (dateTimeString) => {
+    const startDate = new Date(dateTimeString);
+    const year = startDate.getFullYear();
+    const month = startDate.getMonth() + 1;
+    const day = startDate.getDate();
+  
+    return (
+      <div>
+        <p>Year: {year}</p>
+        <p>Month: {month}</p>
+        <p>Day: {day}</p>
+      </div>
+    );
+  };
+
+  //saving the state of the bool var
+const saveOauthCalledToStorage = (value) => {
+  setOauthCalled(value);
+  localStorage.setItem("oauthCalled", JSON.stringify(value));
+};
+
+
+//this function lists the events returned from the google calendar api
+const listUpcomingEvents = (eventsData) => {
+    console.log("Setting events:", eventsData);
+  
+    // Separate recurring and non-recurring events
+    const recurring = [];
+    const nonRecurring = [];
+  
+    eventsData.forEach((event) => {
+      if (event.recurrence) {
+        recurring.push(event);
+  
+      } else {
+        nonRecurring.push(event);
+      }
+      console.log("RECURRING EVENTS: ", recurring);
+  
+    });
+  
+    setRecurringEvents(recurring);
+    setNonRecurringEvents(nonRecurring);
+  };
+
+  //this function is called when the user clicks the sign in button
+function oauthSignIn() {
+    //setOauthCalled(true); // Update the state to true
+    saveOauthCalledToStorage(true);
+  
+    if(oauthCalled){
+      console.log("OAUTH CALLED IN OAUTH SIGN IN");
+  
+      
+    }
+    else{
+      console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
+    }
+    // Google's OAuth 2.0 endpoint for requesting an access token
+    var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
+  
+    // Create <form> element to submit parameters to OAuth 2.0 endpoint.
+    var form = document.createElement('form');
+    form.setAttribute('method', 'GET'); // Send as a GET request.
+    form.setAttribute('action', oauth2Endpoint);
+  
+    // Parameters to pass to OAuth 2.0 endpoint.
+    var params = {
+      'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
+      'redirect_uri': 'http://localhost:3000',
+      'response_type': 'token',
+      'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
+      'include_granted_scopes': 'true',
+      'state': 'pass-through value'
+    };
+  
+    // Add form parameters as hidden input values.
+    for (var p in params) {
+      var input = document.createElement('input');
+      input.setAttribute('type', 'hidden');
+      input.setAttribute('name', p);
+      input.setAttribute('value', params[p]);
+      form.appendChild(input);
+    }
+  
+    // Add form to page and submit it to open the OAuth 2.0 endpoint.
+    document.body.appendChild(form);
+   // console.log("DONE");
+  
+    form.submit();
+  }
+  
     return(
         <CssBaseline>
         <Grid container>
@@ -418,9 +628,12 @@ function handleOnDragEnd(result) {
                             <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
                             Plan Day
                             </Button>
-                        )}        
+                        )} 
+          
+          
                     </Box>
                 </div>
+               
                 
                 <Box sx={{mt: "32vh"}}>
                     <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
@@ -653,6 +866,60 @@ function handleOnDragEnd(result) {
                             </Button>
                         </Box>
                         {/* End of Date Navbar */}
+                        {/* Beginning of Google API data */}
+
+                        <div className="App">
+    {accessToken ? (
+      <div>
+        <button onClick={handleSignOut}>Sign Out</button>
+        <h1>Google Calendar API Example</h1>
+
+        {/* Display Non-Recurring Events */}
+        <h2>Non-Recurring Events</h2>
+        <ul>
+          {nonRecurringEvents.map((event) => (
+            <li key={event.id}>
+              <strong>{event.summary}</strong>
+              {event.start && event.start.dateTime && (
+                <p>Start Time: {event.start.dateTime}</p>
+              )}
+              {event.description && (
+                <p>Description: {event.description}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {/* Display Recurring Events */}
+        <h2>Recurring Events</h2>
+<ul>
+  {recurringEvents.map((event) => (
+    <li key={event.id}>
+      <strong>{event.summary}</strong>
+      {event.start && event.start.dateTime && (
+        <div>
+          <p>Start Time: {event.start.dateTime}</p>
+          {parseAndDisplayDateTime(event.start.dateTime)}
+        </div>
+      )}
+      {event.description && (
+        <p>Description: {event.description}</p>
+      )}
+      {event.recurrence && (
+        <p>Recurring on: {event.recurrence}</p>
+      )}
+    </li>
+  ))}
+</ul>
+      </div>
+    ) : (
+      <div>
+        <div id="signInDiv"></div>
+        <button onClick={oauthSignIn}>Sign In with Google</button>
+      </div>
+    )}
+  </div>
+                        {/* End of Google API data */}
 
                         {/*Pomo Popup*/}
                         <PomoPopup 

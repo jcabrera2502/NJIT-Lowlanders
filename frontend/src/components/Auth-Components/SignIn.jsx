@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {auth} from "../../firebase"
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider,signInWithPopup  } from "firebase/auth";
 import { Button, TextField, Paper, Typography, Grid, 
          CssBaseline, Link, Box, InputLabel} from "@mui/material";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -120,6 +120,19 @@ const SignIn = () => {
   const [error, setError] = useState(null);
 
 
+  const signInWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // Handle successful Google sign-in
+        const user = result.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        // Handle errors
+        console.error(error.message);
+      });
+  };
 /*Firebase method is called to sign user in*/
   const signIn = (e) => {
     e.preventDefault();
