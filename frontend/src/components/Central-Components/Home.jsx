@@ -249,6 +249,7 @@ function isThisCurrent(date) {
                 day: day,
                 month: month,
                 year: year,
+                status: 0,
             } 
         });
         //Only sets the data if there is a result
@@ -299,6 +300,7 @@ const insertIntoSubBoxes = (response) => {
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
+        currentIcon: task.status,
     }));
 
     setSubBoxes(newSubBoxes);
@@ -316,6 +318,7 @@ const updateUserTasks = async (user, subBox) =>
             year: year,
             note: subBox.note,
             pomodoroCount: subBox.pomTimers,
+            status: subBox.currentIcon,
         }
     });
     if (response) {
@@ -799,8 +802,10 @@ function handleOnDragEnd(result) {
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
+                                                                        console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
+                                                                        updateUserTasks(user, subBox);
                                                                     }}
                                                                     sx={{color: 'black'}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
@@ -1011,8 +1016,10 @@ function handleOnDragEnd(result) {
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
+                                                                        console.log("Current Icon" , subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
+                                                                        updateUserTasks(user, subBox);
                                                                     }}
                                                                     sx={{color: 'black'}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
@@ -1219,8 +1226,10 @@ function handleOnDragEnd(result) {
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
+                                                                        console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
+                                                                        updateUserTasks(user, subBox);
                                                                     }}
                                                                     sx={{color: 'black'}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
