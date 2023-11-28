@@ -336,7 +336,7 @@ const taskStatus =
     },
     other:
     {
-        items: [] // Replace with query of tasks with "other" as type
+        items: [] // Replace with query of tasks with "topPriority" as type
     }
 };
 

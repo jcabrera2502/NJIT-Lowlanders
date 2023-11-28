@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import Dialog from '@mui/material/Dialog';
 import PropTypes from 'prop-types';
-import { Typography, Button, Box } from "@mui/material";
+import { Typography, Button, Box, Dialog } from "@mui/material";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
@@ -145,8 +144,14 @@ export function PomoPopup(props) {
 
     //display
     return (
-        <Dialog onClose={handlePomoClose} open={pomoOpen}>
-            <Box>
+        <Dialog 
+            onClose={handlePomoClose} 
+            open={pomoOpen}  
+            minWidth={"sm"}
+            fullWidth
+            minHeigt={"sm"}
+        >
+            <Box sx={{height: ""}}>
                 <Box>
                     <Tabs value={tabValue} onChange={handleTabChange}>
                         <Tab label="Pomodoro" {...tabProps(0)} />
@@ -166,12 +171,23 @@ export function PomoPopup(props) {
                 </TabPanel>
                 */}
             </Box>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                {displayTimer()}
-            </Typography>
-            <Button variant="contained" onClick={toggleTimer}>
-                {(ticking ? "STOP" : "START")}
-            </Button>
+
+            <Box
+             display="flex"
+             flexDirection="column"
+             sx={{ bgcolor: "#F5F7F9"}}
+            >
+                <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
+                    {displayTimer()}
+                </Typography>
+                <Button 
+                    variant="contained" 
+                    onClick={toggleTimer}
+                    sx={{}}
+                >
+                    {(ticking ? "STOP" : "START")}
+                </Button>
+            </Box>
             <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
                 title {taskTitle}
             </Typography>
