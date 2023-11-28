@@ -328,15 +328,15 @@ const taskStatus =
 {
     topPriority:
     {
-        items: []
+        items: [] // Replace with query of tasks with "topPriority" as type
     },
     important:
     {
-        items: subBoxes
+        items: subBoxes // Replace with query of tasks with "important" as type
     },
     other:
     {
-        items: []
+        items: [] // Replace with query of tasks with "other" as type
     }
 };
 
