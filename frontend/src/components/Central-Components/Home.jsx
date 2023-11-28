@@ -186,6 +186,7 @@ function isThisCurrent(date) {
     const [editNumTimer, setEditNumTimer] = useState(false);
     const [editNote, setEditNote] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
+    const [type, setType] = useState('important');
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -207,7 +208,7 @@ function isThisCurrent(date) {
         //loop through all the subBoxes and add the new subBox to the end
         
         setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
-            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon }]);
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
         // console.log(currentIcon);
         insertUserTask(user);
         handleClosePopover();
@@ -221,12 +222,6 @@ function isThisCurrent(date) {
         <CheckCircleOutlineIcon sx={{ color: 'black' }} />,
         <SyncAltIcon sx={{ color: 'black' }} />,
       ];
-
-    //Changes progress icons
-    // const iconClick = (subBox) => 
-    // {
-    //     setCurrentIcon((currentIcon + 1) % icons.length);
-    // }
     
     // Handles dropdown menu from profile picture
     const [anchorEl2, setAnchorEl2] = React.useState(null);
@@ -246,7 +241,7 @@ function isThisCurrent(date) {
             {
                 email: user.email,
                 title: taskTitle,
-                type: "important",
+                type: type,
                 completed: false,
                 taskNote: taskNote,
                 pomodoroCount: numTimers,
@@ -303,6 +298,7 @@ const insertIntoSubBoxes = (response) => {
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
+        type: task.type,
     }));
 
     setSubBoxes(newSubBoxes);
@@ -314,6 +310,7 @@ const updateUserTasks = async (user, subBox) =>
         params: {
             email: user.email,
             title: subBox.title,
+            type: subBox.type,
             day: day,
             month: month,
             year: year,
@@ -331,15 +328,15 @@ const taskStatus =
 {
     topPriority:
     {
-        items: []
+        items: [] // Replace with query of tasks with "topPriority" as type
     },
     important:
     {
-        items: subBoxes
+        items: subBoxes // Replace with query of tasks with "important" as type
     },
     other:
     {
-        items: []
+        items: [] // Replace with query of tasks with "other" as type
     }
 };
 
@@ -349,32 +346,40 @@ const [priority, setPriority] = useState(taskStatus);
 // Overwrites empty priority array
 useEffect(() => {
     setPriority(taskStatus);
-    console.log(priority);
 }, [subBoxes]);
 
 // Handles arrays for draggable objects
+// NOTE: Draggable ID matches subBox key, we can keep track of tasks like this
 function handleOnDragEnd(result) {
+    if(!result.destination)
+    {
+        return;
+    }
+    console.log(result);
     if(result.source.droppableId !== result.destination.droppableId)
     {
         //take array items and throw them into the appropriate arrays
-    
-    const sourcePriority = priority[result.source.droppableId];
-    const destPriority = priority[result.destination.droppableId];
-    const sourceItems = [...sourcePriority.items];
-    const destItems = [...destPriority.items];
-    const [removed] = sourceItems.splice(result.source.index, 1);
-    destItems.splice(result.destination.index, 0, removed);
-    setPriority({
-      ...priority,
-      [result.source.droppableId]: {
-        ...sourcePriority,
-        items: sourceItems
-      },
-      [result.destination.droppableId]: {
-        ...destPriority,
-        items: destItems
-      }
-    });
+        const sourcePriority = priority[result.source.droppableId];
+        const destPriority = priority[result.destination.droppableId];
+        const sourceItems = [...sourcePriority.items];
+        const destItems = [...destPriority.items];
+        const [removed] = sourceItems.splice(result.source.index, 1);
+        destItems.splice(result.destination.index, 0, removed);
+        setPriority({
+        ...priority,
+        [result.source.droppableId]: {
+            ...sourcePriority,
+            items: sourceItems
+        },
+        [result.destination.droppableId]: {
+            ...destPriority,
+            items: destItems
+        }
+        });
+        setType(result.destination.droppableId);
+        subBoxes[result.draggableId-1].type = result.destination.droppableId;
+        updateUserTasks(user, subBoxes[result.draggableId-1]);
+        console.log(subBoxes);
     }
      
     else 
