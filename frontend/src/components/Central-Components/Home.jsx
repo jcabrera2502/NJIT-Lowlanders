@@ -283,6 +283,25 @@ function isThisCurrent(date) {
         } catch (error) {
             console.error("Error fetching user tasks:", error);
         }
+
+        console.log("NEW API");
+    }
+
+    const getTasksByPriority = async (user,taskType) =>
+    {
+        const response = await axios.get("/api/getTasksByPriority", {
+            params: {
+                email: user.email,
+                day: day,
+                month: month,
+                year: year,
+                type: taskType,
+            }
+        });
+        if (response) 
+        {
+            console.log(response.data);
+        }
     }
 
 const isSameDay = (date1, date2) => {
