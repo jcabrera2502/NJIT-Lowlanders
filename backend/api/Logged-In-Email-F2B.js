@@ -76,6 +76,16 @@ router.get('/api/getTasks', async (req, res) =>
     res.send(result);
 });
 
+router.get('/api/getTasksByPriority', async (req, res) =>
+{
+  const collection = mongoose.connection.db.collection("user-tasks");
+  const day = parseInt(req.query.day);
+  const month = parseInt(req.query.month);
+  const year = parseInt(req.query.year);
+  const result = await collection.find({email: req.query.email, type: req.query.type, day: day, month: month, year: year}).toArray();
+  res.send(result);
+});
+
 router.put('/api/updateTask', async (req, res) =>
 {
     const collection = mongoose.connection.db.collection("user-tasks");
@@ -86,7 +96,8 @@ router.put('/api/updateTask', async (req, res) =>
                                               month: req.body.params.month,
                                               year: req.body.params.year},
                                               {$set: {note: req.body.params.note,
-                                                      pomodoroCount: req.body.params.pomodoroCount}})
+                                                      pomodoroCount: req.body.params.pomodoroCount,
+                                                      status: req.body.params.status}})
     res.send(result);
 });
   
