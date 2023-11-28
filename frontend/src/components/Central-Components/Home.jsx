@@ -354,6 +354,11 @@ useEffect(() => {
 
 // Handles arrays for draggable objects
 function handleOnDragEnd(result) {
+    if(!result.destination)
+    {
+        return;
+    }
+
     if(result.source.droppableId !== result.destination.droppableId)
     {
         //take array items and throw them into the appropriate arrays
