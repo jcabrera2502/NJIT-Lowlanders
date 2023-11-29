@@ -21,7 +21,7 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { set } from "mongoose";
+import { get, set } from "mongoose";
 import { PomoPopup } from "./Popup";
 
 const TasksAppts = () => {
@@ -30,6 +30,9 @@ const TasksAppts = () => {
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
+    const [importantTasks, setImportantTasks] = useState([]);
+    const [topPriorityTasks, setTopPriorityTasks] = useState([]);
+    const [otherTasks, setOtherTasks] = useState([]);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
@@ -187,6 +190,7 @@ function isThisCurrent(date) {
     const [editNote, setEditNote] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
     const [type, setType] = useState('important');
+    const [indexTasks, setIndexTasks] = useState(0);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -203,11 +207,14 @@ function isThisCurrent(date) {
 
     //For Adding Tasks to Important
     const [subBoxes, setSubBoxes] = useState([]);
+    const [subBoxesImportant, setSubBoxesImportant] = useState([]);
+    const [subBoxesTopPriority, setSubBoxesTopPriority] = useState([]);
+    const [subBoxesOther, setSubBoxesOther] = useState([]);
     const handleAddSubBox = () => {
-        const newKey = subBoxes.length + 1;
+        const newKey = subBoxesImportant.length + subBoxesTopPriority.length + subBoxesOther.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
+        setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
             note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
         // console.log(currentIcon);
         insertUserTask(user);
@@ -249,6 +256,7 @@ function isThisCurrent(date) {
                 day: day,
                 month: month,
                 year: year,
+                status: 0,
             } 
         });
         //Only sets the data if there is a result
@@ -258,6 +266,10 @@ function isThisCurrent(date) {
         }
     };
     const getUserTasks = async (user) => {
+        if (!user) {
+            return;
+        }
+
         try {
             const response = await axios.get("/api/getTasks", {
                 params: {
@@ -275,7 +287,9 @@ function isThisCurrent(date) {
                 });
     
                 setGetUserTaskData(filteredTasks);
-                insertIntoSubBoxes(filteredTasks);
+                insertIntoSubBoxesImportant(filteredTasks.filter(task => task.type === "important"));
+                insertIntoSubBoxesTopPriority(filteredTasks.filter(task => task.type === "topPriority"));
+                insertIntoSubBoxesOther(filteredTasks.filter(task => task.type === "other"));
             } else {
                 console.error("Invalid or missing data in the API response");
             }
@@ -299,9 +313,50 @@ const insertIntoSubBoxes = (response) => {
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
+        currentIcon: task.status,
     }));
 
     setSubBoxes(newSubBoxes);
+};
+//fix the index so it is not overlapped with the other subBoxes
+
+const insertIntoSubBoxesImportant = (response) => {
+    const newSubBoxesImportant = response.map((task, index) => ({
+        key: indexTasks + index + 1,
+        title: task.taskTitle,
+        pomTimers: task.pomodoroCount,
+        note: task.note,
+        type: task.type,
+        currentIcon: task.status,
+    }));
+    setIndexTasks(indexTasks + newSubBoxesImportant.length);
+    setSubBoxesImportant(newSubBoxesImportant);
+};
+
+const insertIntoSubBoxesTopPriority = (response) => {
+    const newSubBoxesTopPriority = response.map((task, index) => ({
+        key: indexTasks + index + 1,
+        title: task.taskTitle,
+        pomTimers: task.pomodoroCount,
+        note: task.note,
+        type: task.type,
+        currentIcon: task.status,
+    }));
+    setIndexTasks(indexTasks + newSubBoxesTopPriority.length);
+    setSubBoxesTopPriority(newSubBoxesTopPriority);
+};
+
+const insertIntoSubBoxesOther = (response) => {
+    const newSubBoxesOther = response.map((task, index) => ({
+        key: indexTasks + index + 1,
+        title: task.taskTitle,
+        pomTimers: task.pomodoroCount,
+        note: task.note,
+        type: task.type,
+        currentIcon: task.status,
+    }));
+    setIndexTasks(indexTasks + newSubBoxesOther.length);
+    setSubBoxesOther(newSubBoxesOther);
 };
 
 const updateUserTasks = async (user, subBox) =>
@@ -316,6 +371,7 @@ const updateUserTasks = async (user, subBox) =>
             year: year,
             note: subBox.note,
             pomodoroCount: subBox.pomTimers,
+            status: subBox.currentIcon,
         }
     });
     if (response) {
@@ -328,15 +384,15 @@ const taskStatus =
 {
     topPriority:
     {
-        items: [] // Replace with query of tasks with "topPriority" as type
+        items: subBoxesTopPriority//[subBoxesTopPriority] // Replace with query of tasks with "topPriority" as type
     },
     important:
     {
-        items: subBoxes // Replace with query of tasks with "important" as type
+        items: subBoxesImportant// Replace with query of tasks with "important" as type
     },
     other:
     {
-        items: [] // Replace with query of tasks with "topPriority" as type
+        items:  subBoxesOther//subBoxesOther // Replace with query of tasks with "other" as type
     }
 };
 
@@ -346,7 +402,7 @@ const [priority, setPriority] = useState(taskStatus);
 // Overwrites empty priority array
 useEffect(() => {
     setPriority(taskStatus);
-}, [subBoxes]);
+}, [subBoxes, subBoxesImportant, subBoxesTopPriority, subBoxesOther]);
 
 // Handles arrays for draggable objects
 // NOTE: Draggable ID matches subBox key, we can keep track of tasks like this
@@ -799,8 +855,10 @@ function handleOnDragEnd(result) {
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
+                                                                        console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
+                                                                        updateUserTasks(user, subBox);
                                                                     }}
                                                                     sx={{color: 'black'}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
@@ -1011,8 +1069,10 @@ function handleOnDragEnd(result) {
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
+                                                                        console.log("Current Icon" , subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
+                                                                        updateUserTasks(user, subBox);
                                                                     }}
                                                                     sx={{color: 'black'}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
@@ -1219,8 +1279,10 @@ function handleOnDragEnd(result) {
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
+                                                                        console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
+                                                                        updateUserTasks(user, subBox);
                                                                     }}
                                                                     sx={{color: 'black'}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}

@@ -86,7 +86,9 @@ router.put('/api/updateTask', async (req, res) =>
                                               month: req.body.params.month,
                                               year: req.body.params.year},
                                               {$set: {note: req.body.params.note,
-                                                      pomodoroCount: req.body.params.pomodoroCount}})
+                                                      pomodoroCount: req.body.params.pomodoroCount,
+                                                      status: req.body.params.status,
+                                                      type: req.body.params.type}})
     res.send(result);
 });
   
