@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from 'prop-types';
-import { Typography, Button, Box, Dialog } from "@mui/material";
+import { Typography, Button, Box, Dialog, IconButton } from "@mui/material";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-
+import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 export function PomoPopup(props) {
     //popup
     const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime } = props;
@@ -150,53 +150,91 @@ export function PomoPopup(props) {
             minWidth={"sm"}
             fullWidth
             minHeigt={"sm"}
+            borderRadius={2}
         >
-            <Box sx={{height: ""}}>
+            <Box>
                 <Box>
-                    <Tabs value={tabValue} onChange={handleTabChange}>
-                        <Tab label="Pomodoro" {...tabProps(0)} />
-                        <Tab label="Short Break" {...tabProps(1)} />
-                        <Tab label="Long Break" {...tabProps(2)} />
-                    </Tabs>
+                    <Box sx={{padding: "1em"}}>
+                        <Tabs value={tabValue} onChange={handleTabChange}>
+                            <Tab sx={{fontWeight: 700, color: "black"}} label="Pomodoro" {...tabProps(0)} />
+                            <Tab sx={{fontWeight: 700, color: "black"}} label="Short Break" {...tabProps(1)} />
+                            <Tab sx={{fontWeight: 700, color: "black"}} label="Long Break" {...tabProps(2)} />
+                        </Tabs>
+                    </Box>
+                    {/*
+                    <TabPanel value={tabValue} index={0}>
+                        po
+                    </TabPanel>
+                    <TabPanel value={tabValue} index={1}>
+                        sh
+                    </TabPanel>
+                    <TabPanel value={tabValue} index={2}>
+                        lo
+                    </TabPanel>
+                    */}
                 </Box>
-                {/*
-                <TabPanel value={tabValue} index={0}>
-                    po
-                </TabPanel>
-                <TabPanel value={tabValue} index={1}>
-                    sh
-                </TabPanel>
-                <TabPanel value={tabValue} index={2}>
-                    lo
-                </TabPanel>
-                */}
-            </Box>
 
-            <Box
-             display="flex"
-             flexDirection="column"
-             sx={{ bgcolor: "#F5F7F9"}}
-            >
-                <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                    {displayTimer()}
-                </Typography>
-                <Button 
-                    variant="contained" 
-                    onClick={toggleTimer}
-                    sx={{}}
+                <Box
+                display="flex"
+                flexDirection="column"
+                sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2}}
+                textAlign={"center"}
+                alignItems={"center"}
                 >
-                    {(ticking ? "STOP" : "START")}
-                </Button>
+                    <Typography variant="h1" display={"inline"} sx={{flexGrow: 1, mt: ".3em"}}>
+                        {displayTimer()}
+                    </Typography>
+                    <Button 
+                        variant="contained" 
+                        onClick={toggleTimer}
+                        sx={{minWidth: '9em', minHeight: "3.5em", borderRadius: 3.5, mt: "1.5em", mb: "1.7em", fontFamily: "DM Sans"}}
+                        color="purple"
+                    >
+                        {(ticking ? "STOP" : "START")}
+                    </Button>
+                </Box>
+
+                {/* Title Box */}
+                <Box sx={{ml: "1.5em", mt: "1em", mb: "1em"}}>
+                    <Typography display={"inline"} sx={{ fontWeight: 700, fontSize:'20px', color:"black", flexGrow: 1}}>
+                        {taskTitle}
+                    </Typography>
+                </Box>
+                
+                {/* Notes Box */}
+                <Box sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2, padding: "1em"}}>
+                    <Box>
+                        <Box display="flex" sx={{mb: ".6em"}}>
+                            <Typography sx={{fontWeight: 700, color:"#6284FF"}}>Notes:</Typography>
+                            <Box sx={{flexGrow: 1}}/>
+                            <IconButton><BorderColorOutlinedIcon sx={{color:"#6284FF", height: 20, width: 20}} /></IconButton>
+                        </Box>
+                        <Typography sx={{fontSize:'16px', flexGrow: 1}}>
+                            {taskDesc}
+                        </Typography>
+                    </Box>
+                </Box>
+                {/* Timers box*/}
+                <Box 
+                    sx={{ bgcolor: "#252628", mr: "1.5em", ml: "1.5em", mt: "1.5em", mb: "1.5em", borderRadius: 2, padding: "1em"}}
+                    display="flex"
+                    flexDirection="row"
+                    textAlign="center"
+                >
+                    <Box sx={{flexGrow: .5}} />
+                    <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
+                            Pomos: 
+                    </Typography>
+                    <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
+                            0/{taskTimers}
+                    </Typography>
+                    <Box sx={{flexGrow: .15}}/>
+                    <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
+                            Finish At: 
+                    </Typography>
+                    <Box sx={{flexGrow: .5}}/>
+                </Box>
             </Box>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                title {taskTitle}
-            </Typography>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                desc {taskDesc}
-            </Typography>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                timers {taskTimers}
-            </Typography>
         </Dialog>
     );
 }

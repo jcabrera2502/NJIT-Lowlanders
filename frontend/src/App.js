@@ -30,6 +30,10 @@ const theme = createTheme({
     {
       main: "#FFF"
     },
+  },
+  typography: 
+  {
+    fontFamily: "DM Sans",
   }
 });
 
