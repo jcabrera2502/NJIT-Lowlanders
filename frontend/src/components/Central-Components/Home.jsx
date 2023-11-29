@@ -287,6 +287,7 @@ function isThisCurrent(date) {
                 });
     
                 setGetUserTaskData(filteredTasks);
+                insertIntoSubBoxes(filteredTasks);
                 insertIntoSubBoxesImportant(filteredTasks.filter(task => task.type === "important"));
                 insertIntoSubBoxesTopPriority(filteredTasks.filter(task => task.type === "topPriority"));
                 insertIntoSubBoxesOther(filteredTasks.filter(task => task.type === "other"));
