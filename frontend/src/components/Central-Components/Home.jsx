@@ -206,11 +206,14 @@ function isThisCurrent(date) {
 
     //For Adding Tasks to Important
     const [subBoxes, setSubBoxes] = useState([]);
+    const [subBoxesImportant, setSubBoxesImportant] = useState([]);
+    const [subBoxesTopPriority, setSubBoxesTopPriority] = useState([]);
+    const [subBoxesOther, setSubBoxesOther] = useState([]);
     const handleAddSubBox = () => {
-        const newKey = subBoxes.length + 1;
+        const newKey = subBoxesImportant.length + subBoxesTopPriority.length + subBoxesOther.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
+        setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
             note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
         // console.log(currentIcon);
         insertUserTask(user);
@@ -265,6 +268,11 @@ function isThisCurrent(date) {
         if (!user) {
             return;
         }
+
+        getTasksByPriority(user, "important");
+        getTasksByPriority(user, "topPriority");
+        getTasksByPriority(user, "other");
+
         try {
             const response = await axios.get("/api/getTasks", {
                 params: {
@@ -282,6 +290,9 @@ function isThisCurrent(date) {
                 });
     
                 setGetUserTaskData(filteredTasks);
+                insertIntoSubBoxesImportant(importantTasks);
+                insertIntoSubBoxesTopPriority(topPriorityTasks);
+                insertIntoSubBoxesOther(otherTasks);
                 insertIntoSubBoxes(filteredTasks);
             } else {
                 console.error("Invalid or missing data in the API response");
@@ -305,7 +316,19 @@ function isThisCurrent(date) {
         });
         if (response) 
         {
-            console.log(response.data);
+            //map the response to the respective pirority
+            if(taskType == "important")
+            {
+                setImportantTasks(response.data);
+            }
+            else if(taskType == "topPriority")
+            {
+                setTopPriorityTasks(response.data);
+            }
+            else if(taskType == "other")
+            {
+                setOtherTasks(response.data);
+            }
         }
     }
 
@@ -328,6 +351,45 @@ const insertIntoSubBoxes = (response) => {
     }));
 
     setSubBoxes(newSubBoxes);
+};
+
+const insertIntoSubBoxesImportant = (response) => {
+    const newSubBoxesImportant = response.map((task, index) => ({
+        key: index + 1,
+        title: task.taskTitle,
+        pomTimers: task.pomodoroCount,
+        note: task.note,
+        type: task.type,
+        currentIcon: task.status,
+    }));
+
+    setSubBoxesImportant(newSubBoxesImportant);
+};
+
+const insertIntoSubBoxesTopPriority = (response) => {
+    const newSubBoxesTopPriority = response.map((task, index) => ({
+        key: subBoxesImportant.length + index + 1,
+        title: task.taskTitle,
+        pomTimers: task.pomodoroCount,
+        note: task.note,
+        type: task.type,
+        currentIcon: task.status,
+    }));
+
+    setSubBoxesTopPriority(newSubBoxesTopPriority);
+};
+
+const insertIntoSubBoxesOther = (response) => {
+    const newSubBoxesOther = response.map((task, index) => ({
+        key: subBoxesImportant.length + subBoxesTopPriority.length + index + 1,
+        title: task.taskTitle,
+        pomTimers: task.pomodoroCount,
+        note: task.note,
+        type: task.type,
+        currentIcon: task.status,
+    }));
+
+    setSubBoxesOther(newSubBoxesOther);
 };
 
 const updateUserTasks = async (user, subBox) =>
@@ -355,15 +417,15 @@ const taskStatus =
 {
     topPriority:
     {
-        items: [] // Replace with query of tasks with "topPriority" as type
+        items: []//[subBoxesTopPriority] // Replace with query of tasks with "topPriority" as type
     },
     important:
     {
-        items: subBoxes // Replace with query of tasks with "important" as type
+        items: subBoxes// Replace with query of tasks with "important" as type
     },
     other:
     {
-        items: [] // Replace with query of tasks with "other" as type
+        items: [] //subBoxesOther // Replace with query of tasks with "other" as type
     }
 };
 
@@ -373,7 +435,7 @@ const [priority, setPriority] = useState(taskStatus);
 // Overwrites empty priority array
 useEffect(() => {
     setPriority(taskStatus);
-}, [subBoxes]);
+}, [subBoxes, subBoxesImportant, subBoxesTopPriority, subBoxesOther]);
 
 // Handles arrays for draggable objects
 // NOTE: Draggable ID matches subBox key, we can keep track of tasks like this
