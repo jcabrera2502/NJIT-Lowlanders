@@ -21,7 +21,7 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { set } from "mongoose";
+import { get, set } from "mongoose";
 import { PomoPopup } from "./Popup";
 
 const TasksAppts = () => {
@@ -30,6 +30,9 @@ const TasksAppts = () => {
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
+    const [importantTasks, setImportantTasks] = useState([]);
+    const [topPriorityTasks, setTopPriorityTasks] = useState([]);
+    const [otherTasks, setOtherTasks] = useState([]);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
@@ -259,6 +262,9 @@ function isThisCurrent(date) {
         }
     };
     const getUserTasks = async (user) => {
+        if (!user) {
+            return;
+        }
         try {
             const response = await axios.get("/api/getTasks", {
                 params: {
@@ -283,12 +289,11 @@ function isThisCurrent(date) {
         } catch (error) {
             console.error("Error fetching user tasks:", error);
         }
-
-        console.log("NEW API");
     }
 
     const getTasksByPriority = async (user,taskType) =>
     {
+
         const response = await axios.get("/api/getTasksByPriority", {
             params: {
                 email: user.email,
