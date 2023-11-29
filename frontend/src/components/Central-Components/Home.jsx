@@ -269,9 +269,9 @@ function isThisCurrent(date) {
             return;
         }
 
-        getTasksByPriority(user, "important");
-        getTasksByPriority(user, "topPriority");
-        getTasksByPriority(user, "other");
+        //getTasksByPriority(user, "important");
+        //getTasksByPriority(user, "topPriority");
+        //getTasksByPriority(user, "other");
 
         try {
             const response = await axios.get("/api/getTasks", {
@@ -290,10 +290,9 @@ function isThisCurrent(date) {
                 });
     
                 setGetUserTaskData(filteredTasks);
-                insertIntoSubBoxesImportant(importantTasks);
-                insertIntoSubBoxesTopPriority(topPriorityTasks);
-                insertIntoSubBoxesOther(otherTasks);
-                insertIntoSubBoxes(filteredTasks);
+                insertIntoSubBoxesImportant(filteredTasks.filter(task => task.type === "important"));
+                insertIntoSubBoxesTopPriority(filteredTasks.filter(task => task.type === "topPriority"));
+                insertIntoSubBoxesOther(filteredTasks.filter(task => task.type === "other"));
             } else {
                 console.error("Invalid or missing data in the API response");
             }
@@ -417,15 +416,15 @@ const taskStatus =
 {
     topPriority:
     {
-        items: []//[subBoxesTopPriority] // Replace with query of tasks with "topPriority" as type
+        items: subBoxesTopPriority//[subBoxesTopPriority] // Replace with query of tasks with "topPriority" as type
     },
     important:
     {
-        items: subBoxes// Replace with query of tasks with "important" as type
+        items: subBoxesImportant// Replace with query of tasks with "important" as type
     },
     other:
     {
-        items: [] //subBoxesOther // Replace with query of tasks with "other" as type
+        items:  subBoxesOther//subBoxesOther // Replace with query of tasks with "other" as type
     }
 };
 
