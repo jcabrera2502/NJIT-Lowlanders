@@ -190,6 +190,7 @@ function isThisCurrent(date) {
     const [editNote, setEditNote] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
     const [type, setType] = useState('important');
+    const [indexTasks, setIndexTasks] = useState(0);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -269,10 +270,6 @@ function isThisCurrent(date) {
             return;
         }
 
-        //getTasksByPriority(user, "important");
-        //getTasksByPriority(user, "topPriority");
-        //getTasksByPriority(user, "other");
-
         try {
             const response = await axios.get("/api/getTasks", {
                 params: {
@@ -301,36 +298,6 @@ function isThisCurrent(date) {
         }
     }
 
-    const getTasksByPriority = async (user,taskType) =>
-    {
-
-        const response = await axios.get("/api/getTasksByPriority", {
-            params: {
-                email: user.email,
-                day: day,
-                month: month,
-                year: year,
-                type: taskType,
-            }
-        });
-        if (response) 
-        {
-            //map the response to the respective pirority
-            if(taskType == "important")
-            {
-                setImportantTasks(response.data);
-            }
-            else if(taskType == "topPriority")
-            {
-                setTopPriorityTasks(response.data);
-            }
-            else if(taskType == "other")
-            {
-                setOtherTasks(response.data);
-            }
-        }
-    }
-
 const isSameDay = (date1, date2) => {
     return (
         date1.getDate() === date2.getDate() &&
@@ -351,43 +318,44 @@ const insertIntoSubBoxes = (response) => {
 
     setSubBoxes(newSubBoxes);
 };
+//fix the index so it is not overlapped with the other subBoxes
 
 const insertIntoSubBoxesImportant = (response) => {
     const newSubBoxesImportant = response.map((task, index) => ({
-        key: index + 1,
+        key: indexTasks + index + 1,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
         currentIcon: task.status,
     }));
-
+    setIndexTasks(indexTasks + newSubBoxesImportant.length);
     setSubBoxesImportant(newSubBoxesImportant);
 };
 
 const insertIntoSubBoxesTopPriority = (response) => {
     const newSubBoxesTopPriority = response.map((task, index) => ({
-        key: subBoxesImportant.length + index + 1,
+        key: indexTasks + index + 1,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
         currentIcon: task.status,
     }));
-
+    setIndexTasks(indexTasks + newSubBoxesTopPriority.length);
     setSubBoxesTopPriority(newSubBoxesTopPriority);
 };
 
 const insertIntoSubBoxesOther = (response) => {
     const newSubBoxesOther = response.map((task, index) => ({
-        key: subBoxesImportant.length + subBoxesTopPriority.length + index + 1,
+        key: indexTasks + index + 1,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
         currentIcon: task.status,
     }));
-
+    setIndexTasks(indexTasks + newSubBoxesOther.length);
     setSubBoxesOther(newSubBoxesOther);
 };
 
