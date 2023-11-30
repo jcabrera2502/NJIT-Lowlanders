@@ -30,9 +30,6 @@ const TasksAppts = () => {
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
-    const [importantTasks, setImportantTasks] = useState([]);
-    const [topPriorityTasks, setTopPriorityTasks] = useState([]);
-    const [otherTasks, setOtherTasks] = useState([]);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
@@ -408,7 +405,6 @@ const [priority, setPriority] = useState(taskStatus);
 // Overwrites empty priority array
 useEffect(() => {
     setPriority(taskStatus);
-    console.log("render");
 }, [subBoxes, subBoxesImportant, subBoxesTopPriority, subBoxesOther]);
 
 // Handles arrays for draggable objects
@@ -418,7 +414,6 @@ function handleOnDragEnd(result) {
     {
         return;
     }
-    console.log(result);
     if(result.source.droppableId !== result.destination.droppableId)
     {
         //take array items and throw them into the appropriate arrays
