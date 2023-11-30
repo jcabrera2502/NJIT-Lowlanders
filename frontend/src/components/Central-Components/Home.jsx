@@ -185,12 +185,11 @@ function isThisCurrent(date) {
     const [taskTitle, setTaskTitle] = useState('');
     const [numTimers, setNumTimers] = useState(1);
     const [taskNote, setTaskNote] = useState('');
-    const [isExpanded, setExpanded] = useState(false);
+    const [expand, setExpand] = useState(false);
     const [editNumTimer, setEditNumTimer] = useState(false);
     const [editNote, setEditNote] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
     const [type, setType] = useState('important');
-    const [indexTasks, setIndexTasks] = useState(0);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -216,10 +215,10 @@ function isThisCurrent(date) {
         //loop through all the subBoxes and add the new subBox to the end
         
         setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
-            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type, exp: expand }]);
         // console.log(currentIcon);
         setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
-            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type, exp: expand }]);
         insertUserTask(user, newKey);
         handleClosePopover();
     };
@@ -273,55 +272,55 @@ function isThisCurrent(date) {
 
 
 
-        const handleConnectClick = async () => {
-          try {
-            const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
+    const handleConnectClick = async () => {
+        try {
+        const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
 
-            //http://localhost:3001/google-proxy
-            console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
-            console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
-            // Redirect the user to the authorization URL received from the server
-            window.location.href = response.data.url;
-          } catch (error) {
-            console.error('Error connecting to Google Calendar:', error.message);
-          }
-        };
+        //http://localhost:3001/google-proxy
+        console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
+        console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
+        // Redirect the user to the authorization URL received from the server
+        window.location.href = response.data.url;
+        } catch (error) {
+        console.error('Error connecting to Google Calendar:', error.message);
+        }
+    };
       
        
       
-    const getUserTasks = async (user) => {
-        if (!user) {
-            return;
-        }
-
-        try {
-            const response = await axios.get("/api/getTasks", {
-                params: {
-                    email: user.email,
-                    day: day,
-                    month: month,
-                    year: year,
-                }
-            });
-    
-            if (response && response.data && Array.isArray(response.data)) {
-                const filteredTasks = response.data.filter(task => {
-                    const taskDate = new Date(task.year, task.month - 1, task.day);
-                    return isSameDay(taskDate, new Date(year, month - 1, day));
-                });
-    
-                setGetUserTaskData(filteredTasks);
-                insertIntoSubBoxes(filteredTasks);
-                insertIntoSubBoxesImportant(filteredTasks.filter(task => task.type === "important"));
-                insertIntoSubBoxesTopPriority(filteredTasks.filter(task => task.type === "topPriority"));
-                insertIntoSubBoxesOther(filteredTasks.filter(task => task.type === "other"));
-            } else {
-                console.error("Invalid or missing data in the API response");
-            }
-        } catch (error) {
-            console.error("Error fetching user tasks:", error);
-        }
+const getUserTasks = async (user) => {
+    if (!user) {
+        return;
     }
+
+    try {
+        const response = await axios.get("/api/getTasks", {
+            params: {
+                email: user.email,
+                day: day,
+                month: month,
+                year: year,
+            }
+        });
+
+        if (response && response.data && Array.isArray(response.data)) {
+            const filteredTasks = response.data.filter(task => {
+                const taskDate = new Date(task.year, task.month - 1, task.day);
+                return isSameDay(taskDate, new Date(year, month - 1, day));
+            });
+
+            setGetUserTaskData(filteredTasks);
+            insertIntoSubBoxes(filteredTasks);
+            insertIntoSubBoxesImportant(filteredTasks.filter(task => task.type === "important"));
+            insertIntoSubBoxesTopPriority(filteredTasks.filter(task => task.type === "topPriority"));
+            insertIntoSubBoxesOther(filteredTasks.filter(task => task.type === "other"));
+        } else {
+            console.error("Invalid or missing data in the API response");
+        }
+    } catch (error) {
+        console.error("Error fetching user tasks:", error);
+    }
+}
 
 const isSameDay = (date1, date2) => {
     return (
@@ -353,8 +352,8 @@ const insertIntoSubBoxesImportant = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        exp: expand,
     }));
-    setIndexTasks(indexTasks + newSubBoxesImportant.length);
     setSubBoxesImportant(newSubBoxesImportant);
 };
 
@@ -366,8 +365,8 @@ const insertIntoSubBoxesTopPriority = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        exp: expand,
     }));
-    setIndexTasks(indexTasks + newSubBoxesTopPriority.length);
     setSubBoxesTopPriority(newSubBoxesTopPriority);
 };
 
@@ -379,8 +378,8 @@ const insertIntoSubBoxesOther = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        exp: expand,
     }));
-    setIndexTasks(indexTasks + newSubBoxesOther.length);
     setSubBoxesOther(newSubBoxesOther);
 };
 
@@ -480,6 +479,12 @@ function handleOnDragEnd(result) {
       }
 }
 
+function dropdownClick(subBox)
+{
+    subBox.exp = !(subBox.exp);
+    setExpand(subBox.exp);
+    console.log(subBox);
+}
 
 /*
 BEGINNING OF GOOGLE API STUFF
@@ -679,7 +684,7 @@ function oauthSignIn() {
                 padding: "10px",
                 position: "fixed",            
                 }}>
-                <div class="container-fluid">
+                <div className="container-fluid">
                     <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
                     <Divider variant="middle" color="#3E3F42" sx={{ height: 2, width: '160px' }} />
                     <Box textAlign={"center"} sx={{padding: "10px"}} >
@@ -1066,8 +1071,9 @@ function oauthSignIn() {
                                     </Popover>
                                 </Typography>
                                                                                     
-                                <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                <Paper sx={{width: "43vw", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
+
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
@@ -1076,7 +1082,7 @@ function oauthSignIn() {
                                             height: "100%",  
                                             bgcolor: "#F5F7F9",
                                             borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                            <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Top Priority
                                             </Typography>
                                             <Box
@@ -1110,10 +1116,10 @@ function oauthSignIn() {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1245,11 +1251,12 @@ function oauthSignIn() {
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" 
+                                                                                        onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
@@ -1324,10 +1331,10 @@ function oauthSignIn() {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1499,7 +1506,7 @@ function oauthSignIn() {
                                             height: "100%",  
                                             bgcolor: "#F5F7F9",
                                             borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                            <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
                                             </Typography>
 
@@ -1534,10 +1541,10 @@ function oauthSignIn() {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1705,251 +1712,12 @@ function oauthSignIn() {
                             </Box>   
                             
                             {/* Appointments */}
-                            <Box sx={{ml:3}}>
+                            <Box sx={{ml:2}}>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:3,mb:1, fontSize:'30px'}}>
                                     Appointments
                                 </Typography>                                                    
                                 <Paper sx={{width: "100%", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
-                                        <Box sx={{ 
-                                            ml:2,
-                                            width: "95%", 
-                                            height: "100%",  
-                                            bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
-                                                Top Priority
-                                            </Typography>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="checked">
-                                                        <CheckCircleOutlineIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                            Complete Math Homework
-                                                        </Typography> 
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <IconButton sx={{}}  aria-label="expandTask" style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>                                                                                                
-
-                                                <Collapse in={isExpanded}>
-                                                    <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
-
-
-                                                    <Grid container alignItems="center">
-                                                        <Grid item xs>
-                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                Number of Pomodoro Timers (30 mins each)
-                                                            </Typography>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                                2
-                                                            </Typography>
-                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
-                                                                <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                            </IconButton>
-                                                        </Grid>
-                                                    </Grid> 
-                                                
-
-                                                    <Grid container alignItems="center">
-                                                        <Grid item xs>
-                                                            <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
-                                                                Notes
-                                                            </Typography>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                            </IconButton>
-                                                        </Grid>
-                                                    </Grid>
-                                                    <Box sx={{ml:2, mt:1, width: "85%"}}>
-                                                        <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
-                                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                                        </Typography>    
-                                                    </Box>
-                                                </Collapse>
-                                            </Box>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="hourGlass">
-                                                            <HourglassEmptyRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                            Assign Leader For Task 1
-                                                        </Typography> 
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>  
-                                            </Box>
-                                        </Box>
-                                        <Box sx={{ 
-                                            mt:1,
-                                            ml:2,
-                                            width: "95%", 
-                                            height: "100%",  
-                                            bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
-                                                Important
-                                            </Typography>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="checked">
-                                                            <CheckCircleOutlineIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                            Complete Math Homework
-                                                        </Typography> 
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-
-                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
-
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                            Number of Pomodoro Timers (30 mins each)
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <Typography display={"inline"} sx={{fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                            <IconButton sx={{}} aria-label="plusTimer">
-                                                                <AddBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
-                                                            </IconButton>
-                                                            2
-                                                            <IconButton sx={{}} aria-label="minusTimer">
-                                                                <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
-                                                            </IconButton>
-                                                        </Typography>
-                                                        <IconButton sx={{}} aria-label="editingTimers">
-                                                            <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid> 
-                                            </Box>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="switchLeader">
-                                                            <SyncAltIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                        Assign Leader For Task 1
-                                                        </Typography> 
-                                                    </Grid>
-
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-                                            </Box>
-                                        </Box>
-                                        <Box sx={{ 
-                                            mt:1,
-                                            ml:2,
-                                            width: "95%", 
-                                            height: "100%",  
-                                            bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
-                                                Other
-                                            </Typography>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="hourGlass">
-                                                            <HourglassEmptyRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                        Complete Math Homework
-                                                        </Typography> 
-                                                    </Grid>
-
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-                                            </Box>
-                                        </Box>
                                     </Box>
                                 </Paper>
                             </Box>   
