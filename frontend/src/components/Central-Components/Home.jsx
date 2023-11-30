@@ -210,14 +210,17 @@ function isThisCurrent(date) {
     const [subBoxesImportant, setSubBoxesImportant] = useState([]);
     const [subBoxesTopPriority, setSubBoxesTopPriority] = useState([]);
     const [subBoxesOther, setSubBoxesOther] = useState([]);
+
     const handleAddSubBox = () => {
-        const newKey = subBoxesImportant.length + subBoxesTopPriority.length + subBoxesOther.length + 1;
+        const newKey = subBoxes.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
             note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
         // console.log(currentIcon);
-        insertUserTask(user);
+        setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
+        insertUserTask(user, newKey);
         handleClosePopover();
     };
 
@@ -240,12 +243,13 @@ function isThisCurrent(date) {
         setAnchorEl2(null);
     };
 
-    const insertUserTask = async (user) => {
+    const insertUserTask = async (user, key) => {
         //console.log(user);
 
             const response = await axios.post("/api/insertTask", {
             params: 
             {
+                key: key,
                 email: user.email,
                 title: taskTitle,
                 type: type,
@@ -322,8 +326,8 @@ const insertIntoSubBoxes = (response) => {
 //fix the index so it is not overlapped with the other subBoxes
 
 const insertIntoSubBoxesImportant = (response) => {
-    const newSubBoxesImportant = response.map((task, index) => ({
-        key: indexTasks + index + 1,
+    const newSubBoxesImportant = response.map((task) => ({
+        key: task.key,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
@@ -335,8 +339,8 @@ const insertIntoSubBoxesImportant = (response) => {
 };
 
 const insertIntoSubBoxesTopPriority = (response) => {
-    const newSubBoxesTopPriority = response.map((task, index) => ({
-        key: indexTasks + index + 1,
+    const newSubBoxesTopPriority = response.map((task) => ({
+        key: task.key,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
@@ -348,8 +352,8 @@ const insertIntoSubBoxesTopPriority = (response) => {
 };
 
 const insertIntoSubBoxesOther = (response) => {
-    const newSubBoxesOther = response.map((task, index) => ({
-        key: indexTasks + index + 1,
+    const newSubBoxesOther = response.map((task) => ({
+        key: task.key,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
@@ -364,6 +368,7 @@ const updateUserTasks = async (user, subBox) =>
 {
     const response = await axios.put("/api/updateTask", {
         params: {
+            key: subBox.key,
             email: user.email,
             title: subBox.title,
             type: subBox.type,
@@ -385,15 +390,15 @@ const taskStatus =
 {
     topPriority:
     {
-        items: subBoxesTopPriority//[subBoxesTopPriority] // Replace with query of tasks with "topPriority" as type
+        items: subBoxesTopPriority // Replace with query of tasks with "topPriority" as type
     },
     important:
     {
-        items: subBoxesImportant// Replace with query of tasks with "important" as type
+        items: subBoxesImportant // Replace with query of tasks with "important" as type
     },
     other:
     {
-        items:  subBoxesOther//subBoxesOther // Replace with query of tasks with "other" as type
+        items:  subBoxesOther // Replace with query of tasks with "other" as type
     }
 };
 
@@ -403,6 +408,7 @@ const [priority, setPriority] = useState(taskStatus);
 // Overwrites empty priority array
 useEffect(() => {
     setPriority(taskStatus);
+    console.log("render");
 }, [subBoxes, subBoxesImportant, subBoxesTopPriority, subBoxesOther]);
 
 // Handles arrays for draggable objects
@@ -436,7 +442,7 @@ function handleOnDragEnd(result) {
         setType(result.destination.droppableId);
         subBoxes[result.draggableId-1].type = result.destination.droppableId;
         updateUserTasks(user, subBoxes[result.draggableId-1]);
-        console.log(subBoxes);
+        getUserTasks(user);
     }
      
     else 
@@ -452,6 +458,7 @@ function handleOnDragEnd(result) {
             items: copiedItems
           }
         });
+        
       }
 }
 
