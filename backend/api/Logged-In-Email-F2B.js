@@ -51,7 +51,8 @@ router.post('/api/insertTask', async (req, res) =>
     const collection = mongoose.connection.db.collection("user-tasks");
     console.log("Req" , req.body.params)
 
-    const result = await collection.insertOne({email: req.body.params.email,
+    const result = await collection.insertOne({key: req.body.params.key, 
+                                               email: req.body.params.email,
                                                taskTitle: req.body.params.title,
                                                type: req.body.params.type, 
                                                completed: req.body.params.completed, 
