@@ -92,6 +92,7 @@ const Profile = () => {
 
         }
     }, [user]);
+
     // get data from backend from handler.js without using axios
     const [data, setData] = useState(null);
     const fetchUserData = async (user) => {
