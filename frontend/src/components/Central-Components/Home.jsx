@@ -168,22 +168,15 @@ function isThisCurrent(date) {
     const [focusTask, setFocusTask] = React.useState(null);
     const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
     const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
-<<<<<<< HEAD
-    const [focusSubBox, setFocusSubBox] = React.useState(null);
-=======
     const [focusUsedTimers, setfocusUsedTimers] = React.useState(0);
->>>>>>> 9166ee2db736eea172bdcffdd52ca886cb092fc6
+    const [focusSubBox, setFocusSubBox] = React.useState(null);
 
     //TODO: make these times pull from user settings
     const [taskTime, setTaskTime] = React.useState(30);
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
 
-<<<<<<< HEAD
-    const handleOpenPomo = (task, desc, timers, subBox) => {
-=======
-    const handleOpenPomo = (task, desc, timers, used) => {
->>>>>>> 9166ee2db736eea172bdcffdd52ca886cb092fc6
+    const handleOpenPomo = (task, desc, timers, used, subBox) => {
         //console.log("click");
         setFocusTask(task);
         setFocusTaskDesc(desc);
@@ -1133,65 +1126,6 @@ function oauthSignIn() {
                             </Button>
                         </Box>
                         {/* End of Date Navbar */}
-<<<<<<< HEAD
-=======
-                        {/* Beginning of Google API data */}
-
-                        <div className="App">
-    {accessToken ? (
-      <div>
-        <button onClick={handleSignOut}>Sign Out</button>
-        <h1>Google Calendar API Example</h1>
-
-        {/* Display Non-Recurring Events */}
-        <h2>Non-Recurring Events</h2>
-        <ul>
-          {nonRecurringEvents.map((event) => (
-            <li key={event.id}>
-              <strong>{event.summary}</strong>
-              {event.start && event.start.dateTime && (
-                <p>Start Time: {event.start.dateTime}</p>
-              )}
-              {event.description && (
-                <p>Description: {event.description}</p>
-              )}
-            </li>
-          ))}
-        </ul>
-        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
-      {errorMessage}
-    </div>
-        {/* Display Recurring Events */}
-        <h2>Recurring Events</h2>
-<ul>
-  {recurringEvents.map((event) => (
-    <li key={event.id}>
-      <strong>{event.summary}</strong>
-      {event.start && event.start.dateTime && (
-        <div>
-          <p>Start Time: {event.start.dateTime}</p>
-          {parseAndDisplayDateTime(event.start.dateTime)}
-        </div>
-      )}
-      {event.description && (
-        <p>Description: {event.description}</p>
-      )}
-      {event.recurrence && (
-        <p>Recurring on: {event.recurrence}</p>
-      )}
-    </li>
-  ))}
-</ul>
-      </div>
-    ) : (
-      <div>
-        <div id="signInDiv"></div>
-        <button onClick={oauthSignIn}>Sign In with Google</button>
-      </div>
-    )}
-  </div>
-                        {/* End of Google API data */}
->>>>>>> 9166ee2db736eea172bdcffdd52ca886cb092fc6
 
                         {/*Pomo Popup*/}
                         <PomoPopup 
@@ -1203,11 +1137,8 @@ function oauthSignIn() {
                             taskTime={taskTime}
                             shortTime={shortTime}
                             longTime={longTime}
-<<<<<<< HEAD
-                            subBox={focusSubBox}
-=======
                             usedTimers={focusUsedTimers}
->>>>>>> 9166ee2db736eea172bdcffdd52ca886cb092fc6
+                            subBox={focusSubBox}
                         />
                         {/*End of Pomo Popup*/}
 
@@ -1346,11 +1277,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-<<<<<<< HEAD
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
-=======
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
->>>>>>> 9166ee2db736eea172bdcffdd52ca886cb092fc6
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1565,11 +1492,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-<<<<<<< HEAD
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
-=======
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
->>>>>>> 9166ee2db736eea172bdcffdd52ca886cb092fc6
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1779,11 +1702,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-<<<<<<< HEAD
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
-=======
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
->>>>>>> 9166ee2db736eea172bdcffdd52ca886cb092fc6
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -2027,6 +1946,9 @@ function oauthSignIn() {
                                                 <div id="signInDiv"></div>
                                             </div>
                                             )}
+                                        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
+                                            {errorMessage}
+                                        </div>
                                         </Grid>
                                         {/* End of Google API data */}
                                     </Box>
