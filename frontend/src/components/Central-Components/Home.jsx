@@ -2,7 +2,10 @@ import { onAuthStateChanged, setPersistence } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState, useRef } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, getSelectUtilityClasses, List, ListItem} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, 
+         Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, 
+         Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
+         List, ListItem} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
@@ -166,21 +169,24 @@ function isThisCurrent(date) {
     const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
     const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
     const [focusUsedTimers, setfocusUsedTimers] = React.useState(0);
+    const [focusSubBox, setFocusSubBox] = React.useState(null);
 
     //TODO: make these times pull from user settings
     const [taskTime, setTaskTime] = React.useState(30);
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
 
-    const handleOpenPomo = (task, desc, timers, used) => {
+    const handleOpenPomo = (task, desc, timers, used, subBox) => {
         //console.log("click");
         setFocusTask(task);
         setFocusTaskDesc(desc);
         setFocusTaskTimers(timers);
         setfocusUsedTimers(used);
         setPomoOpen(true);
+        setFocusSubBox(subBox);
     };
     const handlePomoClose = () => {
+        updateUserTasks(user, focusSubBox);
         setPomoOpen(false);
         //console.log("close");
     };
@@ -207,7 +213,7 @@ function isThisCurrent(date) {
         setTaskTitle(''); // Clear input when the popover is closed
         setNumTimers(1);
         setTaskNote('');
-      };
+    };
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
@@ -499,7 +505,6 @@ function dropdownClick(subBox)
 {
     subBox.exp = !(subBox.exp);
     setExpand(subBox.exp);
-    console.log(subBox);
 }
 
 /*
@@ -1120,62 +1125,6 @@ function oauthSignIn() {
                             </Button>
                         </Box>
                         {/* End of Date Navbar */}
-                        {/* Beginning of Google API data */}
-
-                        <div className="App">
-    {accessToken ? (
-      <div>
-        <button onClick={handleSignOut}>Sign Out</button>
-        <h1>Google Calendar API Example</h1>
-
-        {/* Display Non-Recurring Events */}
-        <h2>Non-Recurring Events</h2>
-        <ul>
-          {nonRecurringEvents.map((event) => (
-            <li key={event.id}>
-              <strong>{event.summary}</strong>
-              {event.start && event.start.dateTime && (
-                <p>Start Time: {event.start.dateTime}</p>
-              )}
-              {event.description && (
-                <p>Description: {event.description}</p>
-              )}
-            </li>
-          ))}
-        </ul>
-        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
-      {errorMessage}
-    </div>
-        {/* Display Recurring Events */}
-        <h2>Recurring Events</h2>
-<ul>
-  {recurringEvents.map((event) => (
-    <li key={event.id}>
-      <strong>{event.summary}</strong>
-      {event.start && event.start.dateTime && (
-        <div>
-          <p>Start Time: {event.start.dateTime}</p>
-          {parseAndDisplayDateTime(event.start.dateTime)}
-        </div>
-      )}
-      {event.description && (
-        <p>Description: {event.description}</p>
-      )}
-      {event.recurrence && (
-        <p>Recurring on: {event.recurrence}</p>
-      )}
-    </li>
-  ))}
-</ul>
-      </div>
-    ) : (
-      <div>
-        <div id="signInDiv"></div>
-        <button onClick={oauthSignIn}>Sign In with Google</button>
-      </div>
-    )}
-  </div>
-                        {/* End of Google API data */}
 
                         {/*Pomo Popup*/}
                         <PomoPopup 
@@ -1188,6 +1137,7 @@ function oauthSignIn() {
                             shortTime={shortTime}
                             longTime={longTime}
                             usedTimers={focusUsedTimers}
+                            subBox={focusSubBox}
                         />
                         {/*End of Pomo Popup*/}
 
@@ -1249,8 +1199,6 @@ function oauthSignIn() {
                                                     onChange={(e) => setTaskNote(e.target.value)}
                                                     multiline
                                                 />
-                                                
-
                                                 <Button type="submit" color="primary" onClick={handleAddSubBox}>
                                                     Add Task
                                                 </Button>
@@ -1328,7 +1276,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1423,7 +1371,7 @@ function oauthSignIn() {
                                                                                     defaultValue={subBox.note}
                                                                                     onChange={(e) => {
                                                                                         subBox.note= e.target.value;
-                                                                                        setTaskNote(subBox.note)
+                                                                                        setTaskNote(subBox.note);
                                                                                         updateUserTasks(user, subBox);
                                                                                     }}
                                                                                     multiline
@@ -1543,7 +1491,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1753,7 +1701,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1900,12 +1848,108 @@ function oauthSignIn() {
                             </Box>   
                             
                             {/* Appointments */}
-                            <Box sx={{ml:2}}>
+                            <Box sx={{ml:2, width: "100%"}}>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:3,mb:1, fontSize:'30px'}}>
                                     Appointments
                                 </Typography>                                                    
-                                <Paper sx={{width: "100%", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                <Paper sx={{width: "100%", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap', paddingLeft: 0}} elevation={12}>
+                                    {accessToken ? (<Button onClick={handleSignOut}>Sign Out</Button>) : (<Button onClick={oauthSignIn}>Sign In with Google</Button>)}
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
+                                        {/* Beginning of Google API data */}
+                                        <Grid container className="App">
+                                            <Grid item xs={1.5} sx={{textAlign: "center"}}>
+                                                <Stack spacing={3.27}>
+                                                    <Typography>12 AM</Typography>
+                                                    <Typography>1 AM</Typography>
+                                                    <Typography>2 AM</Typography>
+                                                    <Typography>3 AM</Typography>
+                                                    <Typography>4 AM</Typography>
+                                                    <Typography>5 AM</Typography>
+                                                    <Typography>6 AM</Typography>
+                                                    <Typography>7 AM</Typography>
+                                                    <Typography>8 AM</Typography>
+                                                    <Typography>9 AM</Typography>
+                                                    <Typography>10 AM</Typography>
+                                                    <Typography>11 AM</Typography>
+                                                    <Typography>12 PM</Typography>
+                                                    <Typography>1 PM</Typography>
+                                                    <Typography>2 PM</Typography>
+                                                    <Typography>3 PM</Typography>
+                                                    <Typography>4 PM</Typography>
+                                                    <Typography>5 PM</Typography>
+                                                    <Typography>6 PM</Typography>
+                                                    <Typography>7 PM</Typography>
+                                                    <Typography>8 PM</Typography>
+                                                    <Typography>9 PM</Typography>
+                                                    <Typography>10 PM</Typography>
+                                                    <Typography>11 PM</Typography>
+                                                </Stack>
+                                            </Grid>
+                                            {accessToken ? (
+                                            <Grid item xs={10.5}>
+                                                {/* Display Non-Recurring Events */}
+                                                <List sx={{width: "100%", borderRadius: 8, mt: 1.5, padding: 0}}>
+                                                {nonRecurringEvents.map((event) => (
+                                                    <ListItem key={event.id} sx={{border: 1, borderColor: '#6284FF', padding: 0}}>
+                                                        <Accordion sx={{width: "100%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <AccordionSummary 
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
+                                                                aria-controls="panel1a-content"
+                                                                sx={{ 
+                                                                    width: "100%", 
+                                                                    height: "3vh",  
+                                                                    borderRadius: "8px",
+                                                                    paddingLeft: 0,
+                                                                }}
+                                                                elevation={0}
+                                                            >
+                                                            <Typography sx={{fontWeight: 700, ml: 2}}>{event.summary}</Typography>
+                                                            </AccordionSummary>
+                                                            <AccordionDetails>
+                                                                {event.start && event.start.dateTime && (
+                                                                    <Typography> Start Time: {event.start.dateTime}</Typography>
+                                                                )}
+                                                                {event.description && (
+                                                                    <Typography>Description: {event.description}</Typography>
+                                                                )}
+                                                            </AccordionDetails>
+                                                            
+                                                        </Accordion>
+                                                    </ListItem>
+                                                ))}
+                                                </List>
+
+                                                {/* Display Recurring Events */}
+                                        <ul>
+                                        {recurringEvents.map((event) => (
+                                            <li key={event.id}>
+                                            <strong>{event.summary}</strong>
+                                            {event.start && event.start.dateTime && (
+                                                <div>
+                                                <p>Start Time: {event.start.dateTime}</p>
+                                                {parseAndDisplayDateTime(event.start.dateTime)}
+                                                </div>
+                                            )}
+                                            {event.description && (
+                                                <p>Description: {event.description}</p>
+                                            )}
+                                            {event.recurrence && (
+                                                <p>Recurring on: {event.recurrence}</p>
+                                            )}
+                                            </li>
+                                        ))}
+                                        </ul>
+                                            </Grid>
+                                            ) : (
+                                            <div>
+                                                <div id="signInDiv"></div>
+                                            </div>
+                                            )}
+                                        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
+                                            {errorMessage}
+                                        </div>
+                                        </Grid>
+                                        {/* End of Google API data */}
                                     </Box>
                                 </Paper>
                             </Box>   

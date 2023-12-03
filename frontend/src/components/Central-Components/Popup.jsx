@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from 'prop-types';
-import { Typography, Button, Box, Dialog, IconButton } from "@mui/material";
+import { Typography, Button, Box, Dialog, IconButton, TextField } from "@mui/material";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
+import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 export function PomoPopup(props) {
     //popup
-    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, usedTimers } = props;
+    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, usedTimers, subBox } = props;
     const handlePomoClose = () => {
         //console.log("closed");
         if (ticking) {
@@ -46,7 +47,7 @@ export function PomoPopup(props) {
             'aria-controls': `tabpanel-${index}`,
         };
     };
-    const [tabValue, setTabValue] = React.useState(0);
+    const [tabValue, setTabValue] = useState(0);
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
         setTimer('00:' + chooseTime(newValue) + ':00');
@@ -54,7 +55,7 @@ export function PomoPopup(props) {
 
     //timer
     const Ref = useRef(null);
-    const [timer, setTimer] = React.useState('00:' + chooseTime(tabValue) + ':00');
+    const [timer, setTimer] = useState('00:' + chooseTime(tabValue) + ':00');
     const getRemaining = (t) => {
         //console.log(ticking);
         const total = Date.parse(t) - Date.parse(new Date());
@@ -111,13 +112,13 @@ export function PomoPopup(props) {
         setTimer('00:' + chooseTime(tabValue) + ':00');
     };
     function chooseTime(tab) {
-        if (tab == 0) {
+        if (tab === 0) {
             return (taskTime > 9 ? taskTime : '0' + taskTime);
         }
-        if (tab == 1) {
+        if (tab === 1) {
             return (shortTime > 9 ? shortTime : '0' + shortTime);
         }
-        if (tab == 2) {
+        if (tab === 2) {
             return (longTime > 9 ? longTime : '0' + longTime);
         }
     };
@@ -129,7 +130,7 @@ export function PomoPopup(props) {
             return timer.substring(3);
         }
     };
-    const [ticking, setTicking] = React.useState(false);
+    const [ticking, setTicking] = useState(false);
     const toggleTimer = () => {
         if (ticking) {
             setTicking(false);
@@ -141,6 +142,8 @@ export function PomoPopup(props) {
             clearTimer(getDeadTime(), true);
         }
     };
+
+    const [editNote, setEditNote] = useState(true);
 
     //display
     return (
@@ -204,14 +207,38 @@ export function PomoPopup(props) {
                 {/* Notes Box */}
                 <Box sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2, padding: "1em"}}>
                     <Box>
-                        <Box display="flex" sx={{mb: ".6em"}}>
-                            <Typography sx={{fontWeight: 700, color:"#6284FF"}}>Notes:</Typography>
+                        {editNote ? (
+                        <>
+                            <Box display="flex" sx={{mb: ".6em"}}>
+                                <Typography sx={{fontWeight: 700, color:"#6284FF"}}>Notes:</Typography>
+                                <Box sx={{flexGrow: 1}}/>
+                                <IconButton onClick={() => {setEditNote(!editNote)}}><BorderColorOutlinedIcon sx={{color:"#6284FF", height: 20, width: 20}} /></IconButton>
+                            </Box>
+                            
+                                <Typography sx={{fontSize:'16px', flexGrow: 1}}>
+                                    {(subBox != null) ? (subBox.note) : (" ")}
+                                </Typography>
+                        </>
+                        ) : (
+                        <>
+                            <Box display="flex" sx={{mb: ".6em"}}>
+                                <Typography sx={{fontWeight: 700, color:"#6284FF"}}>Notes:</Typography>
                             <Box sx={{flexGrow: 1}}/>
-                            <IconButton><BorderColorOutlinedIcon sx={{color:"#6284FF", height: 20, width: 20}} /></IconButton>
-                        </Box>
-                        <Typography sx={{fontSize:'16px', flexGrow: 1}}>
-                            {taskDesc}
-                        </Typography>
+                                <IconButton onClick={() => {setEditNote(!editNote);}}><CheckBoxRoundedIcon sx={{color:"#6284FF", height: 20, width: 20}} /></IconButton>
+                            </Box>
+                            <TextField
+                                variant="outlined"
+                                fullWidth
+                                defaultValue={subBox.note}
+                                onChange={(e) => {
+                                    subBox.note = e.target.value;
+                                    //updateUserTasks(user, subBox);
+                                }}
+                                multiline
+                            />
+                        </>
+                        )}
+                        
                     </Box>
                 </Box>
                 {/* Timers box*/}
@@ -246,4 +273,5 @@ PomoPopup.propTypes = {
     shortTime: PropTypes.number.isRequired,
     longTime: PropTypes.number.isRequired,
     usedTimers: PropTypes.number.isRequired,
+    subBox: PropTypes.object,
 };
