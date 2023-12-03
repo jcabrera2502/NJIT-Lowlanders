@@ -6,7 +6,7 @@ import Tab from '@mui/material/Tab';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 export function PomoPopup(props) {
     //popup
-    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime } = props;
+    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, usedTimers } = props;
     const handlePomoClose = () => {
         //console.log("closed");
         if (ticking) {
@@ -226,7 +226,7 @@ export function PomoPopup(props) {
                             Pomos: 
                     </Typography>
                     <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
-                            0/{taskTimers}
+                            {usedTimers}/{taskTimers}
                     </Typography>
                     <Box sx={{flexGrow: .15}}/>
                     <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
@@ -245,4 +245,5 @@ PomoPopup.propTypes = {
     taskTime: PropTypes.number.isRequired,
     shortTime: PropTypes.number.isRequired,
     longTime: PropTypes.number.isRequired,
+    usedTimers: PropTypes.number.isRequired,
 };

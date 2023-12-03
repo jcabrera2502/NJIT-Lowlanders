@@ -165,17 +165,19 @@ function isThisCurrent(date) {
     const [focusTask, setFocusTask] = React.useState(null);
     const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
     const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
+    const [focusUsedTimers, setfocusUsedTimers] = React.useState(0);
 
     //TODO: make these times pull from user settings
     const [taskTime, setTaskTime] = React.useState(30);
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
 
-    const handleOpenPomo = (task, desc, timers) => {
+    const handleOpenPomo = (task, desc, timers, used) => {
         //console.log("click");
         setFocusTask(task);
         setFocusTaskDesc(desc);
         setFocusTaskTimers(timers);
+        setfocusUsedTimers(used);
         setPomoOpen(true);
     };
     const handlePomoClose = () => {
@@ -195,6 +197,7 @@ function isThisCurrent(date) {
     const [editNote, setEditNote] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
     const [type, setType] = useState('important');
+    const [usedTimers, setUsedTimers] = useState(0);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -220,10 +223,12 @@ function isThisCurrent(date) {
         //loop through all the subBoxes and add the new subBox to the end
         
         setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
-            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type, exp: expand }]);
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, 
+            currentIcon: currentIcon, type: type, exp: expand, usedTimers: usedTimers }]);
         // console.log(currentIcon);
         setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
-            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type, exp: expand }]);
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, 
+            currentIcon: currentIcon, type: type, exp: expand, usedTimers: usedTimers }]);
         insertUserTask(user, newKey);
         handleClosePopover();
     };
@@ -265,6 +270,7 @@ function isThisCurrent(date) {
                 month: month,
                 year: year,
                 status: 0,
+                usedTimers: usedTimers,
             } 
         });
         //Only sets the data if there is a result
@@ -343,6 +349,7 @@ const insertIntoSubBoxes = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
     }));
 
     setSubBoxes(newSubBoxes);
@@ -357,6 +364,7 @@ const insertIntoSubBoxesImportant = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
         exp: expand,
     }));
     setSubBoxesImportant(newSubBoxesImportant);
@@ -370,6 +378,7 @@ const insertIntoSubBoxesTopPriority = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
         exp: expand,
     }));
     setSubBoxesTopPriority(newSubBoxesTopPriority);
@@ -383,6 +392,7 @@ const insertIntoSubBoxesOther = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
         exp: expand,
     }));
     setSubBoxesOther(newSubBoxesOther);
@@ -402,6 +412,7 @@ const updateUserTasks = async (user, subBox) =>
             note: subBox.note,
             pomodoroCount: subBox.pomTimers,
             status: subBox.currentIcon,
+            usedTimers: subBox.usedTimers
         }
     });
     if (response) {
@@ -1176,6 +1187,7 @@ function oauthSignIn() {
                             taskTime={taskTime}
                             shortTime={shortTime}
                             longTime={longTime}
+                            usedTimers={focusUsedTimers}
                         />
                         {/*End of Pomo Popup*/}
 
@@ -1316,7 +1328,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1531,7 +1543,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1741,7 +1753,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
