@@ -505,7 +505,6 @@ function dropdownClick(subBox)
 {
     subBox.exp = !(subBox.exp);
     setExpand(subBox.exp);
-    console.log(subBox);
 }
 
 /*

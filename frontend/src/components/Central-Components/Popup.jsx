@@ -273,5 +273,5 @@ PomoPopup.propTypes = {
     shortTime: PropTypes.number.isRequired,
     longTime: PropTypes.number.isRequired,
     usedTimers: PropTypes.number.isRequired,
-    subBox: PropTypes.object.isRequired,
+    subBox: PropTypes.object,
 };
