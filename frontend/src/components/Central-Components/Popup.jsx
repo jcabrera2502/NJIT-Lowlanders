@@ -49,6 +49,10 @@ export function PomoPopup(props) {
     };
     const [tabValue, setTabValue] = React.useState(0);
     const handleTabChange = (event, newValue) => {
+        if (ticking) {
+            toggleTimer();
+        }
+        resetTimer();
         setTabValue(newValue);
         setTimer('00:' + chooseTime(newValue) + ':00');
     };

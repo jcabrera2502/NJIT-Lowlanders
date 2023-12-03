@@ -144,3 +144,70 @@ test('PomoPopup displays all imported times', () => {
     fireEvent.click(taskTab);
     expect(screen.getByText(/2/)).toBeInTheDocument();
 });
+
+test('timer starts', async () => {
+    render(<PomoPopup
+        pomoOpen={true}
+        onPomoClose={onPomoClose}
+        taskTitle={'example title'}
+        taskDesc={'example description'}
+        taskTimers={2}
+        taskTime={30}
+        shortTime={5}
+        longTime={15}
+    />);
+
+    const timer = screen.getByText('START');
+    fireEvent.click(timer);
+    await new Promise((r) => setTimeout(r, 2000));
+    expect(screen.getByText(/29/)).toBeInTheDocument();
+});
+
+test('timer pauses', async () => {
+    render(<PomoPopup
+        pomoOpen={true}
+        onPomoClose={onPomoClose}
+        taskTitle={'example title'}
+        taskDesc={'example description'}
+        taskTimers={2}
+        taskTime={30}
+        shortTime={5}
+        longTime={15}
+    />);
+
+    const timer = screen.getByText('START');
+    fireEvent.click(timer);
+    await new Promise((r) => setTimeout(r, 1000));
+    fireEvent.click(timer);
+    await new Promise((r) => setTimeout(r, 2000));
+    expect(screen.getByText(/59/)).toBeInTheDocument();
+});
+
+jest.setTimeout(7000);
+test('timer ticking', async () => {
+    render(<PomoPopup
+        pomoOpen={true}
+        onPomoClose={onPomoClose}
+        taskTitle={'example title'}
+        taskDesc={'example description'}
+        taskTimers={2}
+        taskTime={30}
+        shortTime={5}
+        longTime={15}
+    />);
+
+    const timer = screen.getByText('START');
+    fireEvent.click(timer);
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(screen.getByText(/00/)).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(screen.getByText(/59/)).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(screen.getByText(/58/)).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(screen.getByText(/57/)).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(screen.getByText(/56/)).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(screen.getByText(/55/)).toBeInTheDocument();
+});
