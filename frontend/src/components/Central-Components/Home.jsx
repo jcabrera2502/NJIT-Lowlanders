@@ -492,8 +492,10 @@ BEGINNING OF GOOGLE API STUFF
 
 */
 const [events, setEvents] = useState([]);
+const [errorMessage, setErrorMessage] = useState(""); // Add this state variable
+
 const [user2, setUser2] = useState({});
-const [accessToken, setAccessToken] = useState(() => {
+const [accessToken, setAccessToken, storedAccessToken2] = useState(() => {
   // Initialize from localStorage or default to null
   return localStorage.getItem("accessToken") || null;
 });
@@ -511,10 +513,11 @@ const [oauthCalled, setOauthCalled] = useState(() => {
 });
 
 const isSignInExpired = (signInTimestamp) => {
-    const expirationTime = signInTimestamp + 3599; // Expiration time is 3599 seconds (almost 1 hour) from sign-in
+    const expirationTime = +signInTimestamp + 3599; // or use parseInt(signInTimestamp, 10) + 3599;
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
     return expirationTime < currentTime;
-  };
+};
 //idk if this works yet
 const handleSignOut = async (event) => {
     // Clear localStorage values
@@ -522,7 +525,7 @@ const handleSignOut = async (event) => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("oauthCalled");
     localStorage.removeItem("signInTimestamp"); // Remove the sign-in timestamp
-
+  
     // Revoke the access token
     if (accessToken) {
       try {
@@ -551,14 +554,21 @@ const handleSignOut = async (event) => {
     // Other cleanup or redirection logic can be added here
     const signInDiv = document.getElementById("signInDiv");
     console.log("signInDiv:", signInDiv);
-    
+  
     // Check if the element exists before setting properties
     if (signInDiv) {
       signInDiv.hidden = false;
     } else {
       console.error("Element with ID 'signInDiv' not found.");
-    }  };
+    }
+  
+    // Clear the URL
+    window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
+  };
 //instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
+
+
+/*
 useEffect(() => {
     const fetchData = async () => {
       // Try to get access token from localStorage
@@ -575,12 +585,14 @@ console.log("TIME STAMP",storedSignInTimestamp)
         console.log("EXPIRE",expire);
         console.log("About to enter if loop - status of accessToken:", accessToken, "status of storedAccessToken:", storedAccessToken, "status of oauthCalled:", oauthCalled, "status of storedEmail:", storedEmail, "status of userEmail:", userEmail, "status of user2:", user2, "status of expiration time:",expire);
         if (
-            oauthCalled ||
-            (storedAccessToken &&
-              storedSignInTimestamp &&
-              !isSignInExpired(Number(storedSignInTimestamp)))
-          ) {
+            oauthCalled && setAccessToken) 
+           // (storedAccessToken &&
+            //  storedSignInTimestamp &&
+            //  !isSignInExpired(Number(storedSignInTimestamp)))
+          {
           try {
+            console.log("IS SIGN IN EXPIRED????????")
+            console.log(isSignInExpired(Number(storedSignInTimestamp)));
             const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken || storedAccessToken}`;
             const emailFetch = await fetch(emailSite);
             const emailData = await emailFetch.json();
@@ -603,22 +615,138 @@ console.log("TIME STAMP",storedSignInTimestamp)
             console.log("Setting access token:", accessToken || storedAccessToken, "Setting user email:", userEmail || storedEmail)
             setAccessToken(accessToken || storedAccessToken);
             setUserEmail(userEmail || storedEmail);
-  
+            console.log("Setting expiration time:", expire);
+            setExpires_in(expire || storedExpirationTime);
             // Store the values in localStorage
             localStorage.setItem("accessToken", accessToken || storedAccessToken);
             localStorage.setItem("userEmail", userEmail || storedEmail);
           } catch (e) {
             console.log("Error:", e);
+            setErrorMessage("Error: Unable to fetch data. Please try again.");
+
+            handleSignOut();
+
           }
         } else {
           console.log("NO ACCESS TOKEN");
+          setErrorMessage("Error: Unable to fetch data. Please try again.");
+
+          handleSignOut();
         }
+      }
+      else{
+        console.log("OAUTH NOT CALLED");
       }
     };
   
     fetchData();
   }, [oauthCalled]);
-  
+  */
+
+  useEffect(() => {
+    const fetchData = async () => {
+        // Check if the page was redirected from OAuth provider
+        const searchParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = searchParams.get("access_token");
+        const expire = searchParams.get("expires_in");
+        
+        if (accessToken) {
+            // The page was redirected from OAuth provider
+            saveOauthCalledToStorage(true);
+
+            try {
+                const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`;
+                const emailFetch = await fetch(emailSite);
+                const emailData = await emailFetch.json();
+                const userEmail = emailData.email;
+
+                // Make the Google Calendar API request
+                const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${accessToken}&q=Appointment`;
+                const response = await fetch(calendarApiUrl);
+                const data = await response.json();
+
+                // Log and process the Google Calendar API response
+                console.log("Google Calendar API Response:", data);
+                console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
+                listUpcomingEvents(data.items);
+
+                // Set the access token, user email, and expiration time in state
+                setAccessToken(accessToken);
+                setUserEmail(userEmail);
+                setExpires_in(expire);
+
+                // Store the values in localStorage
+                localStorage.setItem("accessToken", accessToken);
+                localStorage.setItem("userEmail", userEmail);
+                localStorage.setItem("expires_in", expire);
+
+                // Clear the URL
+                window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
+            } catch (e) {
+                console.log("Error:", e);
+                setErrorMessage("Error: Unable to fetch data. Please try again.");
+                handleSignOut();
+            }
+        } else {
+            // The page was not redirected from OAuth provider
+            // Try to get access token from localStorage
+            const storedAccessToken = localStorage.getItem("accessToken");
+            const storedEmail = localStorage.getItem("userEmail");
+            const storedSignInTimestamp = localStorage.getItem("expires_in");
+
+            if (storedAccessToken ) {
+                // The stored access token exists and is not expired
+                // Continue with your existing logic...
+                try {
+                    console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
+                    console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
+
+                    const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${storedAccessToken}`;
+                    const emailFetch = await fetch(emailSite);
+                    const emailData = await emailFetch.json();
+                    const userEmail = emailData.email;
+
+                    // Make the Google Calendar API request
+                    const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${storedAccessToken}&q=Appointment`;
+                    const response = await fetch(calendarApiUrl);
+                    const data = await response.json();
+
+                    // Log and process the Google Calendar API response
+                    console.log("Google Calendar API Response:", data);
+                 
+                    listUpcomingEvents(data.items);
+
+                    // Set the access token, user email, and expiration time in state
+                    setAccessToken(storedAccessToken);
+                    setUserEmail(userEmail);
+                    setExpires_in(storedSignInTimestamp);
+
+                    // Clear the URL
+                    window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
+                } catch (e) {
+                    console.log("Error:", e);
+                    setErrorMessage("Error: Unable to fetch data. Please try again.");
+                    handleSignOut();
+                }
+            } else {
+                console.log("No valid access token available.");
+            }
+        }
+    };
+
+    fetchData();
+}, [oauthCalled]);
+
+useEffect(() => {
+    // Check if the page was redirected from OAuth provider
+    if (window.location.hash.includes("access_token")) {
+      setOauthCalled(true);
+    }
+  }, []); // Run once when the component mounts
+
+
+
+
 //this function just extracts the yeaar,month,day from the startDate field in the json
 const parseAndDisplayDateTime = (dateTimeString) => {
     const startDate = new Date(dateTimeString);
@@ -999,7 +1127,9 @@ function oauthSignIn() {
             </li>
           ))}
         </ul>
-
+        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
+      {errorMessage}
+    </div>
         {/* Display Recurring Events */}
         <h2>Recurring Events</h2>
 <ul>
