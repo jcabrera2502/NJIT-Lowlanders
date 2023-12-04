@@ -62,6 +62,18 @@ function isThisCurrent(date) {
                 setUserPresentInDatabase(true);
                 //console.log("User already in database");
                 //console.log(response.data);
+                //set taskTime, shortTime, longTime after converting to an int
+                setTaskTime(parseInt(response.data.pomodoro));
+                setShortTime(parseInt(response.data.shortBreak));
+                setLongTime(parseInt(response.data.longBreak));
+                console.log("TASK TIME",taskTime);
+                console.log("SHORT TIME",shortTime);
+                console.log("LONG TIME",longTime);
+                console.log("-------------------------")
+                console.log("TASK TIME",response.data.pomodoro);
+                console.log("SHORT TIME",response.data.shortBreak);
+                console.log("LONG TIME",response.data.longBreak);
+                //reload the page to update the state
                 setData(response.data);
             }
         }
@@ -175,6 +187,10 @@ function isThisCurrent(date) {
     const [taskTime, setTaskTime] = React.useState(30);
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
+
+    useEffect(() => {setTaskTime(taskTime)}, [taskTime]);
+    useEffect(() => {setShortTime(shortTime)}, [shortTime]);
+    useEffect(() => {setLongTime(longTime)}, [longTime]);
 
     const handleOpenPomo = (task, desc, timers, subBox) => {
         //console.log("click");
