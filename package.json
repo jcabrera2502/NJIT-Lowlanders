@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "@babel/core": "^7.23.3",
+    "@babel/core": "^7.23.5",
     "@babel/plugin-syntax-jsx": "^7.23.3",
-    "@babel/preset-env": "^7.23.3",
+    "@babel/preset-env": "^7.23.5",
     "@babel/preset-react": "^7.23.3",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.0",
@@ -19,19 +19,24 @@
     "test": "jest",
     "coverage": "jest --coverage"
   },
-  "transform": {
-    "^.+\\.jsx?$": "babel-jest"
-  },
   "jest": {
     "moduleNameMapper": {
       "react-color-palette/css": "<rootDir>/mocks/react-color-palette/css.js",
       "\\.(jfif|jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/mocks/fileMock.js",
       "\\.(css|less|sass|scss)$": "<rootDir>/mocks/styleMock.js"
     },
+    "setupFilesAfterEnv": [
+      "<rootDir>/frontend/src/setupTests.js"
+    ],
     "testEnvironment": "jsdom"
   },
   "dependencies": {
+    "googleapis": "^129.0.0",
+    "ts-jest": "^29.1.1",
     "use-resize-observer": "^9.1.0",
     "vest": "^5.1.4"
+  },
+  "transform": {
+    "^.+\\.jsx?$": "babel-jest"
   }
 }
