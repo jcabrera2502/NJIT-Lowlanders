@@ -172,9 +172,14 @@ function isThisCurrent(date) {
     const [focusSubBox, setFocusSubBox] = React.useState(null);
 
     //TODO: make these times pull from user settings
-    const [taskTime, setTaskTime] = React.useState(30);
-    const [shortTime, setShortTime] = React.useState(5);
-    const [longTime, setLongTime] = React.useState(15);
+    const [taskTime, setTaskTime] = React.useState(1);
+    const [shortTime, setShortTime] = React.useState(1);
+    const [longTime, setLongTime] = React.useState(1);
+
+    // setTaskTime(1);
+    // setShortTime(1);
+    // setLongTime(1);
+
 
     const handleOpenPomo = (task, desc, timers, subBox) => {
         //console.log("click");
@@ -1345,7 +1350,7 @@ useEffect(()=> {
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1){
+                                                                                if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
                                                                                         subBox.pomTimers= subBox.pomTimers - 1;
                                                                                         setNumTimers(subBox.pomTimers);
                                                                                         updateUserTasks(user, subBox);
@@ -1560,7 +1565,7 @@ useEffect(()=> {
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1){
+                                                                                if(subBox.pomTimers > 1  && subBox.usedTimers < subBox.pomTimers){
                                                                                         subBox.pomTimers= subBox.pomTimers - 1;
                                                                                         setNumTimers(subBox.pomTimers);
                                                                                         updateUserTasks(user, subBox);
@@ -1770,7 +1775,7 @@ useEffect(()=> {
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1){
+                                                                                if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
                                                                                         subBox.pomTimers= subBox.pomTimers - 1;
                                                                                         setNumTimers(subBox.pomTimers);
                                                                                         updateUserTasks(user, subBox);
