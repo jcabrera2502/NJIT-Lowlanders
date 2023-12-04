@@ -73,7 +73,7 @@ const scopes = [
         orderBy: 'startTime',
       }, (err, response) => {
         if (err) {
-          console.error('Error fetching events:', err);
+          console.error('Error! fetching events:', err);
           return res.status(500).send({ message: 'Error fetching events' });
         }
   
