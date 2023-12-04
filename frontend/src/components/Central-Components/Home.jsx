@@ -1,8 +1,11 @@
 import { onAuthStateChanged, setPersistence } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { auth } from "../../firebase";
-import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, getSelectUtilityClasses, List, ListItem} from "@mui/material";
+import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, 
+         Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, 
+         Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
+         List, ListItem} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
@@ -23,21 +26,22 @@ import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { get, set } from "mongoose";
 import { PomoPopup } from "./Popup";
+import { useNavigate } from 'react-router-dom';
 
-const TasksAppts = () => {
+const Home = () => {
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
-    const [importantTasks, setImportantTasks] = useState([]);
-    const [topPriorityTasks, setTopPriorityTasks] = useState([]);
-    const [otherTasks, setOtherTasks] = useState([]);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
     const [selectedDate, setSelectedDate] = React.useState(new Date(year, month - 1, day));
-// Update isThisCurrent function
+    const [nonRecurringEvents, setNonRecurringEvents] = useState([]);
+    const [recurringEvents, setRecurringEvents] = useState([]);
+
+    // Update isThisCurrent function
 function isThisCurrent(date) {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set current date to midnight
@@ -97,6 +101,10 @@ function isThisCurrent(date) {
     }, [month, day, year]);
     //ADDITIONAL ADD
     useEffect(() => {
+        console.log("THIS IS THE DAY",day);
+        console.log("THIS IS THE MONTH",month);
+        console.log("THIS IS THE YEAR",year);
+
         getUserTasks(user);
     }, [day, month, year, user]);
     const handleDayChange = (event) => {
@@ -160,20 +168,24 @@ function isThisCurrent(date) {
     const [focusTask, setFocusTask] = React.useState(null);
     const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
     const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
+    // const [focusUsedTimers, setFocusUsedTimers] = React.useState(null);
+    const [focusSubBox, setFocusSubBox] = React.useState(null);
 
     //TODO: make these times pull from user settings
     const [taskTime, setTaskTime] = React.useState(30);
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
 
-    const handleOpenPomo = (task, desc, timers) => {
+    const handleOpenPomo = (task, desc, timers, subBox) => {
         //console.log("click");
         setFocusTask(task);
         setFocusTaskDesc(desc);
         setFocusTaskTimers(timers);
         setPomoOpen(true);
+        setFocusSubBox(subBox);
     };
     const handlePomoClose = () => {
+        updateUserTasks(user, focusSubBox);
         setPomoOpen(false);
         //console.log("close");
     };
@@ -185,12 +197,12 @@ function isThisCurrent(date) {
     const [taskTitle, setTaskTitle] = useState('');
     const [numTimers, setNumTimers] = useState(1);
     const [taskNote, setTaskNote] = useState('');
-    const [isExpanded, setExpanded] = useState(false);
+    const [expand, setExpand] = useState(false);
     const [editNumTimer, setEditNumTimer] = useState(false);
     const [editNote, setEditNote] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
     const [type, setType] = useState('important');
-    const [indexTasks, setIndexTasks] = useState(0);
+    const [usedTimers, setUsedTimers] = useState(0);
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -200,7 +212,7 @@ function isThisCurrent(date) {
         setTaskTitle(''); // Clear input when the popover is closed
         setNumTimers(1);
         setTaskNote('');
-      };
+    };
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
@@ -210,14 +222,19 @@ function isThisCurrent(date) {
     const [subBoxesImportant, setSubBoxesImportant] = useState([]);
     const [subBoxesTopPriority, setSubBoxesTopPriority] = useState([]);
     const [subBoxesOther, setSubBoxesOther] = useState([]);
+
     const handleAddSubBox = () => {
-        const newKey = subBoxesImportant.length + subBoxesTopPriority.length + subBoxesOther.length + 1;
+        const newKey = subBoxes.length + 1;
         //loop through all the subBoxes and add the new subBox to the end
         
-        setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
-            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, currentIcon: currentIcon, type: type }]);
+        setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, 
+            currentIcon: currentIcon, type: type, exp: expand, usedTimers: usedTimers }]);
         // console.log(currentIcon);
-        insertUserTask(user);
+        setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
+            note: taskNote, editNumTimer: editNumTimer, editNote: editNote, 
+            currentIcon: currentIcon, type: type, exp: expand, usedTimers: usedTimers }]);
+        insertUserTask(user, newKey);
         handleClosePopover();
     };
 
@@ -240,12 +257,13 @@ function isThisCurrent(date) {
         setAnchorEl2(null);
     };
 
-    const insertUserTask = async (user) => {
+    const insertUserTask = async (user, key) => {
         //console.log(user);
 
             const response = await axios.post("/api/insertTask", {
             params: 
             {
+                key: key,
                 email: user.email,
                 title: taskTitle,
                 type: type,
@@ -257,6 +275,7 @@ function isThisCurrent(date) {
                 month: month,
                 year: year,
                 status: 0,
+                usedTimers: usedTimers,
             } 
         });
         //Only sets the data if there is a result
@@ -265,38 +284,59 @@ function isThisCurrent(date) {
             setInsertTaskData(response.data);
         }
     };
-    const getUserTasks = async (user) => {
-        if (!user) {
-            return;
-        }
 
+
+
+
+    const handleConnectClick = async () => {
         try {
-            const response = await axios.get("/api/getTasks", {
-                params: {
-                    email: user.email,
-                    day: day,
-                    month: month,
-                    year: year,
-                }
-            });
-    
-            if (response && response.data && Array.isArray(response.data)) {
-                const filteredTasks = response.data.filter(task => {
-                    const taskDate = new Date(task.year, task.month - 1, task.day);
-                    return isSameDay(taskDate, new Date(year, month - 1, day));
-                });
-    
-                setGetUserTaskData(filteredTasks);
-                insertIntoSubBoxesImportant(filteredTasks.filter(task => task.type === "important"));
-                insertIntoSubBoxesTopPriority(filteredTasks.filter(task => task.type === "topPriority"));
-                insertIntoSubBoxesOther(filteredTasks.filter(task => task.type === "other"));
-            } else {
-                console.error("Invalid or missing data in the API response");
-            }
+        const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
+
+        //http://localhost:3001/google-proxy
+        console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
+        console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
+        // Redirect the user to the authorization URL received from the server
+        window.location.href = response.data.url;
         } catch (error) {
-            console.error("Error fetching user tasks:", error);
+        console.error('Error connecting to Google Calendar:', error.message);
         }
+    };
+      
+       
+      
+const getUserTasks = async (user) => {
+    if (!user) {
+        return;
     }
+
+    try {
+        const response = await axios.get("/api/getTasks", {
+            params: {
+                email: user.email,
+                day: day,
+                month: month,
+                year: year,
+            }
+        });
+
+        if (response && response.data && Array.isArray(response.data)) {
+            const filteredTasks = response.data.filter(task => {
+                const taskDate = new Date(task.year, task.month - 1, task.day);
+                return isSameDay(taskDate, new Date(year, month - 1, day));
+            });
+
+            setGetUserTaskData(filteredTasks);
+            insertIntoSubBoxes(filteredTasks);
+            insertIntoSubBoxesImportant(filteredTasks.filter(task => task.type === "important"));
+            insertIntoSubBoxesTopPriority(filteredTasks.filter(task => task.type === "topPriority"));
+            insertIntoSubBoxesOther(filteredTasks.filter(task => task.type === "other"));
+        } else {
+            console.error("Invalid or missing data in the API response");
+        }
+    } catch (error) {
+        console.error("Error fetching user tasks:", error);
+    }
+}
 
 const isSameDay = (date1, date2) => {
     return (
@@ -314,6 +354,7 @@ const insertIntoSubBoxes = (response) => {
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
     }));
 
     setSubBoxes(newSubBoxes);
@@ -321,41 +362,44 @@ const insertIntoSubBoxes = (response) => {
 //fix the index so it is not overlapped with the other subBoxes
 
 const insertIntoSubBoxesImportant = (response) => {
-    const newSubBoxesImportant = response.map((task, index) => ({
-        key: indexTasks + index + 1,
+    const newSubBoxesImportant = response.map((task) => ({
+        key: task.key,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
+        exp: expand,
     }));
-    setIndexTasks(indexTasks + newSubBoxesImportant.length);
     setSubBoxesImportant(newSubBoxesImportant);
 };
 
 const insertIntoSubBoxesTopPriority = (response) => {
-    const newSubBoxesTopPriority = response.map((task, index) => ({
-        key: indexTasks + index + 1,
+    const newSubBoxesTopPriority = response.map((task) => ({
+        key: task.key,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
+        exp: expand,
     }));
-    setIndexTasks(indexTasks + newSubBoxesTopPriority.length);
     setSubBoxesTopPriority(newSubBoxesTopPriority);
 };
 
 const insertIntoSubBoxesOther = (response) => {
-    const newSubBoxesOther = response.map((task, index) => ({
-        key: indexTasks + index + 1,
+    const newSubBoxesOther = response.map((task) => ({
+        key: task.key,
         title: task.taskTitle,
         pomTimers: task.pomodoroCount,
         note: task.note,
         type: task.type,
         currentIcon: task.status,
+        usedTimers: task.usedTimers,
+        exp: expand,
     }));
-    setIndexTasks(indexTasks + newSubBoxesOther.length);
     setSubBoxesOther(newSubBoxesOther);
 };
 
@@ -363,6 +407,7 @@ const updateUserTasks = async (user, subBox) =>
 {
     const response = await axios.put("/api/updateTask", {
         params: {
+            key: subBox.key,
             email: user.email,
             title: subBox.title,
             type: subBox.type,
@@ -372,6 +417,7 @@ const updateUserTasks = async (user, subBox) =>
             note: subBox.note,
             pomodoroCount: subBox.pomTimers,
             status: subBox.currentIcon,
+            usedTimers: subBox.usedTimers,
         }
     });
     if (response) {
@@ -384,15 +430,15 @@ const taskStatus =
 {
     topPriority:
     {
-        items: subBoxesTopPriority//[subBoxesTopPriority] // Replace with query of tasks with "topPriority" as type
+        items: subBoxesTopPriority // Replace with query of tasks with "topPriority" as type
     },
     important:
     {
-        items: subBoxesImportant// Replace with query of tasks with "important" as type
+        items: subBoxesImportant // Replace with query of tasks with "important" as type
     },
     other:
     {
-        items:  subBoxesOther//subBoxesOther // Replace with query of tasks with "other" as type
+        items:  subBoxesOther // Replace with query of tasks with "other" as type
     }
 };
 
@@ -411,7 +457,6 @@ function handleOnDragEnd(result) {
     {
         return;
     }
-    console.log(result);
     if(result.source.droppableId !== result.destination.droppableId)
     {
         //take array items and throw them into the appropriate arrays
@@ -435,7 +480,7 @@ function handleOnDragEnd(result) {
         setType(result.destination.droppableId);
         subBoxes[result.draggableId-1].type = result.destination.droppableId;
         updateUserTasks(user, subBoxes[result.draggableId-1]);
-        console.log(subBoxes);
+        getUserTasks(user);
     }
      
     else 
@@ -451,9 +496,371 @@ function handleOnDragEnd(result) {
             items: copiedItems
           }
         });
+        
       }
 }
 
+function dropdownClick(subBox)
+{
+    subBox.exp = !(subBox.exp);
+    setExpand(subBox.exp);
+}
+
+/*
+BEGINNING OF GOOGLE API STUFF
+
+
+*/
+const [events, setEvents] = useState([]);
+const [errorMessage, setErrorMessage] = useState(""); // Add this state variable
+
+const [user2, setUser2] = useState({});
+const [accessToken, setAccessToken, storedAccessToken2] = useState(() => {
+  // Initialize from localStorage or default to null
+  return localStorage.getItem("accessToken") || null;
+});
+const [userEmail, setUserEmail] = useState(() => {
+  // Initialize from localStorage or default to an empty string
+  return localStorage.getItem("userEmail") || "";
+});
+const [expire, setExpires_in] = useState(() => {
+    // Initialize from localStorage expires default to an empty string
+    return localStorage.getItem("expires_in") || "";
+  });
+const [oauthCalled, setOauthCalled] = useState(() => {
+  // Initialize from localStorage or default to false
+  return JSON.parse(localStorage.getItem("oauthCalled")) || false;
+});
+
+const isSignInExpired = (signInTimestamp) => {
+    const expirationTime = +signInTimestamp + 3599; // or use parseInt(signInTimestamp, 10) + 3599;
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
+    return expirationTime < currentTime;
+};
+//idk if this works yet
+const handleSignOut = async (event) => {
+    // Clear localStorage values
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("oauthCalled");
+    localStorage.removeItem("signInTimestamp"); // Remove the sign-in timestamp
+  
+    // Revoke the access token
+    if (accessToken) {
+      try {
+        const revokeEndpoint = 'https://accounts.google.com/o/oauth2/revoke';
+        const revokeUrl = `${revokeEndpoint}?token=${accessToken}`;
+        await fetch(revokeUrl, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+  
+        console.log('Access token revoked successfully');
+      } catch (error) {
+        console.error('Error revoking access token:', error);
+      }
+    }
+  
+    // Set state after asynchronous operations have completed
+    setUser2({});
+    setAccessToken(null);
+    setUserEmail("");
+    setOauthCalled(false);
+  
+    // Other cleanup or redirection logic can be added here
+    const signInDiv = document.getElementById("signInDiv");
+    console.log("signInDiv:", signInDiv);
+  
+    // Check if the element exists before setting properties
+    if (signInDiv) {
+      signInDiv.hidden = false;
+    } else {
+      console.error("Element with ID 'signInDiv' not found.");
+    }
+  
+    // Clear the URL
+    window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
+  };
+//instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
+
+
+/*
+useEffect(() => {
+    const fetchData = async () => {
+      // Try to get access token from localStorage
+      const storedAccessToken = localStorage.getItem("accessToken");
+      const storedEmail = localStorage.getItem("userEmail");
+      const signInTimestamp = localStorage.getItem("signInTimestamp"); // Get the sign-in timestamp
+      const storedExpirationTime = localStorage.getItem("expirationTime");
+      const storedSignInTimestamp = localStorage.getItem("expire");
+console.log("TIME STAMP",storedSignInTimestamp)
+      if (oauthCalled || storedAccessToken) {
+        const searchParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = searchParams.get("access_token");
+        const expire = searchParams.get("expires_in");
+        console.log("EXPIRE",expire);
+        console.log("About to enter if loop - status of accessToken:", accessToken, "status of storedAccessToken:", storedAccessToken, "status of oauthCalled:", oauthCalled, "status of storedEmail:", storedEmail, "status of userEmail:", userEmail, "status of user2:", user2, "status of expiration time:",expire);
+        if (
+            oauthCalled && setAccessToken) 
+           // (storedAccessToken &&
+            //  storedSignInTimestamp &&
+            //  !isSignInExpired(Number(storedSignInTimestamp)))
+          {
+          try {
+            console.log("IS SIGN IN EXPIRED????????")
+            console.log(isSignInExpired(Number(storedSignInTimestamp)));
+            const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken || storedAccessToken}`;
+            const emailFetch = await fetch(emailSite);
+            const emailData = await emailFetch.json();
+            const userEmail = emailData.email;
+  
+            // Log and store the email
+            console.log("User's email:", userEmail);
+  
+            // Make the Google Calendar API request
+            const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${accessToken || storedAccessToken}&q=Appointment`;
+            const response = await fetch(calendarApiUrl);
+            const data = await response.json();
+  
+            // Log and process the Google Calendar API response
+            console.log("Google Calendar API Response:", data);
+            listUpcomingEvents(data.items);
+            
+            console.log("This is true")
+            // Set the access token and user email in state
+            console.log("Setting access token:", accessToken || storedAccessToken, "Setting user email:", userEmail || storedEmail)
+            setAccessToken(accessToken || storedAccessToken);
+            setUserEmail(userEmail || storedEmail);
+            console.log("Setting expiration time:", expire);
+            setExpires_in(expire || storedExpirationTime);
+            // Store the values in localStorage
+            localStorage.setItem("accessToken", accessToken || storedAccessToken);
+            localStorage.setItem("userEmail", userEmail || storedEmail);
+          } catch (e) {
+            console.log("Error:", e);
+            setErrorMessage("Error: Unable to fetch data. Please try again.");
+
+            handleSignOut();
+
+          }
+        } else {
+          console.log("NO ACCESS TOKEN");
+          setErrorMessage("Error: Unable to fetch data. Please try again.");
+
+          handleSignOut();
+        }
+      }
+      else{
+        console.log("OAUTH NOT CALLED");
+      }
+    };
+  
+    fetchData();
+  }, [oauthCalled]);
+  */
+
+  useEffect(() => {
+    const fetchData = async () => {
+        // Check if the page was redirected from OAuth provider
+        const searchParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = searchParams.get("access_token");
+        const expire = searchParams.get("expires_in");
+        
+        if (accessToken) {
+            // The page was redirected from OAuth provider
+            saveOauthCalledToStorage(true);
+
+            try {
+                const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`;
+                const emailFetch = await fetch(emailSite);
+                const emailData = await emailFetch.json();
+                const userEmail = emailData.email;
+
+                // Make the Google Calendar API request
+                const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${accessToken}&q=Appointment`;
+                const response = await fetch(calendarApiUrl);
+                const data = await response.json();
+
+                // Log and process the Google Calendar API response
+                console.log("Google Calendar API Response:", data);
+                console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
+                listUpcomingEvents(data.items);
+
+                // Set the access token, user email, and expiration time in state
+                setAccessToken(accessToken);
+                setUserEmail(userEmail);
+                setExpires_in(expire);
+
+                // Store the values in localStorage
+                localStorage.setItem("accessToken", accessToken);
+                localStorage.setItem("userEmail", userEmail);
+                localStorage.setItem("expires_in", expire);
+
+                // Clear the URL
+                window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
+            } catch (e) {
+                console.log("Error:", e);
+                setErrorMessage("Error: Unable to fetch data. Please try again.");
+                handleSignOut();
+            }
+        } else {
+            // The page was not redirected from OAuth provider
+            // Try to get access token from localStorage
+            const storedAccessToken = localStorage.getItem("accessToken");
+            const storedEmail = localStorage.getItem("userEmail");
+            const storedSignInTimestamp = localStorage.getItem("expires_in");
+
+            if (storedAccessToken ) {
+                // The stored access token exists and is not expired
+                // Continue with your existing logic...
+                try {
+                    console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
+                    console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
+
+                    const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${storedAccessToken}`;
+                    const emailFetch = await fetch(emailSite);
+                    const emailData = await emailFetch.json();
+                    const userEmail = emailData.email;
+
+                    // Make the Google Calendar API request
+                    const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${storedAccessToken}&q=Appointment`;
+                    const response = await fetch(calendarApiUrl);
+                    const data = await response.json();
+
+                    // Log and process the Google Calendar API response
+                    console.log("Google Calendar API Response:", data);
+                 
+                    listUpcomingEvents(data.items);
+
+                    // Set the access token, user email, and expiration time in state
+                    setAccessToken(storedAccessToken);
+                    setUserEmail(userEmail);
+                    setExpires_in(storedSignInTimestamp);
+
+                    // Clear the URL
+                    window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
+                } catch (e) {
+                    console.log("Error:", e);
+                    setErrorMessage("Error: Unable to fetch data. Please try again.");
+                    handleSignOut();
+                }
+            } else {
+                console.log("No valid access token available.");
+            }
+        }
+    };
+
+    fetchData();
+}, [oauthCalled]);
+
+useEffect(() => {
+    // Check if the page was redirected from OAuth provider
+    if (window.location.hash.includes("access_token")) {
+      setOauthCalled(true);
+    }
+  }, []); // Run once when the component mounts
+
+
+
+
+//this function just extracts the yeaar,month,day from the startDate field in the json
+const parseAndDisplayDateTime = (dateTimeString) => {
+    const startDate = new Date(dateTimeString);
+    const year = startDate.getFullYear();
+    const month = startDate.getMonth() + 1;
+    const day = startDate.getDate();
+  
+    return (
+      <div>
+        <p>Year: {year}</p>
+        <p>Month: {month}</p>
+        <p>Day: {day}</p>
+      </div>
+    );
+  };
+
+  //saving the state of the bool var
+const saveOauthCalledToStorage = (value) => {
+  setOauthCalled(value);
+  localStorage.setItem("oauthCalled", JSON.stringify(value));
+};
+
+
+//this function lists the events returned from the google calendar api
+const listUpcomingEvents = (eventsData) => {
+    console.log("Setting events:", eventsData);
+  
+    // Separate recurring and non-recurring events
+    const recurring = [];
+    const nonRecurring = [];
+  
+    eventsData.forEach((event) => {
+      if (event.recurrence) {
+        recurring.push(event);
+  
+      } else {
+        nonRecurring.push(event);
+      }
+      console.log("RECURRING EVENTS: ", recurring);
+  
+    });
+  
+    setRecurringEvents(recurring);
+    setNonRecurringEvents(nonRecurring);
+  };
+
+  //this function is called when the user clicks the sign in button
+function oauthSignIn() {
+    //setOauthCalled(true); // Update the state to true
+    saveOauthCalledToStorage(true);
+  
+    if(oauthCalled){
+      console.log("OAUTH CALLED IN OAUTH SIGN IN");
+  
+      
+    }
+    else{
+      console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
+    }
+    // Google's OAuth 2.0 endpoint for requesting an access token
+    var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
+  
+    // Create <form> element to submit parameters to OAuth 2.0 endpoint.
+    var form = document.createElement('form');
+    form.setAttribute('method', 'GET'); // Send as a GET request.
+    form.setAttribute('action', oauth2Endpoint);
+  
+    // Parameters to pass to OAuth 2.0 endpoint.
+    var params = {
+      'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
+      'redirect_uri': 'http://localhost:3000',
+      'response_type': 'token',
+      'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
+      'include_granted_scopes': 'true',
+      'state': 'pass-through value'
+    };
+  
+    // Add form parameters as hidden input values.
+    for (var p in params) {
+      var input = document.createElement('input');
+      input.setAttribute('type', 'hidden');
+      input.setAttribute('name', p);
+      input.setAttribute('value', params[p]);
+      form.appendChild(input);
+    }
+  
+    // Add form to page and submit it to open the OAuth 2.0 endpoint.
+    document.body.appendChild(form);
+   // console.log("DONE");
+  
+    form.submit();
+  }
+  
+  
     return(
         <CssBaseline>
         <Grid container>
@@ -466,7 +873,7 @@ function handleOnDragEnd(result) {
                 padding: "10px",
                 position: "fixed",            
                 }}>
-                <div class="container-fluid">
+                <div className="container-fluid">
                     <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
                     <Divider variant="middle" color="#3E3F42" sx={{ height: 2, width: '160px' }} />
                     <Box textAlign={"center"} sx={{padding: "10px"}} >
@@ -479,9 +886,12 @@ function handleOnDragEnd(result) {
                             <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
                             Plan Day
                             </Button>
-                        )}        
+                        )} 
+          
+          
                     </Box>
                 </div>
+               
                 
                 <Box sx={{mt: "32vh"}}>
                     <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
@@ -725,6 +1135,7 @@ function handleOnDragEnd(result) {
                             taskTime={taskTime}
                             shortTime={shortTime}
                             longTime={longTime}
+                            subBox={focusSubBox}
                         />
                         {/*End of Pomo Popup*/}
 
@@ -786,8 +1197,6 @@ function handleOnDragEnd(result) {
                                                     onChange={(e) => setTaskNote(e.target.value)}
                                                     multiline
                                                 />
-                                                
-
                                                 <Button type="submit" color="primary" onClick={handleAddSubBox}>
                                                     Add Task
                                                 </Button>
@@ -796,8 +1205,9 @@ function handleOnDragEnd(result) {
                                     </Popover>
                                 </Typography>
                                                                                     
-                                <Paper sx={{width: "90vh", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                <Paper sx={{width: "43vw", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
+
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
@@ -806,7 +1216,7 @@ function handleOnDragEnd(result) {
                                             height: "100%",  
                                             bgcolor: "#F5F7F9",
                                             borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                            <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Top Priority
                                             </Typography>
                                             <Box
@@ -840,10 +1250,10 @@ function handleOnDragEnd(result) {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -864,7 +1274,7 @@ function handleOnDragEnd(result) {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -959,7 +1369,7 @@ function handleOnDragEnd(result) {
                                                                                     defaultValue={subBox.note}
                                                                                     onChange={(e) => {
                                                                                         subBox.note= e.target.value;
-                                                                                        setTaskNote(subBox.note)
+                                                                                        setTaskNote(subBox.note);
                                                                                         updateUserTasks(user, subBox);
                                                                                     }}
                                                                                     multiline
@@ -975,11 +1385,12 @@ function handleOnDragEnd(result) {
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" 
+                                                                                        onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
@@ -1054,10 +1465,10 @@ function handleOnDragEnd(result) {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1078,7 +1489,7 @@ function handleOnDragEnd(result) {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1229,7 +1640,7 @@ function handleOnDragEnd(result) {
                                             height: "100%",  
                                             bgcolor: "#F5F7F9",
                                             borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
+                                            <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
                                             </Typography>
 
@@ -1264,10 +1675,10 @@ function handleOnDragEnd(result) {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}}/>}
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1288,7 +1699,7 @@ function handleOnDragEnd(result) {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1435,251 +1846,108 @@ function handleOnDragEnd(result) {
                             </Box>   
                             
                             {/* Appointments */}
-                            <Box sx={{ml:3}}>
+                            <Box sx={{ml:2, width: "100%"}}>
                                 <Typography variant="h5" sx={{fontWeight: "bold",mt:3,mb:1, fontSize:'30px'}}>
                                     Appointments
                                 </Typography>                                                    
-                                <Paper sx={{width: "100%", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                <Paper sx={{width: "100%", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap', paddingLeft: 0}} elevation={12}>
+                                    {accessToken ? (<Button onClick={handleSignOut}>Sign Out</Button>) : (<Button onClick={oauthSignIn}>Sign In with Google</Button>)}
                                     <Box sx={{display: "flex", flexDirection: "column", }}>
-                                        <Box sx={{ 
-                                            ml:2,
-                                            width: "95%", 
-                                            height: "100%",  
-                                            bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
-                                                Top Priority
-                                            </Typography>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="checked">
-                                                        <CheckCircleOutlineIcon sx={{ color:"black"}} />
-                                                        </IconButton>
+                                        {/* Beginning of Google API data */}
+                                        <Grid container className="App">
+                                            <Grid item xs={1.5} sx={{textAlign: "center"}}>
+                                                <Stack spacing={3.27}>
+                                                    <Typography>12 AM</Typography>
+                                                    <Typography>1 AM</Typography>
+                                                    <Typography>2 AM</Typography>
+                                                    <Typography>3 AM</Typography>
+                                                    <Typography>4 AM</Typography>
+                                                    <Typography>5 AM</Typography>
+                                                    <Typography>6 AM</Typography>
+                                                    <Typography>7 AM</Typography>
+                                                    <Typography>8 AM</Typography>
+                                                    <Typography>9 AM</Typography>
+                                                    <Typography>10 AM</Typography>
+                                                    <Typography>11 AM</Typography>
+                                                    <Typography>12 PM</Typography>
+                                                    <Typography>1 PM</Typography>
+                                                    <Typography>2 PM</Typography>
+                                                    <Typography>3 PM</Typography>
+                                                    <Typography>4 PM</Typography>
+                                                    <Typography>5 PM</Typography>
+                                                    <Typography>6 PM</Typography>
+                                                    <Typography>7 PM</Typography>
+                                                    <Typography>8 PM</Typography>
+                                                    <Typography>9 PM</Typography>
+                                                    <Typography>10 PM</Typography>
+                                                    <Typography>11 PM</Typography>
+                                                </Stack>
+                                            </Grid>
+                                            {accessToken ? (
+                                            <Grid item xs={10.5}>
+                                                {/* Display Non-Recurring Events */}
+                                                <List sx={{width: "100%", borderRadius: 8, mt: 1.5, padding: 0}}>
+                                                {nonRecurringEvents.map((event) => (
+                                                    <ListItem key={event.id} sx={{border: 1, borderColor: '#6284FF', padding: 0}}>
+                                                        <Accordion sx={{width: "100%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <AccordionSummary 
+                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
+                                                                aria-controls="panel1a-content"
+                                                                sx={{ 
+                                                                    width: "100%", 
+                                                                    height: "3vh",  
+                                                                    borderRadius: "8px",
+                                                                    paddingLeft: 0,
+                                                                }}
+                                                                elevation={0}
+                                                            >
+                                                            <Typography sx={{fontWeight: 700, ml: 2}}>{event.summary}</Typography>
+                                                            </AccordionSummary>
+                                                            <AccordionDetails>
+                                                                {event.start && event.start.dateTime && (
+                                                                    <Typography> Start Time: {event.start.dateTime}</Typography>
+                                                                )}
+                                                                {event.description && (
+                                                                    <Typography>Description: {event.description}</Typography>
+                                                                )}
+                                                            </AccordionDetails>
+                                                            
+                                                        </Accordion>
+                                                    </ListItem>
+                                                ))}
+                                                </List>
 
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                            Complete Math Homework
-                                                        </Typography> 
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <IconButton sx={{}}  aria-label="expandTask" style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(90deg)' }}>
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>                                                                                                
-
-                                                <Collapse in={isExpanded}>
-                                                    <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
-
-
-                                                    <Grid container alignItems="center">
-                                                        <Grid item xs>
-                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                Number of Pomodoro Timers (30 mins each)
-                                                            </Typography>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <Typography display={"inline"} sx={{ fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                                2
-                                                            </Typography>
-                                                            <IconButton sx={{ml: 2}} aria-label="editNumOfTimers">
-                                                                <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                            </IconButton>
-                                                        </Grid>
-                                                    </Grid> 
-                                                
-
-                                                    <Grid container alignItems="center">
-                                                        <Grid item xs>
-                                                            <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
-                                                                Notes
-                                                            </Typography>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                            </IconButton>
-                                                        </Grid>
-                                                    </Grid>
-                                                    <Box sx={{ml:2, mt:1, width: "85%"}}>
-                                                        <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
-                                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                                        </Typography>    
-                                                    </Box>
-                                                </Collapse>
-                                            </Box>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="hourGlass">
-                                                            <HourglassEmptyRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                            Assign Leader For Task 1
-                                                        </Typography> 
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>  
-                                            </Box>
-                                        </Box>
-                                        <Box sx={{ 
-                                            mt:1,
-                                            ml:2,
-                                            width: "95%", 
-                                            height: "100%",  
-                                            bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
-                                                Important
-                                            </Typography>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="checked">
-                                                            <CheckCircleOutlineIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                            Complete Math Homework
-                                                        </Typography> 
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-
-                                                <Divider variant="middle" color="#E2EAF1" sx={{ mt:1, height: 2, width: "95%" }} />
-
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                            Number of Pomodoro Timers (30 mins each)
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item>
-                                                        <Typography display={"inline"} sx={{fontWeight: 500, fontSize:'16px', color:"#FE754D"}}>
-                                                            <IconButton sx={{}} aria-label="plusTimer">
-                                                                <AddBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
-                                                            </IconButton>
-                                                            2
-                                                            <IconButton sx={{}} aria-label="minusTimer">
-                                                                <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
-                                                            </IconButton>
-                                                        </Typography>
-                                                        <IconButton sx={{}} aria-label="editingTimers">
-                                                            <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid> 
-                                            </Box>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="switchLeader">
-                                                            <SyncAltIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                        Assign Leader For Task 1
-                                                        </Typography> 
-                                                    </Grid>
-
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-                                            </Box>
-                                        </Box>
-                                        <Box sx={{ 
-                                            mt:1,
-                                            ml:2,
-                                            width: "95%", 
-                                            height: "100%",  
-                                            bgcolor: "#F5F7F9",
-                                            borderRadius: "8px",}}>
-                                            <Typography sx={{ml:2,mt:2, fontWeight: 700, fontSize:'20px'}}>
-                                                Other
-                                            </Typography>
-                                            <Box sx={{ 
-                                                ml:2,
-                                                mt:1,
-                                                mb:1,
-                                                width: "95%", 
-                                                height: "70%",  
-                                                bgcolor: "#FFF",
-                                                borderRadius: "8px",}}>
-                                                <Grid container alignItems="center">
-                                                    <Grid item xs>
-                                                        <IconButton sx={{}} aria-label="hourGlass">
-                                                            <HourglassEmptyRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF"}}>
-                                                        Complete Math Homework
-                                                        </Typography> 
-                                                    </Grid>
-
-                                                    <Grid item>
-                                                        <IconButton aria-label="drag">
-                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                        <IconButton sx={{}} aria-label="expandTask">
-                                                            <ExpandCircleDownOutlinedIcon sx={{ color:"black"}} />
-                                                        </IconButton>
-                                                    </Grid>
-                                                </Grid>
-                                            </Box>
-                                        </Box>
+                                                {/* Display Recurring Events */}
+                                        <ul>
+                                        {recurringEvents.map((event) => (
+                                            <li key={event.id}>
+                                            <strong>{event.summary}</strong>
+                                            {event.start && event.start.dateTime && (
+                                                <div>
+                                                <p>Start Time: {event.start.dateTime}</p>
+                                                {parseAndDisplayDateTime(event.start.dateTime)}
+                                                </div>
+                                            )}
+                                            {event.description && (
+                                                <p>Description: {event.description}</p>
+                                            )}
+                                            {event.recurrence && (
+                                                <p>Recurring on: {event.recurrence}</p>
+                                            )}
+                                            </li>
+                                        ))}
+                                        </ul>
+                                            </Grid>
+                                            ) : (
+                                            <div>
+                                                <div id="signInDiv"></div>
+                                            </div>
+                                            )}
+                                        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
+                                            {errorMessage}
+                                        </div>
+                                        </Grid>
+                                        {/* End of Google API data */}
                                     </Box>
                                 </Paper>
                             </Box>   
@@ -1690,4 +1958,4 @@ function handleOnDragEnd(result) {
     );
 }
 
-export default TasksAppts;
+export default Home;
