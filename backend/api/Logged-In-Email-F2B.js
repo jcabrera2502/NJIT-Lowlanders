@@ -62,7 +62,8 @@ router.post('/api/insertTask', async (req, res) =>
                                                status: req.body.params.status,
                                                day:req.body.params.day,
                                                month:req.body.params.month,
-                                               year:req.body.params.year})
+                                               year:req.body.params.year,
+                                               usedTimers:req.body.params.usedTimers,})
     res.send(result);
    
 });
@@ -90,7 +91,9 @@ router.put('/api/updateTask', async (req, res) =>
                                               {$set: {note: req.body.params.note,
                                                       pomodoroCount: req.body.params.pomodoroCount,
                                                       status: req.body.params.status,
-                                                      type: req.body.params.type}})
+                                                      type: req.body.params.type,
+                                                      usedTimers: req.body.params.usedTimers
+                                                    }})
     res.send(result);
 });
   
