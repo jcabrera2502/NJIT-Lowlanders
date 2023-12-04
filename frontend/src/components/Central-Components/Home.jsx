@@ -860,8 +860,41 @@ function oauthSignIn() {
   
     form.submit();
   }
+
+  const [appointmentList, setAppointmentList] = useState([]);
+
+// I am not proud of this, but it must be done
+function findAppt()
+{
+    var found = false;
+    var arr = [];
+    for(let x = 0; x < 24; x++){
+        nonRecurringEvents.forEach( (event) => {
+            var evtHr;
+            if(event.start && event.start.dateTime)
+            {
+                evtHr = event.start.dateTime;
+                evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
+            }
+            if(parseInt(evtHr) === parseInt(x))
+            {
+                arr.push({time: x, event: event});
+                found = true;
+            }
+        });
+        if(!found)
+        {
+            arr.push({time: x, event: null});
+        }
+        found = false;
+    }
+    setAppointmentList(arr);
+}
   
-  
+useEffect(()=> {
+    findAppt();
+}, [nonRecurringEvents]);
+
     return(
         <CssBaseline>
         <Grid container>
@@ -872,8 +905,12 @@ function oauthSignIn() {
                 height: "100vh",
                 width: '200px',
                 padding: "10px",
-                position: "fixed",            
-                }}>
+                position: "fixed",
+                paddingBottom: "5vh",            
+                }}
+                display="flex"
+                flexDirection="column"
+                >
                 <div className="container-fluid">
                     <Typography sx ={{mt: 3, mb: 4}} variant="h4">Crush It</Typography>
                     <Divider variant="middle" color="#3E3F42" sx={{ height: 2, width: '160px' }} />
@@ -888,14 +925,11 @@ function oauthSignIn() {
                             Plan Day
                             </Button>
                         )} 
-          
-          
                     </Box>
                 </div>
-               
-                
-                <Box sx={{mt: "32vh"}}>
-                    <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
+                <Box sx={{flexGrow: 1}}/>
+                <Box>
+                    <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ height: "45px", borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
                 </Box>
             </Box>
         </Grid>
@@ -1207,10 +1241,10 @@ function oauthSignIn() {
                                     </Popover>
                                 </Typography>
                                                                                     
-                                <Paper sx={{width: "43vw", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap'}} elevation={12}>
+                                <Paper sx={{width: "43vw", maxHeight: "70vh", minHeight: "70vh",  borderRadius: "10px", p:2, flexWrap: 'wrap', overflow: 'auto'}} elevation={12}>
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
 
-                                    <Box sx={{display: "flex", flexDirection: "column", }}>
+                                    <Box sx={{display: "flex", flexDirection: "column"}}>
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
                                             ml:2,
@@ -1849,101 +1883,106 @@ function oauthSignIn() {
                             
                             {/* Appointments */}
                             <Box sx={{ml:2, width: "100%"}}>
-                                <Typography variant="h5" sx={{fontWeight: "bold",mt:3,mb:1, fontSize:'30px'}}>
-                                    Appointments
-                                </Typography>                                                    
-                                <Paper sx={{width: "100%", height: "100%", borderRadius: "10px", p:2, flexWrap: 'wrap', paddingLeft: 0}} elevation={12}>
-                                    {accessToken ? (<Button onClick={handleSignOut}>Sign Out</Button>) : (<Button onClick={oauthSignIn}>Sign In with Google</Button>)}
-                                    <Box sx={{display: "flex", flexDirection: "column", }}>
+                                <Box
+                                display="flex"
+                                flexDirection="row"
+                                alignItems="center"
+                                >
+                                    <Typography variant="h5" sx={{fontWeight: "bold",mt:3,mb:1, fontSize:'30px'}}>Appointments</Typography>
+                                    <Box sx={{flexGrow: 1}}/>                                       
+                                    {accessToken ? (<Button variant="contained" size="small" color="purple" sx={{height: "40px", textAlign: "center", borderRadius: 3}} onClick={handleSignOut}>Sign Out</Button>) : (<></>)}
+                                </Box>             
+                                <Paper sx={{width: "100%", maxHeight: "70vh", minHeight: "70vh", borderRadius: "10px", p:2, flexWrap: 'wrap', paddingLeft: 0, overflow: 'auto'}} elevation={12}>
+                                    <Box sx={{display: "flex", flexDirection: "column"}}>
                                         {/* Beginning of Google API data */}
                                         <Grid container className="App">
-                                            <Grid item xs={1.5} sx={{textAlign: "center"}}>
-                                                <Stack spacing={3.27}>
-                                                    <Typography>12 AM</Typography>
-                                                    <Typography>1 AM</Typography>
-                                                    <Typography>2 AM</Typography>
-                                                    <Typography>3 AM</Typography>
-                                                    <Typography>4 AM</Typography>
-                                                    <Typography>5 AM</Typography>
-                                                    <Typography>6 AM</Typography>
-                                                    <Typography>7 AM</Typography>
-                                                    <Typography>8 AM</Typography>
-                                                    <Typography>9 AM</Typography>
-                                                    <Typography>10 AM</Typography>
-                                                    <Typography>11 AM</Typography>
-                                                    <Typography>12 PM</Typography>
-                                                    <Typography>1 PM</Typography>
-                                                    <Typography>2 PM</Typography>
-                                                    <Typography>3 PM</Typography>
-                                                    <Typography>4 PM</Typography>
-                                                    <Typography>5 PM</Typography>
-                                                    <Typography>6 PM</Typography>
-                                                    <Typography>7 PM</Typography>
-                                                    <Typography>8 PM</Typography>
-                                                    <Typography>9 PM</Typography>
-                                                    <Typography>10 PM</Typography>
-                                                    <Typography>11 PM</Typography>
-                                                </Stack>
-                                            </Grid>
                                             {accessToken ? (
-                                            <Grid item xs={10.5}>
-                                                {/* Display Non-Recurring Events */}
-                                                <List sx={{width: "100%", borderRadius: 8, mt: 1.5, padding: 0}}>
-                                                {nonRecurringEvents.map((event) => (
-                                                    <ListItem key={event.id} sx={{border: 1, borderColor: '#6284FF', padding: 0}}>
-                                                        <Accordion sx={{width: "100%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
-                                                            <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
-                                                                aria-controls="panel1a-content"
-                                                                sx={{ 
-                                                                    width: "100%", 
-                                                                    height: "3vh",  
-                                                                    borderRadius: "8px",
-                                                                    paddingLeft: 0,
-                                                                }}
-                                                                elevation={0}
-                                                            >
-                                                            <Typography sx={{fontWeight: 700, ml: 2}}>{event.summary}</Typography>
-                                                            </AccordionSummary>
-                                                            <AccordionDetails>
-                                                                {event.start && event.start.dateTime && (
-                                                                    <Typography> Start Time: {event.start.dateTime}</Typography>
-                                                                )}
-                                                                {event.description && (
-                                                                    <Typography>Description: {event.description}</Typography>
-                                                                )}
-                                                            </AccordionDetails>
-                                                            
-                                                        </Accordion>
-                                                    </ListItem>
-                                                ))}
-                                                </List>
-
-                                                {/* Display Recurring Events */}
-                                        <ul>
-                                        {recurringEvents.map((event) => (
-                                            <li key={event.id}>
-                                            <strong>{event.summary}</strong>
-                                            {event.start && event.start.dateTime && (
-                                                <div>
-                                                <p>Start Time: {event.start.dateTime}</p>
-                                                {parseAndDisplayDateTime(event.start.dateTime)}
-                                                </div>
-                                            )}
-                                            {event.description && (
-                                                <p>Description: {event.description}</p>
-                                            )}
-                                            {event.recurrence && (
-                                                <p>Recurring on: {event.recurrence}</p>
-                                            )}
-                                            </li>
-                                        ))}
-                                        </ul>
-                                            </Grid>
+                                            <>
+                                                <Grid item xs={1.5} sx={{textAlign: "center"}}>
+                                                    <Stack spacing={3.25}>
+                                                        <Typography>12 AM</Typography>
+                                                        <Typography>1 AM</Typography>
+                                                        <Typography>2 AM</Typography>
+                                                        <Typography>3 AM</Typography>
+                                                        <Typography>4 AM</Typography>
+                                                        <Typography>5 AM</Typography>
+                                                        <Typography>6 AM</Typography>
+                                                        <Typography>7 AM</Typography>
+                                                        <Typography>8 AM</Typography>
+                                                        <Typography>9 AM</Typography>
+                                                        <Typography>10 AM</Typography>
+                                                        <Typography>11 AM</Typography>
+                                                        <Typography>12 PM</Typography>
+                                                        <Typography>1 PM</Typography>
+                                                        <Typography>2 PM</Typography>
+                                                        <Typography>3 PM</Typography>
+                                                        <Typography>4 PM</Typography>
+                                                        <Typography>5 PM</Typography>
+                                                        <Typography>6 PM</Typography>
+                                                        <Typography>7 PM</Typography>
+                                                        <Typography>8 PM</Typography>
+                                                        <Typography>9 PM</Typography>
+                                                        <Typography>10 PM</Typography>
+                                                        <Typography>11 PM</Typography>
+                                                    </Stack>
+                                                </Grid>
+                                                <Grid item xs={10.5}>
+                                                    {/* Display Non-Recurring Events */}
+                                                    <List sx={{width: "100%", mt: 1.5, padding: 0}}>
+                                                    {appointmentList.map((pair, index) => (
+                                                        pair.event ? (
+                                                            <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
+                                                                <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                                    <AccordionSummary 
+                                                                        expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
+                                                                        aria-controls="panel1a-content"
+                                                                        sx={{ 
+                                                                            width: "100%", 
+                                                                            height: "3vh",  
+                                                                            borderRadius: "8px",
+                                                                            paddingLeft: 0,
+                                                                        }}
+                                                                        elevation={0}
+                                                                    >
+                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{pair.event.summary}</Typography>
+                                                                    </AccordionSummary>
+                                                                    <AccordionDetails>
+                                                                        {pair.event.start && pair.event.start.dateTime && (
+                                                                            <Typography> Start Time: {pair.event.start.dateTime}</Typography>
+                                                                        )}
+                                                                        {pair.event.description && (
+                                                                            <Typography>Description: {pair.event.description}</Typography>
+                                                                        )}
+                                                                    </AccordionDetails>
+                                                                    
+                                                                </Accordion>
+                                                            </ListItem>
+                                                        ) : (
+                                                            <ListItem key={index} sx={{ padding: 0}}>
+                                                                <Box sx={{width: "100%", height: 50}}></Box>
+                                                            </ListItem>
+                                                        )
+                                                    ))}
+                                                    </List>
+                                                </Grid>
+                                            </>
                                             ) : (
-                                            <div>
-                                                <div id="signInDiv"></div>
-                                            </div>
+                                            <>
+                                                <Box
+                                                    sx={{ml:2,
+                                                        width: "100%", 
+                                                        minHeight: "66.7vh",  
+                                                        bgcolor: "#F5F7F9",
+                                                        borderRadius: "8px",
+                                                    }}
+                                                    display = "flex"
+                                                    alignItems="center"
+                                                    flexDirection="row"
+                                                    justifyContent="center"
+                                                >
+                                                    <Button variant="contained" size="large" color="purple" sx={{borderRadius: 3}} onClick={oauthSignIn}>Sign In with Google</Button>
+                                                </Box>
+                                            </>
                                             )}
                                         <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
                                             {errorMessage}
