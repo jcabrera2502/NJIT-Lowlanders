@@ -7,7 +7,7 @@ import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 export function PomoPopup(props) {
     //popup
-    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, usedTimers, subBox } = props;
+    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, subBox } = props;
     const handlePomoClose = () => {
         //console.log("closed");
         if (ticking) {
@@ -144,7 +144,29 @@ export function PomoPopup(props) {
     };
 
     const [editNote, setEditNote] = useState(true);
+    
+    function getCurrentMilitaryTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    const militaryTime = getCurrentMilitaryTime();
 
+    // Time when the timer will finish with all pomos and breaks
+    function timeOfTimerEnd(militaryTime, fractionOfHours) {
+        const [hours, minutes] = militaryTime.split(':').map(Number);
+        const totalMinutes = hours * 60 + minutes;
+        const newTotalMinutes = totalMinutes + fractionOfHours * 60;
+        const newHours = Math.floor(newTotalMinutes / 60) % 24;
+        const newMinutes = Math.floor(newTotalMinutes) % 60;
+        const result = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+        return result;
+    }
+
+    const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round((((subBox.pomTimers * 30) + 
+                                                                    ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))*5) + 
+                                                                    (Math.floor(subBox.pomTimers/4)*15)) /60) *10) /10) : 0 );
     //display
     return (
         <Dialog 
@@ -253,11 +275,16 @@ export function PomoPopup(props) {
                             Pomos: 
                     </Typography>
                     <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
-                            {usedTimers}/{taskTimers}
+                        {(subBox != null) ? (subBox.usedTimers) : (0)}/{taskTimers}
                     </Typography>
                     <Box sx={{flexGrow: .15}}/>
                     <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
-                            Finish At: 
+                            Finish At:
+                            <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
+                                {timerEnd}  ({(subBox != null) ? (Math.round((((subBox.pomTimers * 30) + 
+                                                                            ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))*5) + 
+                                                                            (Math.floor(subBox.pomTimers/4)*15)) /60) *10) /10) : (0)}h)
+                            </Typography>
                     </Typography>
                     <Box sx={{flexGrow: .5}}/>
                 </Box>
@@ -272,6 +299,6 @@ PomoPopup.propTypes = {
     taskTime: PropTypes.number.isRequired,
     shortTime: PropTypes.number.isRequired,
     longTime: PropTypes.number.isRequired,
-    usedTimers: PropTypes.number.isRequired,
+    // usedTimers: PropTypes.number.isRequired,
     subBox: PropTypes.object,
 };

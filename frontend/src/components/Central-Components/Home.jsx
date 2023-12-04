@@ -28,7 +28,7 @@ import { get, set } from "mongoose";
 import { PomoPopup } from "./Popup";
 import { useNavigate } from 'react-router-dom';
 
-const TasksAppts = () => {
+const Home = () => {
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
@@ -168,7 +168,7 @@ function isThisCurrent(date) {
     const [focusTask, setFocusTask] = React.useState(null);
     const [focusTaskDesc, setFocusTaskDesc] = React.useState(null);
     const [focusTaskTimers, setFocusTaskTimers] = React.useState(null);
-    const [focusUsedTimers, setfocusUsedTimers] = React.useState(0);
+    // const [focusUsedTimers, setFocusUsedTimers] = React.useState(null);
     const [focusSubBox, setFocusSubBox] = React.useState(null);
 
     //TODO: make these times pull from user settings
@@ -176,12 +176,11 @@ function isThisCurrent(date) {
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
 
-    const handleOpenPomo = (task, desc, timers, used, subBox) => {
+    const handleOpenPomo = (task, desc, timers, subBox) => {
         //console.log("click");
         setFocusTask(task);
         setFocusTaskDesc(desc);
         setFocusTaskTimers(timers);
-        setfocusUsedTimers(used);
         setPomoOpen(true);
         setFocusSubBox(subBox);
     };
@@ -418,7 +417,7 @@ const updateUserTasks = async (user, subBox) =>
             note: subBox.note,
             pomodoroCount: subBox.pomTimers,
             status: subBox.currentIcon,
-            usedTimers: subBox.usedTimers
+            usedTimers: subBox.usedTimers,
         }
     });
     if (response) {
@@ -1136,7 +1135,6 @@ function oauthSignIn() {
                             taskTime={taskTime}
                             shortTime={shortTime}
                             longTime={longTime}
-                            usedTimers={focusUsedTimers}
                             subBox={focusSubBox}
                         />
                         {/*End of Pomo Popup*/}
@@ -1276,7 +1274,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1491,7 +1489,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1701,7 +1699,7 @@ function oauthSignIn() {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox.usedTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
@@ -1960,4 +1958,4 @@ function oauthSignIn() {
     );
 }
 
-export default TasksAppts;
+export default Home;
