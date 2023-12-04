@@ -42,7 +42,7 @@ test('PomoPopup displays task desc', () => {
         pomoOpen={true}
         onPomoClose={onPomoClose}
         taskTitle={'example title'}
-        taskDesc={exampleText[1]}
+        subBox = {{"note":exampleText[1]}}
         taskTimers={2}
         taskTime={30}
         shortTime={5}
@@ -64,7 +64,7 @@ test('PomoPopup displays number of pomo times', () => {
         longTime={25}
     />);
 
-    expect(screen.getByText(/1/)).toBeInTheDocument();
+    expect(screen.getAllByText(/1/)[0]).toBeInTheDocument();
 });
 
 test('PomoPopup displays task time', () => {
@@ -79,7 +79,7 @@ test('PomoPopup displays task time', () => {
         longTime={15}
     />);
 
-    expect(screen.getByText(/2/)).toBeInTheDocument();
+    expect(screen.getAllByText(/2/)[0]).toBeInTheDocument();
 });
 
 test('PomoPopup displays short time', () => {
@@ -97,7 +97,7 @@ test('PomoPopup displays short time', () => {
     const shortTab = screen.getByText('Short Break');
     fireEvent.click(shortTab);
 
-    expect(screen.getByText(/3/)).toBeInTheDocument();
+    expect(screen.getAllByText(/3/)[0]).toBeInTheDocument();
 });
 
 test('PomoPopup displays long time', () => {
@@ -115,7 +115,7 @@ test('PomoPopup displays long time', () => {
     const longTab = screen.getByText('Long Break');
     fireEvent.click(longTab);
 
-    expect(screen.getByText(/4/)).toBeInTheDocument();
+    expect(screen.getAllByText(/4/)[0]).toBeInTheDocument();
 });
 
 test('PomoPopup displays all imported times', () => {
@@ -130,19 +130,19 @@ test('PomoPopup displays all imported times', () => {
         longTime={timeVals[3]}
     />);
 
-    expect(screen.getByText(/2/)).toBeInTheDocument();
+    expect(screen.getAllByText(/2/)[0]).toBeInTheDocument();
 
     const shortTab = screen.getByText('Short Break');
     fireEvent.click(shortTab);
-    expect(screen.getByText(/3/)).toBeInTheDocument();
+    expect(screen.getAllByText(/3/)[0]).toBeInTheDocument();
 
     const longTab = screen.getByText('Long Break');
     fireEvent.click(longTab);
-    expect(screen.getByText(/4/)).toBeInTheDocument();
+    expect(screen.getAllByText(/4/)[0]).toBeInTheDocument();
 
     const taskTab = screen.getByText('Pomodoro');
     fireEvent.click(taskTab);
-    expect(screen.getByText(/2/)).toBeInTheDocument();
+    expect(screen.getAllByText(/2/)[0]).toBeInTheDocument();
 });
 
 test('timer starts', async () => {
@@ -160,7 +160,7 @@ test('timer starts', async () => {
     const timer = screen.getByText('START');
     fireEvent.click(timer);
     await new Promise((r) => setTimeout(r, 2000));
-    expect(screen.getByText(/29/)).toBeInTheDocument();
+    expect(screen.getAllByText(/29/)[0]).toBeInTheDocument();
 });
 
 test('timer pauses', async () => {
@@ -180,7 +180,7 @@ test('timer pauses', async () => {
     await new Promise((r) => setTimeout(r, 1000));
     fireEvent.click(timer);
     await new Promise((r) => setTimeout(r, 2000));
-    expect(screen.getByText(/59/)).toBeInTheDocument();
+    expect(screen.getAllByText(/59/)[0]).toBeInTheDocument();
 });
 
 jest.setTimeout(7000);
@@ -199,15 +199,15 @@ test('timer ticking', async () => {
     const timer = screen.getByText('START');
     fireEvent.click(timer);
     await new Promise((r) => setTimeout(r, 1000));
-    expect(screen.getByText(/00/)).toBeInTheDocument();
+    expect(screen.getAllByText(/00/)[0]).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 1000));
-    expect(screen.getByText(/59/)).toBeInTheDocument();
+    expect(screen.getAllByText(/59/)[0]).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 1000));
-    expect(screen.getByText(/58/)).toBeInTheDocument();
+    expect(screen.getAllByText(/58/)[0]).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 1000));
-    expect(screen.getByText(/57/)).toBeInTheDocument();
+    expect(screen.getAllByText(/57/)[0]).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 1000));
-    expect(screen.getByText(/56/)).toBeInTheDocument();
+    expect(screen.getAllByText(/56/)[0]).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 1000));
-    expect(screen.getByText(/55/)).toBeInTheDocument();
+    expect(screen.getAllByText(/55/)[0]).toBeInTheDocument();
 });

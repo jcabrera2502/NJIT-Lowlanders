@@ -217,7 +217,7 @@ export function PomoPopup(props) {
                         variant="contained" 
                         onClick={toggleTimer}
                         sx={{minWidth: '9em', minHeight: "3.5em", borderRadius: 3.5, mt: "1.5em", mb: "1.7em", fontFamily: "DM Sans"}}
-                        color="purple"
+                        //color="purple"
                     >
                         {(ticking ? "STOP" : "START")}
                     </Button>
