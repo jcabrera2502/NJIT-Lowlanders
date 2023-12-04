@@ -49,6 +49,10 @@ export function PomoPopup(props) {
     };
     const [tabValue, setTabValue] = useState(0);
     const handleTabChange = (event, newValue) => {
+        if (ticking) {
+            toggleTimer();
+        }
+        resetTimer();
         setTabValue(newValue);
         setTimer('00:' + chooseTime(newValue) + ':00');
     };
@@ -213,7 +217,7 @@ export function PomoPopup(props) {
                         variant="contained" 
                         onClick={toggleTimer}
                         sx={{minWidth: '9em', minHeight: "3.5em", borderRadius: 3.5, mt: "1.5em", mb: "1.7em", fontFamily: "DM Sans"}}
-                        color="purple"
+                        //color="purple"
                     >
                         {(ticking ? "STOP" : "START")}
                     </Button>

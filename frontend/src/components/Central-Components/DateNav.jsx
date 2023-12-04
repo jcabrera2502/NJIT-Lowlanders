@@ -8,7 +8,7 @@ import ExpandCircleDownOutlinedIcon from '@mui/icons-material/ExpandCircleDownOu
 import { isThisCurrent, getCurrentMonth, getCurrentDay, getCurrentYear } from "./date_functions";
 //import { forwardGetUserTasks } from "./Home";
 
-export const DateNav = forwardRef((ref) => {
+export /*const*/ function DateNav/* = forwardRef((ref) => */(){
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
@@ -68,7 +68,7 @@ export const DateNav = forwardRef((ref) => {
 
     const thirtyOne = [1, 3, 5, 7, 8, 10, 12];
     const thirty = [4, 6, 9, 11];
-
+    /*
     const publicRef = {
         getMonth: () => {
             return month;
@@ -84,8 +84,8 @@ export const DateNav = forwardRef((ref) => {
         },
     };
     useImperativeHandle(ref, () => publicRef);
-    /*
-    const getMonth = () => {
+    */
+    function getMonth() {
         return month;
     }
     function getDay() {
@@ -97,7 +97,7 @@ export const DateNav = forwardRef((ref) => {
     
     function isItCurrent() {
         return isThisCurrent(month, day, year);
-    }*/
+    }
 
     return (
         <Box
@@ -117,7 +117,8 @@ export const DateNav = forwardRef((ref) => {
                 dateRules(month, year);
             }}
                 sx={{ minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1 }}
-                color="menu">
+                //color="menu"
+                >
                 <ExpandCircleDownRoundedIcon sx={{ transform: "rotate(90deg)", height: 28, width: 28 }} />
             </Button>
             <FormControl sx={{ mr: .5, ml: .5, mt: 1, mb: 1, minWidth: 160 }}>
@@ -161,7 +162,8 @@ export const DateNav = forwardRef((ref) => {
                 }
             }}
                 sx={{ minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, mr: 3, border: 1 }}
-                color="menu">
+                //color="menu"
+                >
                 <ExpandCircleDownRoundedIcon sx={{ transform: "rotate(270deg)", height: 28, width: 28 }} />
             </Button>
             <Button variant="outlined" onClick={() => {
@@ -184,7 +186,8 @@ export const DateNav = forwardRef((ref) => {
                 //dateRules(month, year);
             }}
                 sx={{ minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1 }}
-                color="menu">
+                //color="menu"
+                >
                 <ExpandCircleDownRoundedIcon sx={{ transform: "rotate(90deg)", height: 28, width: 28 }} />
             </Button>
             <FormControl sx={{ mr: .5, ml: .5, mt: 1, mb: 1, minWidth: 90 }}>
@@ -264,7 +267,8 @@ export const DateNav = forwardRef((ref) => {
                 //dateRules(month, year);
             }}
                 sx={{ minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, mr: 3, border: 1 }}
-                color="menu">
+                //color="menu"
+                >
                 <ExpandCircleDownRoundedIcon sx={{ transform: "rotate(270deg)", height: 28, width: 28 }} />
             </Button>
             <Button variant="outlined" onClick={() => {
@@ -272,7 +276,8 @@ export const DateNav = forwardRef((ref) => {
                 dateRules(month, year - 1);
             }}
                 sx={{ minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1 }}
-                color="menu">
+                //color="menu"
+                >
                 <ExpandCircleDownRoundedIcon sx={{ transform: "rotate(90deg)", height: 28, width: 28 }} />
             </Button>
             <FormControl sx={{ mr: .5, ml: .5, mt: 1, mb: 1, minWidth: 100 }}>
@@ -305,10 +310,11 @@ export const DateNav = forwardRef((ref) => {
                 dateRules(month, year + 1);
             }}
                 sx={{ minWidth: "50px", height: "50px", padding: 0, borderRadius: 3, border: 1 }}
-                color="menu">
+                //color="menu"
+                >
                 <ExpandCircleDownRoundedIcon sx={{ transform: "rotate(270deg)", height: 28, width: 28 }} />
             </Button>
         </Box>
     )
 }
-);
+//);
