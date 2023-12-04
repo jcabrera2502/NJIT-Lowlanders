@@ -84,6 +84,24 @@ export function PomoPopup(props) {
             }
             else {
                 clearInterval(Ref.current);
+                if (tabValue == 0) {
+                    subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
+                    subBox.usedTimers= subBox.usedTimers+1;
+                    if (subBox.usedTimers % 4 == 0){
+                        resetTimer();
+                        setTabValue(2);
+                        setTimer('00:' + chooseTime(2) + ':00');
+                    }
+                    else{
+                        resetTimer();
+                        setTabValue(1);
+                        setTimer('00:' + chooseTime(1) + ':00');
+                    }
+                }else{
+                    resetTimer();
+                    setTabValue(0);
+                    setTimer('00:' + chooseTime(0) + ':00');
+                }
                 console.log("TIMER END");
             }
         }
@@ -140,7 +158,7 @@ export function PomoPopup(props) {
             setTicking(false);
             clearTimer(getDeadTime(), false);
         }
-        else {
+        else if( subBox.usedTimers < subBox.pomTimers ) {
             setTicking(true);
             //console.log("here " + ticking);
             clearTimer(getDeadTime(), true);
@@ -168,9 +186,9 @@ export function PomoPopup(props) {
         return result;
     }
 
-    const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round((((subBox.pomTimers * 30) + 
-                                                                    ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))*5) + 
-                                                                    (Math.floor(subBox.pomTimers/4)*15)) /60) *10) /10) : 0 );
+    const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round((((subBox.pomTimers * taskTime) + 
+                                                                    ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))* shortTime) + 
+                                                                    (Math.floor(subBox.pomTimers/4)*longTime)) /60) *10) /10) : 444 );
     //display
     return (
         <Dialog 
@@ -285,9 +303,9 @@ export function PomoPopup(props) {
                     <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
                             Finish At:
                             <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
-                                {timerEnd}  ({(subBox != null) ? (Math.round((((subBox.pomTimers * 30) + 
-                                                                            ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))*5) + 
-                                                                            (Math.floor(subBox.pomTimers/4)*15)) /60) *10) /10) : (0)}h)
+                                {timerEnd}  ({(subBox != null) ? (Math.round((((subBox.pomTimers * taskTime) + 
+                                                                            ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))* shortTime ) + 
+                                                                            (Math.floor(subBox.pomTimers/4)*longTime)) /60) *10) /10) : 444}h)
                             </Typography>
                     </Typography>
                     <Box sx={{flexGrow: .5}}/>
