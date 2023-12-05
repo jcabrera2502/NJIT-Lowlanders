@@ -316,7 +316,7 @@ export function PomoPopup(props) {
                     <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
                             Finish At:
                             <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
-                            {timerEnd}  ({(subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
+                                {timerEnd}  ({(subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
                                                                             (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime ) + 
                                                                             (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444}h)
                             </Typography>
