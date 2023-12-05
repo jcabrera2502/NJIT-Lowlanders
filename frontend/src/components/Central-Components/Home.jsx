@@ -225,7 +225,6 @@ function isThisCurrent(date) {
     const [editNumTimer, setEditNumTimer] = useState(false);
     const [editNote, setEditNote] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(0);
-    const [type, setType] = useState('important');
     const [usedTimers, setUsedTimers] = useState(0);
 
     const handleOpenPopover = (event) => {
@@ -294,7 +293,7 @@ function isThisCurrent(date) {
                 key: key,
                 email: user.email,
                 title: taskTitle,
-                type: type,
+                type: 'important',
                 completed: false,
                 taskNote: taskNote,
                 pomodoroCount: numTimers,
