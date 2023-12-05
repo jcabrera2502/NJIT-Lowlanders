@@ -155,6 +155,7 @@ test('timer starts', async () => {
         taskTime={30}
         shortTime={5}
         longTime={15}
+        subBox={{"usedTimers":0, "pomTimers":2}}
     />);
 
     const timer = screen.getByText('START');
@@ -173,6 +174,7 @@ test('timer pauses', async () => {
         taskTime={30}
         shortTime={5}
         longTime={15}
+        subBox={{"usedTimers":0, "pomTimers":2}}
     />);
 
     const timer = screen.getByText('START');
@@ -194,6 +196,7 @@ test('timer ticking', async () => {
         taskTime={30}
         shortTime={5}
         longTime={15}
+        subBox={{"usedTimers":0, "pomTimers":2}}
     />);
 
     const timer = screen.getByText('START');
