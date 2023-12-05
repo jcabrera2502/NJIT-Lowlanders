@@ -184,9 +184,9 @@ function isThisCurrent(date) {
     const [focusSubBox, setFocusSubBox] = React.useState(null);
 
     //TODO: make these times pull from user settings
-    const [taskTime, setTaskTime] = React.useState(1);
-    const [shortTime, setShortTime] = React.useState(1);
-    const [longTime, setLongTime] = React.useState(1);
+    const [taskTime, setTaskTime] = React.useState(30);
+    const [shortTime, setShortTime] = React.useState(5);
+    const [longTime, setLongTime] = React.useState(15);
 
     // setTaskTime(1);
     // setShortTime(1);
@@ -1372,7 +1372,7 @@ const currentTime = new Date();
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
                                                                             <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                                Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
@@ -1587,7 +1587,7 @@ const currentTime = new Date();
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
                                                                             <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                                Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
@@ -1797,7 +1797,7 @@ const currentTime = new Date();
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
                                                                             <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                                Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
