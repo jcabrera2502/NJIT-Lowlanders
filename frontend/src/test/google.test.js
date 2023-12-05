@@ -1,7 +1,6 @@
 const request = require('supertest');
 const express = require('express');
 const { google } = require('googleapis');
-const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
@@ -17,7 +16,6 @@ google.auth.OAuth2 = jest.fn(() => ({
 }));
 
 // Mock axios
-jest.mock('axios');
 
 // Mock the calendar.events.list method
 const mockEventsList = jest.fn();
