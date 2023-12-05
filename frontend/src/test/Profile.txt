@@ -20,5 +20,20 @@ describe('Profile Component', () => {
 
     // Assert that the error message is displayed
     expect(screen.getByText(/new passwords do not match/i)).toBeInTheDocument();
-  });
+  });// Home.test.jsx
+import React from 'react';
+import { render } from '@testing-library/react';
+import Profile from '../components/Central-Components/Profile'; // Replace with the correct path to your component
+jest.mock('@mui/material', () => {
+  return {
+    ...jest.requireActual('@mui/material'),
+    Button: jest.fn(({ children }) => <button>{children}</button>),
+    // Add other mocked components as needed
+  };
+});
+
+test('renders Home component', () => {
+  const { getByText } = render(<Profile />);
+});
+
 });

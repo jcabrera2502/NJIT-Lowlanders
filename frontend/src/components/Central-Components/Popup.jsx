@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import Dialog from '@mui/material/Dialog';
 import PropTypes from 'prop-types';
-import { Typography, Button, Box } from "@mui/material";
+import { Typography, Button, Box, Dialog, IconButton, TextField } from "@mui/material";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-
+import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
+import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
+import sound from "./Sounds/alarm.mp3"
 export function PomoPopup(props) {
     //popup
-    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime } = props;
+    const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, subBox } = props;
     const handlePomoClose = () => {
         //console.log("closed");
         if (ticking) {
@@ -16,6 +17,12 @@ export function PomoPopup(props) {
         resetTimer();
         onPomoClose();
     };
+
+    //alarm audio controller
+    function play() {
+        new Audio(sound).play();
+    }
+    
 
     //tabs
     function TabPanel(props) {
@@ -47,15 +54,19 @@ export function PomoPopup(props) {
             'aria-controls': `tabpanel-${index}`,
         };
     };
-    const [tabValue, setTabValue] = React.useState(0);
+    const [tabValue, setTabValue] = useState(0);
     const handleTabChange = (event, newValue) => {
+        if (ticking) {
+            toggleTimer();
+        }
+        resetTimer();
         setTabValue(newValue);
         setTimer('00:' + chooseTime(newValue) + ':00');
     };
 
     //timer
     const Ref = useRef(null);
-    const [timer, setTimer] = React.useState('00:' + chooseTime(tabValue) + ':00');
+    const [timer, setTimer] = useState('00:' + chooseTime(tabValue) + ':00');
     const getRemaining = (t) => {
         //console.log(ticking);
         const total = Date.parse(t) - Date.parse(new Date());
@@ -79,7 +90,31 @@ export function PomoPopup(props) {
                 )
             }
             else {
+                play(); //play alarm
                 clearInterval(Ref.current);
+                setTicking(false);
+                if (tabValue == 0) {
+                    subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
+                    subBox.usedTimers= subBox.usedTimers+1;
+                    if (subBox.usedTimers % 4 == 0){
+                        // if (subBox.usedTimers != subBox.pomTimers) {
+                            resetTimer();
+                            setTabValue(2);
+                            setTimer('00:' + chooseTime(2) + ':00');
+                        // }
+                    }
+                    else{
+                        // if (subBox.usedTimers != subBox.pomTimers) {
+                            resetTimer();
+                            setTabValue(1);
+                            setTimer('00:' + chooseTime(1) + ':00');
+                        // }
+                    }
+                }else{
+                    resetTimer();
+                    setTabValue(0);
+                    setTimer('00:' + chooseTime(0) + ':00');
+                }
                 console.log("TIMER END");
             }
         }
@@ -112,13 +147,13 @@ export function PomoPopup(props) {
         setTimer('00:' + chooseTime(tabValue) + ':00');
     };
     function chooseTime(tab) {
-        if (tab == 0) {
+        if (tab === 0) {
             return (taskTime > 9 ? taskTime : '0' + taskTime);
         }
-        if (tab == 1) {
+        if (tab === 1) {
             return (shortTime > 9 ? shortTime : '0' + shortTime);
         }
-        if (tab == 2) {
+        if (tab === 2) {
             return (longTime > 9 ? longTime : '0' + longTime);
         }
     };
@@ -130,57 +165,174 @@ export function PomoPopup(props) {
             return timer.substring(3);
         }
     };
-    const [ticking, setTicking] = React.useState(false);
+    const [ticking, setTicking] = useState(false);
     const toggleTimer = () => {
         if (ticking) {
             setTicking(false);
             clearTimer(getDeadTime(), false);
         }
-        else {
-            setTicking(true);
-            //console.log("here " + ticking);
-            clearTimer(getDeadTime(), true);
+        else if( subBox.usedTimers <= subBox.pomTimers ) {
+        // else {
+            if (tabValue === 0 && subBox.usedTimers == subBox.pomTimers) {
+                // setTicking(true);
+                // //console.log("here " + ticking);
+                // clearTimer(getDeadTime(), true);
+            }
+            else {
+                setTicking(true);
+                //console.log("here " + ticking);
+                clearTimer(getDeadTime(), true);
+            }
+            
         }
     };
 
+    const [editNote, setEditNote] = useState(true);
+    
+    function getCurrentMilitaryTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    const militaryTime = getCurrentMilitaryTime();
+
+    // Time when the timer will finish with all pomos and breaks
+    function timeOfTimerEnd(militaryTime, fractionOfHours) {
+        const [hours, minutes] = militaryTime.split(':').map(Number);
+        const totalMinutes = hours * 60 + minutes;
+        const newTotalMinutes = totalMinutes + fractionOfHours * 60;
+        const newHours = Math.floor(newTotalMinutes / 60) % 24;
+        const newMinutes = Math.floor(newTotalMinutes) % 60;
+        const result = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+        return result;
+    }
+
+    const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
+                                                                    (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime) + 
+                                                                    (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444 );
     //display
     return (
-        <Dialog onClose={handlePomoClose} open={pomoOpen}>
+        <Dialog 
+            onClose={handlePomoClose} 
+            open={pomoOpen}  
+            minWidth={"sm"}
+            fullWidth
+            minHeigt={"sm"}
+            borderRadius={2}
+        >
             <Box>
                 <Box>
-                    <Tabs value={tabValue} onChange={handleTabChange}>
-                        <Tab label="Pomodoro" {...tabProps(0)} />
-                        <Tab label="Short Break" {...tabProps(1)} />
-                        <Tab label="Long Break" {...tabProps(2)} />
-                    </Tabs>
+                    <Box sx={{padding: "1em"}}>
+                        <Tabs value={tabValue} onChange={handleTabChange}>
+                            <Tab sx={{fontWeight: 700, color: "black"}} label="Pomodoro" {...tabProps(0)} />
+                            <Tab sx={{fontWeight: 700, color: "black"}} label="Short Break" {...tabProps(1)} />
+                            <Tab sx={{fontWeight: 700, color: "black"}} label="Long Break" {...tabProps(2)} />
+                        </Tabs>
+                    </Box>
+                    {/*
+                    <TabPanel value={tabValue} index={0}>
+                        po
+                    </TabPanel>
+                    <TabPanel value={tabValue} index={1}>
+                        sh
+                    </TabPanel>
+                    <TabPanel value={tabValue} index={2}>
+                        lo
+                    </TabPanel>
+                    */}
                 </Box>
-                {/*
-                <TabPanel value={tabValue} index={0}>
-                    po
-                </TabPanel>
-                <TabPanel value={tabValue} index={1}>
-                    sh
-                </TabPanel>
-                <TabPanel value={tabValue} index={2}>
-                    lo
-                </TabPanel>
-                */}
+
+                <Box
+                display="flex"
+                flexDirection="column"
+                sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2}}
+                textAlign={"center"}
+                alignItems={"center"}
+                >
+                    <Typography variant="h1" display={"inline"} sx={{flexGrow: 1, mt: ".3em"}}>
+                        {displayTimer()}
+                    </Typography>
+                    <Button 
+                        variant="contained" 
+                        onClick={toggleTimer}
+                        sx={{minWidth: '9em', minHeight: "3.5em", borderRadius: 3.5, mt: "1.5em", mb: "1.7em", fontFamily: "DM Sans"}}
+                        //color="purple"
+                    >
+                        {(ticking ? "STOP" : "START")}
+                    </Button>
+                </Box>
+
+                {/* Title Box */}
+                <Box sx={{ml: "1.5em", mt: "1em", mb: "1em"}}>
+                    <Typography display={"inline"} sx={{ fontWeight: 700, fontSize:'20px', color:"black", flexGrow: 1}}>
+                        {taskTitle}
+                    </Typography>
+                </Box>
+                
+                {/* Notes Box */}
+                <Box sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2, padding: "1em"}}>
+                    <Box>
+                        {editNote ? (
+                        <>
+                            <Box display="flex" sx={{mb: ".6em"}}>
+                                <Typography sx={{fontWeight: 700, color:"#6284FF"}}>Notes:</Typography>
+                                <Box sx={{flexGrow: 1}}/>
+                                <IconButton onClick={() => {setEditNote(!editNote)}}><BorderColorOutlinedIcon sx={{color:"#6284FF", height: 20, width: 20}} /></IconButton>
+                            </Box>
+                            
+                                <Typography sx={{fontSize:'16px', flexGrow: 1}}>
+                                    {(subBox != null) ? (subBox.note) : (" ")}
+                                </Typography>
+                        </>
+                        ) : (
+                        <>
+                            <Box display="flex" sx={{mb: ".6em"}}>
+                                <Typography sx={{fontWeight: 700, color:"#6284FF"}}>Notes:</Typography>
+                            <Box sx={{flexGrow: 1}}/>
+                                <IconButton onClick={() => {setEditNote(!editNote);}}><CheckBoxRoundedIcon sx={{color:"#6284FF", height: 20, width: 20}} /></IconButton>
+                            </Box>
+                            <TextField
+                                variant="outlined"
+                                fullWidth
+                                defaultValue={subBox.note}
+                                onChange={(e) => {
+                                    subBox.note = e.target.value;
+                                    //updateUserTasks(user, subBox);
+                                }}
+                                multiline
+                            />
+                        </>
+                        )}
+                        
+                    </Box>
+                </Box>
+                {/* Timers box*/}
+                <Box 
+                    sx={{ bgcolor: "#252628", mr: "1.5em", ml: "1.5em", mt: "1.5em", mb: "1.5em", borderRadius: 2, padding: "1em"}}
+                    display="flex"
+                    flexDirection="row"
+                    textAlign="center"
+                >
+                    <Box sx={{flexGrow: .5}} />
+                    <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
+                            Pomos: 
+                    </Typography>
+                    <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
+                        {(subBox != null) ? (subBox.usedTimers) : (0)}/{taskTimers}
+                    </Typography>
+                    <Box sx={{flexGrow: .15}}/>
+                    <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
+                            Finish At:
+                            <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
+                                {timerEnd}  ({(subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
+                                                                            (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime ) + 
+                                                                            (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444}h)
+                            </Typography>
+                    </Typography>
+                    <Box sx={{flexGrow: .5}}/>
+                </Box>
             </Box>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                {displayTimer()}
-            </Typography>
-            <Button variant="contained" onClick={toggleTimer}>
-                {(ticking ? "STOP" : "START")}
-            </Button>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                title {taskTitle}
-            </Typography>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                desc {taskDesc}
-            </Typography>
-            <Typography display={"inline"} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", flexGrow: 1}}>
-                timers {taskTimers}
-            </Typography>
         </Dialog>
     );
 }
@@ -191,4 +343,6 @@ PomoPopup.propTypes = {
     taskTime: PropTypes.number.isRequired,
     shortTime: PropTypes.number.isRequired,
     longTime: PropTypes.number.isRequired,
+    // usedTimers: PropTypes.number.isRequired,
+    subBox: PropTypes.object,
 };

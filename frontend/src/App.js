@@ -30,7 +30,7 @@ const theme = createTheme({
     {
       main: "#FFF"
     },
-  }
+  },
 });
 
 function App() {

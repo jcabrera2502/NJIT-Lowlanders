@@ -92,6 +92,7 @@ const Profile = () => {
 
         }
     }, [user]);
+
     // get data from backend from handler.js without using axios
     const [data, setData] = useState(null);
     const fetchUserData = async (user) => {
@@ -135,7 +136,7 @@ const Profile = () => {
         }
         if (document.querySelector("#LastName").value === "")
         {
-            var lastNameVal = data?.firstName;
+            var lastNameVal = data?.lastName;
         }
         else
         {

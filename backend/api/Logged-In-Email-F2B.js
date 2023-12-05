@@ -51,7 +51,8 @@ router.post('/api/insertTask', async (req, res) =>
     const collection = mongoose.connection.db.collection("user-tasks");
     console.log("Req" , req.body.params)
 
-    const result = await collection.insertOne({email: req.body.params.email,
+    const result = await collection.insertOne({key: req.body.params.key, 
+                                               email: req.body.params.email,
                                                taskTitle: req.body.params.title,
                                                type: req.body.params.type, 
                                                completed: req.body.params.completed, 
@@ -61,10 +62,12 @@ router.post('/api/insertTask', async (req, res) =>
                                                status: req.body.params.status,
                                                day:req.body.params.day,
                                                month:req.body.params.month,
-                                               year:req.body.params.year})
+                                               year:req.body.params.year,
+                                               usedTimers:req.body.params.usedTimers,})
     res.send(result);
    
 });
+
 
 router.get('/api/getTasks', async (req, res) =>
 {
@@ -86,7 +89,11 @@ router.put('/api/updateTask', async (req, res) =>
                                               month: req.body.params.month,
                                               year: req.body.params.year},
                                               {$set: {note: req.body.params.note,
-                                                      pomodoroCount: req.body.params.pomodoroCount}})
+                                                      pomodoroCount: req.body.params.pomodoroCount,
+                                                      status: req.body.params.status,
+                                                      type: req.body.params.type,
+                                                      usedTimers: req.body.params.usedTimers
+                                                    }})
     res.send(result);
 });
   
