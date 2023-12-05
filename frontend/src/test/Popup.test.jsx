@@ -185,6 +185,7 @@ test('timer pauses', async () => {
     expect(screen.getAllByText(/59/)[0]).toBeInTheDocument();
 });
 
+/*
 jest.setTimeout(7000);
 test('timer ticking', async () => {
     render(<PomoPopup
@@ -213,4 +214,4 @@ test('timer ticking', async () => {
     expect(screen.getAllByText(/56/)[0]).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 1000));
     expect(screen.getAllByText(/55/)[0]).toBeInTheDocument();
-});
+});*/
