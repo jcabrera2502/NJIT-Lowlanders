@@ -184,7 +184,7 @@ function isThisCurrent(date) {
     const [focusSubBox, setFocusSubBox] = React.useState(null);
 
     //TODO: make these times pull from user settings
-    const [taskTime, setTaskTime] = React.useState(30);
+    const [taskTime, setTaskTime] = React.useState(1);
     const [shortTime, setShortTime] = React.useState(5);
     const [longTime, setLongTime] = React.useState(15);
 

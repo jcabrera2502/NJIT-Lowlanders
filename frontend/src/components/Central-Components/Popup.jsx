@@ -97,18 +97,18 @@ export function PomoPopup(props) {
                     subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
                     subBox.usedTimers= subBox.usedTimers+1;
                     if (subBox.usedTimers % 4 == 0){
-                        if (subBox.usedTimers != subBox.pomTimers) {
+                        // if (subBox.usedTimers != subBox.pomTimers) {
                             resetTimer();
                             setTabValue(2);
                             setTimer('00:' + chooseTime(2) + ':00');
-                        }
+                        // }
                     }
                     else{
-                        if (subBox.usedTimers != subBox.pomTimers) {
+                        // if (subBox.usedTimers != subBox.pomTimers) {
                             resetTimer();
                             setTabValue(1);
                             setTimer('00:' + chooseTime(1) + ':00');
-                        }
+                        // }
                     }
                 }else{
                     resetTimer();
@@ -171,10 +171,19 @@ export function PomoPopup(props) {
             setTicking(false);
             clearTimer(getDeadTime(), false);
         }
-        else if( subBox.usedTimers < subBox.pomTimers ) {
-            setTicking(true);
-            //console.log("here " + ticking);
-            clearTimer(getDeadTime(), true);
+        else if( subBox.usedTimers <= subBox.pomTimers ) {
+        // else {
+            if (tabValue === 0 && subBox.usedTimers == subBox.pomTimers) {
+                // setTicking(true);
+                // //console.log("here " + ticking);
+                // clearTimer(getDeadTime(), true);
+            }
+            else {
+                setTicking(true);
+                //console.log("here " + ticking);
+                clearTimer(getDeadTime(), true);
+            }
+            
         }
     };
 
