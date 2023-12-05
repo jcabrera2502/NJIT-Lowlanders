@@ -92,6 +92,7 @@ export function PomoPopup(props) {
             else {
                 play(); //play alarm
                 clearInterval(Ref.current);
+                setTicking(false);
                 if (tabValue == 0) {
                     subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
                     subBox.usedTimers= subBox.usedTimers+1;
