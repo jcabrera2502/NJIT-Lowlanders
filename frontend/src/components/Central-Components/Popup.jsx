@@ -5,6 +5,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
+import sound from "./Sounds/alarm.mp3"
 export function PomoPopup(props) {
     //popup
     const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, subBox } = props;
@@ -16,6 +17,12 @@ export function PomoPopup(props) {
         resetTimer();
         onPomoClose();
     };
+
+    //alarm audio controller
+    function play() {
+        new Audio(sound).play();
+    }
+    
 
     //tabs
     function TabPanel(props) {
@@ -83,7 +90,31 @@ export function PomoPopup(props) {
                 )
             }
             else {
+                play(); //play alarm
                 clearInterval(Ref.current);
+                setTicking(false);
+                if (tabValue == 0) {
+                    subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
+                    subBox.usedTimers= subBox.usedTimers+1;
+                    if (subBox.usedTimers % 4 == 0){
+                        if (subBox.usedTimers != subBox.pomTimers) {
+                            resetTimer();
+                            setTabValue(2);
+                            setTimer('00:' + chooseTime(2) + ':00');
+                        }
+                    }
+                    else{
+                        if (subBox.usedTimers != subBox.pomTimers) {
+                            resetTimer();
+                            setTabValue(1);
+                            setTimer('00:' + chooseTime(1) + ':00');
+                        }
+                    }
+                }else{
+                    resetTimer();
+                    setTabValue(0);
+                    setTimer('00:' + chooseTime(0) + ':00');
+                }
                 console.log("TIMER END");
             }
         }
@@ -140,7 +171,7 @@ export function PomoPopup(props) {
             setTicking(false);
             clearTimer(getDeadTime(), false);
         }
-        else {
+        else if( subBox.usedTimers < subBox.pomTimers ) {
             setTicking(true);
             //console.log("here " + ticking);
             clearTimer(getDeadTime(), true);
@@ -168,9 +199,9 @@ export function PomoPopup(props) {
         return result;
     }
 
-    const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round((((subBox.pomTimers * 30) + 
-                                                                    ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))*5) + 
-                                                                    (Math.floor(subBox.pomTimers/4)*15)) /60) *10) /10) : 0 );
+    const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
+                                                                    (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime) + 
+                                                                    (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444 );
     //display
     return (
         <Dialog 
@@ -285,9 +316,9 @@ export function PomoPopup(props) {
                     <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
                             Finish At:
                             <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
-                                {timerEnd}  ({(subBox != null) ? (Math.round((((subBox.pomTimers * 30) + 
-                                                                            ((subBox.pomTimers-Math.floor(subBox.pomTimers/4))*5) + 
-                                                                            (Math.floor(subBox.pomTimers/4)*15)) /60) *10) /10) : (0)}h)
+                                {timerEnd}  ({(subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
+                                                                            (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime ) + 
+                                                                            (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444}h)
                             </Typography>
                     </Typography>
                     <Box sx={{flexGrow: .5}}/>
