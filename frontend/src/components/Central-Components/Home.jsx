@@ -1903,8 +1903,8 @@ const currentTime = new Date();
                                         <Grid container className="App">
                                             {accessToken ? (
                                             <>
-                                                <Grid item xs={2} sx={{textAlign: "center"}}>
-                                                    <Stack spacing={3.25}>
+                                                <Grid item xs={1.5} sx={{textAlign: "center"}}>
+                                                    <Stack spacing={3.25} sx={{alignItems: "center"}}>
                                                         <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "black", width: 55 }}>12 AM</Typography>
                                                         <Typography sx={{ fontWeight: (currentTime.getHours() === 1) ? 700 : 400,  border: (currentTime.getHours() === 1) ? 2 : 0, borderColor: (currentTime.getHours() === 1) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 1) ? "#6284FF" : "black", width: 55 }}>1 AM</Typography>
                                                         <Typography sx={{ fontWeight: (currentTime.getHours() === 2) ? 700 : 400,  border: (currentTime.getHours() === 2) ? 2 : 0, borderColor: (currentTime.getHours() === 2) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 2) ? "#6284FF" : "black", width: 55 }}>2 AM</Typography>
@@ -1931,7 +1931,7 @@ const currentTime = new Date();
                                                         <Typography sx={{ fontWeight: (currentTime.getHours() === 23) ? 700 : 400, border: (currentTime.getHours() === 23) ? 2 : 0, borderColor: (currentTime.getHours() === 23) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 23) ? "#6284FF" : "black", width: 55 }}>11 PM</Typography>
                                                     </Stack>
                                                 </Grid>
-                                                <Grid item xs={10}>
+                                                <Grid item xs={10.5}>
                                                     {/* Display Non-Recurring Events */}
                                                     <List sx={{width: "100%", mt: 1.5, padding: 0}}>
                                                     {appointmentList.map((pair, index) => (
