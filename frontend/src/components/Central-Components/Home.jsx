@@ -257,11 +257,11 @@ function isThisCurrent(date) {
         
         setSubBoxes([...subBoxes, { key: newKey, title: taskTitle, pomTimers: numTimers, 
             note: taskNote, editNumTimer: editNumTimer, editNote: editNote, 
-            currentIcon: currentIcon, type: type, exp: expand, usedTimers: usedTimers }]);
+            currentIcon: currentIcon, type: 'important', exp: expand, usedTimers: usedTimers }]);
         // console.log(currentIcon);
         setSubBoxesImportant([...subBoxesImportant, { key: newKey, title: taskTitle, pomTimers: numTimers, 
             note: taskNote, editNumTimer: editNumTimer, editNote: editNote, 
-            currentIcon: currentIcon, type: type, exp: expand, usedTimers: usedTimers }]);
+            currentIcon: currentIcon, type: 'important', exp: expand, usedTimers: usedTimers }]);
         insertUserTask(user, newKey);
         handleClosePopover();
     };
@@ -478,6 +478,11 @@ useEffect(() => {
     setPriority(taskStatus);
 }, [subBoxes, subBoxesImportant, subBoxesTopPriority, subBoxesOther]);
 
+useEffect(() => {
+    setSubBoxesImportant(priority.important.items);
+    setSubBoxesTopPriority(priority.topPriority.items);
+    setSubBoxesOther(priority.other.items);
+}, [priority]);
 // Handles arrays for draggable objects
 // NOTE: Draggable ID matches subBox key, we can keep track of tasks like this
 function handleOnDragEnd(result) {
@@ -505,12 +510,9 @@ function handleOnDragEnd(result) {
             items: destItems
         }
         });
-        setType(result.destination.droppableId);
         subBoxes[result.draggableId-1].type = result.destination.droppableId;
         updateUserTasks(user, subBoxes[result.draggableId-1]);
-        getUserTasks(user);
     }
-     
     else 
     {
         const prio = priority[result.source.droppableId];
@@ -524,8 +526,7 @@ function handleOnDragEnd(result) {
             items: copiedItems
           }
         });
-        
-      }
+    }
 }
 
 function dropdownClick(subBox)
@@ -933,8 +934,6 @@ function findAppt()
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
-
-console.log(allDayappts);
 
 const currentTime = new Date();
 
