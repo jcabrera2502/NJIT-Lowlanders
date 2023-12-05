@@ -891,12 +891,21 @@ function oauthSignIn() {
   }
 
   const [appointmentList, setAppointmentList] = useState([]);
+  const [allDayappts, setAllDayAppts] = useState([]);
 
 // I am not proud of this, but it must be done
 function findAppt()
 {
     var found = false;
     var arr = [];
+    var allArr = [];
+
+    nonRecurringEvents.forEach( (event) => {
+        if (event.start.date)
+        {
+            allArr.push(event);
+        }
+    });
     for(let x = 0; x < 24; x++){
         nonRecurringEvents.forEach( (event) => {
             var evtHr;
@@ -918,11 +927,14 @@ function findAppt()
         found = false;
     }
     setAppointmentList(arr);
+    setAllDayAppts(allArr);
 }
   
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
+
+console.log(allDayappts);
 
 const currentTime = new Date();
 
@@ -1928,6 +1940,43 @@ const currentTime = new Date();
                                         <Grid container className="App">
                                             {accessToken ? (
                                             <>
+                                            {allDayappts.length > 0 ? (
+                                            <>
+                                            <Grid item xs={1.5} sx={{textAlign:"center"}}><Typography>All Day</Typography></Grid>
+                                            <Grid item xs={10.5}>
+                                                <List>
+                                                        {allDayappts.map((appt, index) => (
+                                                            <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
+                                                                <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                                    <AccordionSummary 
+                                                                        expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
+                                                                        aria-controls="panel1a-content"
+                                                                        sx={{ 
+                                                                            width: "100%", 
+                                                                            height: "3vh",  
+                                                                            borderRadius: "8px",
+                                                                            paddingLeft: 0,
+                                                                        }}
+                                                                        elevation={0}
+                                                                    >
+                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{appt.summary}</Typography>
+                                                                    </AccordionSummary>
+                                                                    <AccordionDetails>
+                                                                        {appt.start && (
+                                                                            <Typography> Start Time: {appt.start.date}</Typography>
+                                                                        )}
+                                                                        {appt.description && (
+                                                                            <Typography>Description: {appt.description}</Typography>
+                                                                        )}
+                                                                    </AccordionDetails>
+                                                                    
+                                                                </Accordion>
+                                                            </ListItem>
+                                                        ))}
+                                                </List>
+                                            </Grid>
+                                            <Grid item xs={12}><Divider sx={{mt: .5, mb: .5}} /></Grid>
+                                            </>) : (<></>)}
                                                 <Grid item xs={1.5} sx={{textAlign: "center"}}>
                                                     <Stack spacing={3.25} sx={{alignItems: "center"}}>
                                                         <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "black", width: 55 }}>12 AM</Typography>
