@@ -5,6 +5,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
+import sound from "./Sounds/alarm.mp3"
 export function PomoPopup(props) {
     //popup
     const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, subBox } = props;
@@ -16,6 +17,12 @@ export function PomoPopup(props) {
         resetTimer();
         onPomoClose();
     };
+
+    //alarm audio controller
+    function play() {
+        new Audio(sound).play();
+    }
+    
 
     //tabs
     function TabPanel(props) {
@@ -83,6 +90,7 @@ export function PomoPopup(props) {
                 )
             }
             else {
+                play(); //play alarm
                 clearInterval(Ref.current);
                 if (tabValue == 0) {
                     subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
