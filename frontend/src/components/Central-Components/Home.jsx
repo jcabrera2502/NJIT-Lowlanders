@@ -199,6 +199,9 @@ function isThisCurrent(date) {
 
     const handleOpenPomo = (task, desc, timers, subBox) => {
         //console.log("click");
+        setTaskTime(taskTime);
+        setShortTime(shortTime);
+        setLongTime(longTime);
         setFocusTask(task);
         setFocusTaskDesc(desc);
         setFocusTaskTimers(timers);
@@ -227,6 +230,10 @@ function isThisCurrent(date) {
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
+        fetchUserData(user);
+        setTaskTime(taskTime);
+        setShortTime(shortTime);
+        setLongTime(longTime);
     };
     const handleClosePopover = () => {
         setAnchorEl(null);
@@ -685,6 +692,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
   */
 
   useEffect(() => {
+    console.log("We ENTERED THE USE EFFECT")
     const fetchData = async () => {
         // Check if the page was redirected from OAuth provider
         const searchParams = new URLSearchParams(window.location.hash.substring(1));
@@ -747,10 +755,17 @@ console.log("TIME STAMP",storedSignInTimestamp)
                     const emailData = await emailFetch.json();
                     const userEmail = emailData.email;
 
+                    const today = new Date(year, month - 1, day);
+                    const tomorrow = new Date(year, month - 1, day)
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const minDateTime = today.toISOString();
+                    const maxDateTime = tomorrow.toISOString();
+
                     // Make the Google Calendar API request
-                    const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${storedAccessToken}&q=Appointment`;
+                    const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${storedAccessToken}&q=Appointment&timeMin=${encodeURIComponent(minDateTime)}&timeMax=${encodeURIComponent(maxDateTime)}`;
                     const response = await fetch(calendarApiUrl);
                     const data = await response.json();
+                    console.log("HERE IS THE DATA")
 
                     // Log and process the Google Calendar API response
                     console.log("Google Calendar API Response:", data);
@@ -776,7 +791,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
     };
 
     fetchData();
-}, [oauthCalled]);
+}, [oauthCalled,day,month,year]);
 
 useEffect(() => {
     // Check if the page was redirected from OAuth provider
@@ -820,14 +835,8 @@ const listUpcomingEvents = (eventsData) => {
     const nonRecurring = [];
   
     eventsData.forEach((event) => {
-      if (event.recurrence) {
-        recurring.push(event);
-  
-      } else {
-        nonRecurring.push(event);
-      }
-      console.log("RECURRING EVENTS: ", recurring);
-  
+
+    nonRecurring.push(event);  
     });
   
     setRecurringEvents(recurring);
