@@ -913,10 +913,10 @@ function findAppt()
             {
                 evtHr = event.start.dateTime;
                 const dayForEvent = evtHr.slice(8, 10);
-                if (parseInt(dayForEvent) !== parseInt(day)) {
+                            if (parseInt(dayForEvent) !== parseInt(day)) {
                     window.location.reload();
                 }
-                evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
+                                evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
             }
             if(parseInt(evtHr) === parseInt(x))
             {
