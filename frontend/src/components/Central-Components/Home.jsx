@@ -28,7 +28,7 @@ import { get, set } from "mongoose";
 import { PomoPopup } from "./Popup";
 import { useNavigate } from 'react-router-dom';
 
-const Home = () => {
+const Home = () => { 
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
@@ -40,6 +40,7 @@ const Home = () => {
     const [selectedDate, setSelectedDate] = React.useState(new Date(year, month - 1, day));
     const [nonRecurringEvents, setNonRecurringEvents] = useState([]);
     const [recurringEvents, setRecurringEvents] = useState([]);
+    const currentTime = new Date();
 
     // Update isThisCurrent function
 function isThisCurrent(date) {
@@ -66,13 +67,13 @@ function isThisCurrent(date) {
                 setTaskTime(parseInt(response.data.pomodoro));
                 setShortTime(parseInt(response.data.shortBreak));
                 setLongTime(parseInt(response.data.longBreak));
-                console.log("TASK TIME",taskTime);
-                console.log("SHORT TIME",shortTime);
-                console.log("LONG TIME",longTime);
-                console.log("-------------------------")
-                console.log("TASK TIME",response.data.pomodoro);
-                console.log("SHORT TIME",response.data.shortBreak);
-                console.log("LONG TIME",response.data.longBreak);
+                //console.log("TASK TIME",taskTime);
+                //console.log("SHORT TIME",shortTime);
+                //console.log("LONG TIME",longTime);
+                //console.log("-------------------------")
+                //console.log("TASK TIME",response.data.pomodoro);
+                //console.log("SHORT TIME",response.data.shortBreak);
+                //console.log("LONG TIME",response.data.longBreak);
                 //reload the page to update the state
                 setData(response.data);
             }
@@ -113,9 +114,9 @@ function isThisCurrent(date) {
     }, [month, day, year]);
     //ADDITIONAL ADD
     useEffect(() => {
-        console.log("THIS IS THE DAY",day);
-        console.log("THIS IS THE MONTH",month);
-        console.log("THIS IS THE YEAR",year);
+        //console.log("THIS IS THE DAY",day);
+        //console.log("THIS IS THE MONTH",month);
+        //console.log("THIS IS THE YEAR",year);
 
         getUserTasks(user);
     }, [day, month, year, user]);
@@ -320,8 +321,8 @@ function isThisCurrent(date) {
         const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
 
         //http://localhost:3001/google-proxy
-        console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
-        console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
+        //console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
+        //console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
         // Redirect the user to the authorization URL received from the server
         window.location.href = response.data.url;
         } catch (error) {
@@ -563,7 +564,7 @@ const [oauthCalled, setOauthCalled] = useState(() => {
 const isSignInExpired = (signInTimestamp) => {
     const expirationTime = +signInTimestamp + 3599; // or use parseInt(signInTimestamp, 10) + 3599;
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
+    //console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
     return expirationTime < currentTime;
 };
 //idk if this works yet
@@ -587,7 +588,7 @@ const handleSignOut = async (event) => {
           },
         });
   
-        console.log('Access token revoked successfully');
+        //console.log('Access token revoked successfully');
       } catch (error) {
         console.error('Error revoking access token:', error);
       }
@@ -601,95 +602,19 @@ const handleSignOut = async (event) => {
   
     // Other cleanup or redirection logic can be added here
     const signInDiv = document.getElementById("signInDiv");
-    console.log("signInDiv:", signInDiv);
+    //console.log("signInDiv:", signInDiv);
   
     // Check if the element exists before setting properties
     if (signInDiv) {
       signInDiv.hidden = false;
     } else {
-      console.error("Element with ID 'signInDiv' not found.");
+      //console.error("Element with ID 'signInDiv' not found.");
     }
   
     // Clear the URL
     window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
   };
 //instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
-
-
-/*
-useEffect(() => {
-    const fetchData = async () => {
-      // Try to get access token from localStorage
-      const storedAccessToken = localStorage.getItem("accessToken");
-      const storedEmail = localStorage.getItem("userEmail");
-      const signInTimestamp = localStorage.getItem("signInTimestamp"); // Get the sign-in timestamp
-      const storedExpirationTime = localStorage.getItem("expirationTime");
-      const storedSignInTimestamp = localStorage.getItem("expire");
-console.log("TIME STAMP",storedSignInTimestamp)
-      if (oauthCalled || storedAccessToken) {
-        const searchParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = searchParams.get("access_token");
-        const expire = searchParams.get("expires_in");
-        console.log("EXPIRE",expire);
-        console.log("About to enter if loop - status of accessToken:", accessToken, "status of storedAccessToken:", storedAccessToken, "status of oauthCalled:", oauthCalled, "status of storedEmail:", storedEmail, "status of userEmail:", userEmail, "status of user2:", user2, "status of expiration time:",expire);
-        if (
-            oauthCalled && setAccessToken) 
-           // (storedAccessToken &&
-            //  storedSignInTimestamp &&
-            //  !isSignInExpired(Number(storedSignInTimestamp)))
-          {
-          try {
-            console.log("IS SIGN IN EXPIRED????????")
-            console.log(isSignInExpired(Number(storedSignInTimestamp)));
-            const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken || storedAccessToken}`;
-            const emailFetch = await fetch(emailSite);
-            const emailData = await emailFetch.json();
-            const userEmail = emailData.email;
-  
-            // Log and store the email
-            console.log("User's email:", userEmail);
-  
-            // Make the Google Calendar API request
-            const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${accessToken || storedAccessToken}&q=Appointment`;
-            const response = await fetch(calendarApiUrl);
-            const data = await response.json();
-  
-            // Log and process the Google Calendar API response
-            console.log("Google Calendar API Response:", data);
-            listUpcomingEvents(data.items);
-            
-            console.log("This is true")
-            // Set the access token and user email in state
-            console.log("Setting access token:", accessToken || storedAccessToken, "Setting user email:", userEmail || storedEmail)
-            setAccessToken(accessToken || storedAccessToken);
-            setUserEmail(userEmail || storedEmail);
-            console.log("Setting expiration time:", expire);
-            setExpires_in(expire || storedExpirationTime);
-            // Store the values in localStorage
-            localStorage.setItem("accessToken", accessToken || storedAccessToken);
-            localStorage.setItem("userEmail", userEmail || storedEmail);
-          } catch (e) {
-            console.log("Error:", e);
-            setErrorMessage("Error: Unable to fetch data. Please try again.");
-
-            handleSignOut();
-
-          }
-        } else {
-          console.log("NO ACCESS TOKEN");
-          setErrorMessage("Error: Unable to fetch data. Please try again.");
-
-          handleSignOut();
-        }
-      }
-      else{
-        console.log("OAUTH NOT CALLED");
-      }
-    };
-  
-    fetchData();
-  }, [oauthCalled]);
-  */
 
   useEffect(() => {
     console.log("We ENTERED THE USE EFFECT")
@@ -716,7 +641,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
 
                 // Log and process the Google Calendar API response
                 console.log("Google Calendar API Response:", data);
-                console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
+                //console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
                 listUpcomingEvents(data.items);
 
                 // Set the access token, user email, and expiration time in state
@@ -747,8 +672,8 @@ console.log("TIME STAMP",storedSignInTimestamp)
                 // The stored access token exists and is not expired
                 // Continue with your existing logic...
                 try {
-                    console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
-                    console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
+                    //console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
+                    //console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
 
                     const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${storedAccessToken}`;
                     const emailFetch = await fetch(emailSite);
@@ -765,10 +690,10 @@ console.log("TIME STAMP",storedSignInTimestamp)
                     const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${storedAccessToken}&q=Appointment&timeMin=${encodeURIComponent(minDateTime)}&timeMax=${encodeURIComponent(maxDateTime)}`;
                     const response = await fetch(calendarApiUrl);
                     const data = await response.json();
-                    console.log("HERE IS THE DATA")
+                    //console.log("HERE IS THE DATA")
 
                     // Log and process the Google Calendar API response
-                    console.log("Google Calendar API Response:", data);
+                    //console.log("Google Calendar API Response:", data);
                  
                     listUpcomingEvents(data.items);
 
@@ -785,7 +710,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
                     handleSignOut();
                 }
             } else {
-                console.log("No valid access token available.");
+                //console.log("No valid access token available.");
             }
         }
     };
@@ -828,7 +753,7 @@ const saveOauthCalledToStorage = (value) => {
 
 //this function lists the events returned from the google calendar api
 const listUpcomingEvents = (eventsData) => {
-    console.log("Setting events:", eventsData);
+    //console.log("Setting events:", eventsData);
   
     // Separate recurring and non-recurring events
     const recurring = [];
@@ -849,12 +774,12 @@ function oauthSignIn() {
     saveOauthCalledToStorage(true);
   
     if(oauthCalled){
-      console.log("OAUTH CALLED IN OAUTH SIGN IN");
+      //console.log("OAUTH CALLED IN OAUTH SIGN IN");
   
       
     }
     else{
-      console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
+      //console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
     }
     // Google's OAuth 2.0 endpoint for requesting an access token
     var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -893,7 +818,16 @@ function oauthSignIn() {
   const [appointmentList, setAppointmentList] = useState([]);
   const [allDayappts, setAllDayAppts] = useState([]);
 
-// I am not proud of this, but it must be done
+// Handles appointment list creation
+
+function addFocusTime()
+{
+    const tasks = priority.topPriority;
+    console.log(tasks);
+    
+    //setAppointmentList();
+}
+
 function findAppt()
 {
     var found = false;
@@ -930,15 +864,19 @@ function findAppt()
         }
         found = false;
     }
+
     setAppointmentList(arr);
     setAllDayAppts(allArr);
+    addFocusTime();
+    
 }
+
   
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
 
-const currentTime = new Date();
+
 
     return(
         <CssBaseline>
@@ -1289,6 +1227,7 @@ const currentTime = new Date();
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
 
                                     <Box sx={{display: "flex", flexDirection: "column"}}>
+
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
                                             ml:2,
@@ -1333,19 +1272,20 @@ const currentTime = new Date();
                                                             <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log(subBox.currentIcon);
+                                                                        //console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
@@ -1358,7 +1298,7 @@ const currentTime = new Date();
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
+                                                                        <IconButton aria-label="drag" sx={{padding: 0}}>
                                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
@@ -1498,7 +1438,6 @@ const currentTime = new Date();
                                         
 
                                         { /* Important Task Box*/}
-                                        
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
@@ -1548,19 +1487,20 @@ const currentTime = new Date();
                                                             <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log("Current Icon" , subBox.currentIcon);
+                                                                        //console.log("Current Icon" , subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
@@ -1573,7 +1513,7 @@ const currentTime = new Date();
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
+                                                                        <IconButton sx={{padding: 0}} aria-label="drag">
                                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
@@ -1680,11 +1620,11 @@ const currentTime = new Date();
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
@@ -1758,19 +1698,20 @@ const currentTime = new Date();
                                                             <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log(subBox.currentIcon);
+                                                                        //console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
@@ -1783,7 +1724,7 @@ const currentTime = new Date();
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
+                                                                        <IconButton sx={{padding: 0}} aria-label="drag">
                                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
