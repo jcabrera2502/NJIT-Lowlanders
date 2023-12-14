@@ -1391,19 +1391,19 @@ const currentTime = new Date();
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
-                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                        setNumTimers(subBox.pomTimers);
-                                                                                        updateUserTasks(user, subBox);
-                                                                                }
+                                                                                    if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
+                                                                                            subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                            setNumTimers(subBox.pomTimers);
+                                                                                            updateUserTasks(user, subBox);
+                                                                                    }
                                                                                 }}>
                                                                                     <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1414,11 +1414,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1433,9 +1433,9 @@ const currentTime = new Date();
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNote=!(subBox.editNote);
-                                                                                setEditNote(subBox.editNote);
-                                                                            }}>
+                                                                                    subBox.editNote=!(subBox.editNote);
+                                                                                    setEditNote(subBox.editNote);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </Grid>
@@ -1606,19 +1606,19 @@ const currentTime = new Date();
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1  && subBox.usedTimers < subBox.pomTimers){
-                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                        setNumTimers(subBox.pomTimers);
-                                                                                        updateUserTasks(user, subBox);
-                                                                                }
+                                                                                    if(subBox.pomTimers > 1  && subBox.usedTimers < subBox.pomTimers){
+                                                                                            subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                            setNumTimers(subBox.pomTimers);
+                                                                                            updateUserTasks(user, subBox);
+                                                                                    }
                                                                                 }}>
                                                                                     <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1629,11 +1629,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1648,9 +1648,9 @@ const currentTime = new Date();
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNote=!(subBox.editNote);
-                                                                                setEditNote(subBox.editNote);
-                                                                            }}>
+                                                                                    subBox.editNote=!(subBox.editNote);
+                                                                                    setEditNote(subBox.editNote);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </Grid>
@@ -1680,11 +1680,11 @@ const currentTime = new Date();
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
@@ -1826,9 +1826,9 @@ const currentTime = new Date();
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1839,11 +1839,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1890,11 +1890,11 @@ const currentTime = new Date();
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
