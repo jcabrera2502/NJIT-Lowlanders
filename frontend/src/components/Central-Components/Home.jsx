@@ -27,6 +27,8 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { get, set } from "mongoose";
 import { PomoPopup } from "./Popup";
 import { useNavigate } from 'react-router-dom';
+import CircleIcon from '@mui/icons-material/Circle';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
 const Home = () => { 
     const [user, setUser] = useState(null);
@@ -823,9 +825,28 @@ function oauthSignIn() {
 function addFocusTime()
 {
     const tasks = priority.topPriority;
-    console.log(tasks);
-    
-    //setAppointmentList();
+    var apps = appointmentList.slice(0); // Warning! not a deep copy, may cause future bugs.
+    var t = 0;
+    for (var i = 6; i < 21; i++)
+    {
+        if (apps[i])
+        {
+            if(!apps[i].name && t < tasks.items.length)
+            {
+                apps[i] = {
+                    type: "task",
+                    name: tasks.items[t].title,
+                    start: i,
+                    end: i + 1, // temp, implies task takes 1 hour
+                    desc: tasks.items[t].note,
+                    timers: { done: 0, total: tasks.items[t].pomTimers }
+                };
+                t++;
+            }
+        }
+    }
+    setAppointmentList(apps);
+    console.log(apps);
 }
 
 function findAppt()
@@ -854,29 +875,31 @@ function findAppt()
             }
             if(parseInt(evtHr) === parseInt(x))
             {
-                arr.push({time: x, event: event});
+                arr.push({type: "appt",
+                          time: x, 
+                          name: event.summary, 
+                          start: event.start.dateTime, 
+                          end: event.end.dateTime,
+                          desc: event.description,
+                          timers: null});
                 found = true;
             }
         });
         if(!found)
         {
-            arr.push({time: x, event: null});
+            arr.push({time: x, name: null});
         }
         found = false;
     }
 
     setAppointmentList(arr);
     setAllDayAppts(allArr);
-    addFocusTime();
-    
 }
 
   
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
-
-
 
     return(
         <CssBaseline>
@@ -904,7 +927,12 @@ useEffect(()=> {
                     <Box textAlign={"center"}>
                         <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
                         {isThisCurrent(selectedDate) && (
-                            <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
+                            <Button 
+                            sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} 
+                            color="white" 
+                            variant="outlined"
+                            onClick={addFocusTime}
+                            >
                             Plan Day
                             </Button>
                         )} 
@@ -1952,7 +1980,8 @@ useEffect(()=> {
                                                     {/* Display Non-Recurring Events */}
                                                     <List sx={{width: "100%", mt: 1.5, padding: 0}}>
                                                     {appointmentList.map((pair, index) => (
-                                                        pair.event ? (
+                                                        pair.name ? ( // check if task exists
+                                                            pair.type === "appt" ? (
                                                             <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
                                                                 <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
                                                                     <AccordionSummary 
@@ -1966,19 +1995,54 @@ useEffect(()=> {
                                                                         }}
                                                                         elevation={0}
                                                                     >
-                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{pair.event.summary}</Typography>
+                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{pair.name}</Typography>
                                                                     </AccordionSummary>
                                                                     <AccordionDetails>
-                                                                        {pair.event.start && pair.event.start.dateTime && (
-                                                                            <Typography> Start Time: {pair.event.start.dateTime}</Typography>
+                                                                        {pair.start && pair.start && (
+                                                                            <Typography> Start Time: {pair.start}</Typography>
                                                                         )}
-                                                                        {pair.event.description && (
-                                                                            <Typography>Description: {pair.event.description}</Typography>
+                                                                        {pair.desc && (
+                                                                            <Typography>Description: {pair.desc}</Typography>
                                                                         )}
                                                                     </AccordionDetails>
                                                                     
                                                                 </Accordion>
                                                             </ListItem>
+                                                            ) : (
+                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.end < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', padding: 0, mt: -.25}}>
+                                                                <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                                    <AccordionSummary 
+                                                                        expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
+                                                                        aria-controls="panel1a-content"
+                                                                        sx={{ 
+                                                                            width: "100%", 
+                                                                            height: "3vh",  
+                                                                            borderRadius: "8px",
+                                                                            paddingLeft: 0,
+                                                                        }}
+                                                                        elevation={0}
+                                                                    >
+                                                                    <Box
+                                                                        display="flex"
+                                                                        flexDirection="row"
+                                                                        sx={{width: "100%"}}
+                                                                    >
+                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.end < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
+                                                                        <Box sx={{flexGrow: 1}} />
+                                                                        <HourglassEmptyIcon sx={{color: (pair.end < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
+                                                                        <Typography sx={{fontWeight: 700, fontSize: "18px"}}> {pair.timers.done}/{pair.timers.total}</Typography>
+                                                                        <Box sx={{flexGrow: .06}} />
+                                                                        {/* Implement current time for task if running */}
+                                                                    </Box>
+                                                                    </AccordionSummary>
+                                                                    <AccordionDetails>
+                                                                        {pair.desc && (
+                                                                            <Typography>Notes: {pair.desc}</Typography>
+                                                                        )}
+                                                                    </AccordionDetails>
+                                                                    </Accordion>
+                                                                </ListItem>
+                                                            )
                                                         ) : (
                                                             <ListItem key={index} sx={{ padding: 0}}>
                                                                 <Box sx={{width: "100%", height: 50}}></Box>
@@ -2006,9 +2070,9 @@ useEffect(()=> {
                                                 </Box>
                                             </>
                                             )}
-                                        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
+                                        {/*<div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
                                             {errorMessage}
-                                        </div>
+                                            </div> */}
                                         </Grid>
                                         {/* End of Google API data */}
                                     </Box>
