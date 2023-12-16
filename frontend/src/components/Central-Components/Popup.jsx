@@ -93,10 +93,10 @@ export function PomoPopup(props) {
                 play(); //play alarm
                 clearInterval(Ref.current);
                 setTicking(false);
-                if (tabValue == 0) {
+                if (tabValue === 0) {
                     subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
                     subBox.usedTimers= subBox.usedTimers+1;
-                    if (subBox.usedTimers % 4 == 0){
+                    if (subBox.usedTimers % 4 === 0){
                         // if (subBox.usedTimers != subBox.pomTimers) {
                             resetTimer();
                             setTabValue(2);
@@ -173,7 +173,7 @@ export function PomoPopup(props) {
         }
         else if( subBox.usedTimers <= subBox.pomTimers ) {
         // else {
-            if (tabValue === 0 && subBox.usedTimers == subBox.pomTimers) {
+            if (tabValue === 0 && subBox.usedTimers === subBox.pomTimers) {
                 // setTicking(true);
                 // //console.log("here " + ticking);
                 // clearTimer(getDeadTime(), true);
@@ -202,7 +202,7 @@ export function PomoPopup(props) {
         const [hours, minutes] = militaryTime.split(':').map(Number);
         const totalMinutes = hours * 60 + minutes;
         const newTotalMinutes = totalMinutes + fractionOfHours * 60;
-        const newHours = Math.floor(newTotalMinutes / 60) % 24;
+        const newHours = Math.floor(newTotalMinutes / 60) % 12;
         const newMinutes = Math.floor(newTotalMinutes) % 60;
         const result = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
         return result;
@@ -216,10 +216,8 @@ export function PomoPopup(props) {
         <Dialog 
             onClose={handlePomoClose} 
             open={pomoOpen}  
-            minWidth={"sm"}
             fullWidth
-            minHeigt={"sm"}
-            borderRadius={2}
+            PaperProps={{sx: { borderRadius: 3 }}}
         >
             <Box>
                 <Box>
@@ -230,17 +228,6 @@ export function PomoPopup(props) {
                             <Tab sx={{fontWeight: 700, color: "black"}} label="Long Break" {...tabProps(2)} />
                         </Tabs>
                     </Box>
-                    {/*
-                    <TabPanel value={tabValue} index={0}>
-                        po
-                    </TabPanel>
-                    <TabPanel value={tabValue} index={1}>
-                        sh
-                    </TabPanel>
-                    <TabPanel value={tabValue} index={2}>
-                        lo
-                    </TabPanel>
-                    */}
                 </Box>
 
                 <Box
@@ -257,7 +244,7 @@ export function PomoPopup(props) {
                         variant="contained" 
                         onClick={toggleTimer}
                         sx={{minWidth: '9em', minHeight: "3.5em", borderRadius: 3.5, mt: "1.5em", mb: "1.7em", fontFamily: "DM Sans"}}
-                        //color="purple"
+                        color="purple"
                     >
                         {(ticking ? "STOP" : "START")}
                     </Button>
@@ -324,11 +311,11 @@ export function PomoPopup(props) {
                     <Box sx={{flexGrow: .15}}/>
                     <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
                             Finish At:
-                            <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
+                    </Typography>
+                    <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
                                 {timerEnd}  ({(subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
                                                                             (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime ) + 
                                                                             (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444}h)
-                            </Typography>
                     </Typography>
                     <Box sx={{flexGrow: .5}}/>
                 </Box>
