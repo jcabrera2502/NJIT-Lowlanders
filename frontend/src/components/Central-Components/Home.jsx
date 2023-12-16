@@ -46,6 +46,7 @@ const Home = () => {
     const [appointmentList, setAppointmentList] = useState([]);
     const [oappointmentList, setoAppointmentList] = useState([]); // to be used with task generation
     const [allDayappts, setAllDayAppts] = useState([]);
+    const [planDay, setPlanDay] = useState(false);
 
     // Update isThisCurrent function
 function isThisCurrent(date) {
@@ -122,7 +123,7 @@ function isThisCurrent(date) {
         //console.log("THIS IS THE DAY",day);
         //console.log("THIS IS THE MONTH",month);
         //console.log("THIS IS THE YEAR",year);
-
+        setPlanDay(false);
         getUserTasks(user);
     }, [day, month, year, user]);
     const handleDayChange = (event) => {
@@ -217,7 +218,10 @@ function isThisCurrent(date) {
     const handlePomoClose = () => {
         updateUserTasks(user, focusSubBox);
         setPomoOpen(false);
-        addFocusTime();
+        if (planDay)
+        {   
+            addFocusTime();
+        }   
         //console.log("close");
     };
 
@@ -901,6 +905,7 @@ function findAppt()
 function handlePlanDay()
 {
     addFocusTime();
+    setPlanDay(true);
 }
   
 useEffect(()=> {
