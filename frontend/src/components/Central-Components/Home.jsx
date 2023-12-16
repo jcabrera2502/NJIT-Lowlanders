@@ -43,6 +43,9 @@ const Home = () => {
     const [nonRecurringEvents, setNonRecurringEvents] = useState([]);
     const [recurringEvents, setRecurringEvents] = useState([]);
     const currentTime = new Date();
+    const [appointmentList, setAppointmentList] = useState([]);
+    const [oappointmentList, setoAppointmentList] = useState([]); // to be used with task generation
+    const [allDayappts, setAllDayAppts] = useState([]);
 
     // Update isThisCurrent function
 function isThisCurrent(date) {
@@ -214,6 +217,7 @@ function isThisCurrent(date) {
     const handlePomoClose = () => {
         updateUserTasks(user, focusSubBox);
         setPomoOpen(false);
+        addFocusTime();
         //console.log("close");
     };
 
@@ -817,36 +821,33 @@ function oauthSignIn() {
     form.submit();
   }
 
-  const [appointmentList, setAppointmentList] = useState([]);
-  const [allDayappts, setAllDayAppts] = useState([]);
+  
 
 // Handles appointment list creation
 
 function addFocusTime()
 {
-    const tasks = priority.topPriority;
-    var apps = appointmentList.slice(0); // Warning! not a deep copy, may cause future bugs.
+    const tasks = priority.topPriority.items;
+    var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
     var t = 0;
-    for (var i = 6; i < 21; i++)
+    for (var i = 6; i < 20; i++)
     {
         if (apps[i])
         {
-            if(!apps[i].name && t < tasks.items.length)
+            if(!apps[i].name && t < tasks.length)
             {
                 apps[i] = {
                     type: "task",
-                    name: tasks.items[t].title,
+                    name: tasks[t].title,
                     start: i,
                     end: i + 1, // temp, implies task takes 1 hour
-                    desc: tasks.items[t].note,
-                    timers: { done: 0, total: tasks.items[t].pomTimers }
+                    timers: { done: tasks[t].usedTimers, total: tasks[t].pomTimers }
                 };
                 t++;
             }
         }
     }
     setAppointmentList(apps);
-    console.log(apps);
 }
 
 function findAppt()
@@ -893,9 +894,14 @@ function findAppt()
     }
 
     setAppointmentList(arr);
+    setoAppointmentList(arr);
     setAllDayAppts(allArr);
 }
 
+function handlePlanDay()
+{
+    addFocusTime();
+}
   
 useEffect(()=> {
     findAppt();
@@ -931,7 +937,7 @@ useEffect(()=> {
                             sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} 
                             color="white" 
                             variant="outlined"
-                            onClick={addFocusTime}
+                            onClick={handlePlanDay}
                             >
                             Plan Day
                             </Button>
@@ -1982,65 +1988,35 @@ useEffect(()=> {
                                                     {appointmentList.map((pair, index) => (
                                                         pair.name ? ( // check if task exists
                                                             pair.type === "appt" ? (
+                                                            // Appointment box config
                                                             <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
-                                                                <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
-                                                                    <AccordionSummary 
-                                                                        expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
-                                                                        aria-controls="panel1a-content"
-                                                                        sx={{ 
-                                                                            width: "100%", 
-                                                                            height: "3vh",  
-                                                                            borderRadius: "8px",
-                                                                            paddingLeft: 0,
-                                                                        }}
-                                                                        elevation={0}
-                                                                    >
+                                                                <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
                                                                     <Typography sx={{fontWeight: 700, ml: 2}}>{pair.name}</Typography>
-                                                                    </AccordionSummary>
-                                                                    <AccordionDetails>
-                                                                        {pair.start && pair.start && (
-                                                                            <Typography> Start Time: {pair.start}</Typography>
-                                                                        )}
-                                                                        {pair.desc && (
-                                                                            <Typography>Description: {pair.desc}</Typography>
-                                                                        )}
-                                                                    </AccordionDetails>
-                                                                    
-                                                                </Accordion>
+                                                                </Box>
                                                             </ListItem>
                                                             ) : (
-                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.end < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', padding: 0, mt: -.25}}>
-                                                                <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
-                                                                    <AccordionSummary 
-                                                                        expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
-                                                                        aria-controls="panel1a-content"
-                                                                        sx={{ 
-                                                                            width: "100%", 
-                                                                            height: "3vh",  
-                                                                            borderRadius: "8px",
-                                                                            paddingLeft: 0,
-                                                                        }}
-                                                                        elevation={0}
-                                                                    >
+                                                                // Task box config
+                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.start - 1 < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', padding: 0, mt: -.25}}>
+                                                                <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
                                                                     <Box
                                                                         display="flex"
                                                                         flexDirection="row"
                                                                         sx={{width: "100%"}}
                                                                     >
-                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.end < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
+                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <HourglassEmptyIcon sx={{color: (pair.end < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
+                                                                        <HourglassEmptyIcon sx={{color: (pair.start< currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
                                                                         <Typography sx={{fontWeight: 700, fontSize: "18px"}}> {pair.timers.done}/{pair.timers.total}</Typography>
                                                                         <Box sx={{flexGrow: .06}} />
                                                                         {/* Implement current time for task if running */}
                                                                     </Box>
-                                                                    </AccordionSummary>
-                                                                    <AccordionDetails>
-                                                                        {pair.desc && (
-                                                                            <Typography>Notes: {pair.desc}</Typography>
-                                                                        )}
-                                                                    </AccordionDetails>
-                                                                    </Accordion>
+                                                                    <IconButton 
+                                                                    onClick={() => {
+                                                                        const task = subBoxes.filter( function(subBox){return (subBox.title===(pair.name))});
+                                                                        handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
+                                                                    }}
+                                                                    ><ExpandCircleDownOutlinedIcon sx={{color: "black", transform: "rotate(270deg)"}} /></IconButton>
+                                                                </Box>
                                                                 </ListItem>
                                                             )
                                                         ) : (
