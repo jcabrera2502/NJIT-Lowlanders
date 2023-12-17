@@ -96,5 +96,30 @@ router.put('/api/updateTask', async (req, res) =>
                                                     }})
     res.send(result);
 });
+
+router.put('/api/updateTaskStatus', async (req, res) =>
+{
+   const collection = mongoose.connection.db.collection("user-tasks");
+   console.log("Req" , req.body.params)
+   const result = await collection.updateOne({email: req.body.params.email,
+                                              taskTitle: req.body.params.title,
+                                              day: req.body.params.day,
+                                              month: req.body.params.month,
+                                              year: req.body.params.year},
+                                              {$set: {status: req.body.params.status}})
+    res.send(result);
+});
+
+router.get('/api/getTaskPreviousDay', async (req, res) =>
+{
+    const collection = mongoose.connection.db.collection("user-tasks");
+    const day = parseInt(req.query.day);
+    const month = parseInt(req.query.month);
+    const year = parseInt(req.query.year);
+    const status = parseInt(req.query.status);
+    console.log("REQUEST" , req.query.status)
+    const result = await collection.find({email: req.query.email, day: day, month: month, year: year, status: status}).toArray();
+    res.send(result);
+});
   
 export default router;
