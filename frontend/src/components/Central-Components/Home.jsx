@@ -857,6 +857,9 @@ function addFocusTime()
         }
     }
     setAppointmentList(apps);
+
+    //Stores appointment list in local storage before page reloads
+    localStorage.setItem(`${day}-${month}-${year}`, JSON.stringify(apps));
 }
 
 function findAppt()
@@ -906,11 +909,11 @@ function findAppt()
 
 function handlePlanDay()
 {
-    addFocusTime();
-    if (planDay == false)
+    if (planDay === false)
     {
         getUserTasksPreviousDay(user);
     }
+    addFocusTime();
     setPlanDay(true);
     console.log("We Clicked Plan Day");
 }
@@ -1022,10 +1025,20 @@ const getUserTasksPreviousDay = async (user) =>
         }
         key++;
     }
-    window.location.reload();
+    getUserTasks(user);
     return;
 }
-  
+
+// Loads local browser data to populate task list
+useEffect(()=>{
+    var cal = JSON.parse(localStorage.getItem(`${day}-${month}-${year}`));
+    if(cal)
+    {
+        setAppointmentList(cal);
+        setoAppointmentList(cal);
+    }
+},[]);
+
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
@@ -1057,7 +1070,7 @@ const pomoRef = useRef();
 
                     <Box textAlign={"center"}>
                         <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
-                        {isThisCurrent(selectedDate) && (
+                        {/*isThisCurrent(selectedDate)*/ true && (
                             <Button 
                             sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} 
                             color="white" 
