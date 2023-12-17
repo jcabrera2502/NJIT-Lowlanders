@@ -858,7 +858,7 @@ function addFocusTime()
                     type: "task",
                     name: tasks[t].title,
                     start: parseInt(apps[i-1].end),
-                    end: parseInt(apps[i-1].end) + dur, // temp, implies task takes 1 hour
+                    end: parseInt(apps[i-1].end) + 1, // temp, implies task takes 1 hour
                     timers: { done: tasks[t].usedTimers, total: tasks[t].pomTimers }
                 };
                 slot++;
@@ -872,7 +872,6 @@ function addFocusTime()
         
     }
     setAppointmentList(apps);
-    console.log(apps);
 
 }
 
@@ -2149,20 +2148,20 @@ const pomoRef = useRef();
                                                             </ListItem>
                                                             ) : (
                                                                 // Task box config
-                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', backgroundColor: (pair.end === currentTime.getHours() + 1 /*TODO Change to task duration*/ ) ? '#6284FF14' : '', padding: 0, mt: -.25}}>
+                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', backgroundColor: (pair.end === currentTime.getHours() + 1) ? '#6284FF14' : '', padding: 0, mt: -.25}}>
                                                                 <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
                                                                     <Box
                                                                         display="flex"
                                                                         flexDirection="row"
                                                                         sx={{width: "100%"}}
                                                                     >
-                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
+                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <HourglassEmptyIcon sx={{color: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
+                                                                        <HourglassEmptyIcon sx={{color: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
                                                                         <Typography sx={{fontWeight: 700, fontSize: "18px"}}> {pair.timers.done}/{pair.timers.total}</Typography>
                                                                         <Box sx={{flexGrow: .06}} />
                                                                         {/* Show time remaining only if highlighted task*/}
-                                                                        {pair.end === currentTime.getHours() + 1 /*TODO Change to task duration*/ ? (
+                                                                        {pair.end === currentTime.getHours() + 1 ? (
                                                                         <Box sx={{borderRadius: 2, backgroundColor: '#6284FF1A', height: "29px", width: "50px"}}
                                                                             display="flex"
                                                                             alignItems="center"
