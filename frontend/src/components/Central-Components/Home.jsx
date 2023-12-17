@@ -1,10 +1,10 @@
-import { onAuthStateChanged, setPersistence } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState, useRef } from "react";
 import { auth } from "../../firebase";
 import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, 
          Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, 
-         Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
+         Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
          List, ListItem} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
@@ -24,9 +24,7 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { get, set } from "mongoose";
 import PomoPopup  from "./Popup";
-import { useNavigate } from 'react-router-dom';
 import CircleIcon from '@mui/icons-material/Circle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
@@ -45,7 +43,7 @@ const Home = () => {
     const [recurringEvents, setRecurringEvents] = useState([]);
     const currentTime = new Date();
     const [appointmentList, setAppointmentList] = useState([]);
-    const [oappointmentList, setoAppointmentList] = useState([]); // to be used with task generation
+    const [oappointmentList, setoAppointmentList] = useState([]);
     const [allDayappts, setAllDayAppts] = useState([]);
     const [planDay, setPlanDay] = useState(false);
 
@@ -124,7 +122,14 @@ function isThisCurrent(date) {
         //console.log("THIS IS THE DAY",day);
         //console.log("THIS IS THE MONTH",month);
         //console.log("THIS IS THE YEAR",year);
-        setPlanDay(false);
+        if(JSON.parse(localStorage.getItem(`${day}-${month}-${year}plan`)))
+        {
+            setPlanDay(JSON.parse(localStorage.getItem(`${day}-${month}-${year}plan`)));
+        }
+        else
+        {
+            setPlanDay(false);
+        }
         getUserTasks(user);
     }, [day, month, year, user]);
     const handleDayChange = (event) => {
@@ -218,12 +223,8 @@ function isThisCurrent(date) {
     };
     const handlePomoClose = () => {
         updateUserTasks(user, focusSubBox);
-        setPomoOpen(false);
-        if (planDay)
-        {   
-            addFocusTime();
-        }   
-        //console.log("close");
+        setPomoOpen(false);   
+        addFocusTime();
     };
 
 
@@ -493,6 +494,11 @@ useEffect(() => {
     setSubBoxesImportant(priority.important.items);
     setSubBoxesTopPriority(priority.topPriority.items);
     setSubBoxesOther(priority.other.items);
+    if(planDay)
+    {
+        // console.log("Priority Change");
+        // addFocusTime();
+    }
 }, [priority]);
 // Handles arrays for draggable objects
 // NOTE: Draggable ID matches subBox key, we can keep track of tasks like this
@@ -628,7 +634,7 @@ const handleSignOut = async (event) => {
 //instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
 
   useEffect(() => {
-    console.log("We ENTERED THE USE EFFECT")
+    //console.log("We ENTERED THE USE EFFECT")
     const fetchData = async () => {
         // Check if the page was redirected from OAuth provider
         const searchParams = new URLSearchParams(window.location.hash.substring(1));
@@ -836,20 +842,19 @@ function addFocusTime()
     const imp = priority.important.items;
     const othr = priority.other.items;
     const tasks = topPri.concat(imp, othr);
-    console.log(tasks);
     var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
     var t = 0;
-    for (var i = 6; i < 23; i++)
+    for (var i = 6; i < 20; i++)
     {
-        if (apps[i])
+        if (apps[i] && tasks[t])
         {
             if(!apps[i].name && t < tasks.length)
             {
                 apps[i] = {
                     type: "task",
                     name: tasks[t].title,
-                    start: i,
-                    end: i + 1, // temp, implies task takes 1 hour
+                    start: i,//               Total Pomo time                      Total Short Break Time                         Total Long Break Time
+                    end: i + Math.ceil(((tasks[t].pomTimers * taskTime) + (tasks[t].pomTimers * shortTime) + (Math.floor(tasks[t].pomTimers / 4) * longTime)) /60), // temp, implies task takes 1 hour
                     timers: { done: tasks[t].usedTimers, total: tasks[t].pomTimers }
                 };
                 t++;
@@ -857,13 +862,13 @@ function addFocusTime()
         }
     }
     setAppointmentList(apps);
+    console.log(apps);
 
-    //Stores appointment list in local storage before page reloads
-    localStorage.setItem(`${day}-${month}-${year}`, JSON.stringify(apps));
 }
 
 function findAppt()
 {
+    var hours = 24;
     var found = false;
     var arr = [];
     var allArr = [];
@@ -875,12 +880,12 @@ function findAppt()
         }
     });
     for(let x = 0; x < 24; x++){
+        var mult = false;
         nonRecurringEvents.forEach( (event) => {
             var evtHr;
             if(event.start && event.start.dateTime)
             {
                 evtHr = event.start.dateTime;
-                const dayForEvent = evtHr.slice(8, 10);
                 evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
             }
             if(parseInt(evtHr) === parseInt(x))
@@ -893,6 +898,9 @@ function findAppt()
                           desc: event.description,
                           timers: null});
                 found = true;
+                var evtEndHr = event.end.dateTime;
+                evtEndHr = evtEndHr.slice(evtEndHr.search('T')+1, evtEndHr.search(':'));
+                hours -= (evtEndHr-evtHr);
             }
         });
         if(!found)
@@ -905,17 +913,20 @@ function findAppt()
     setAppointmentList(arr);
     setoAppointmentList(arr);
     setAllDayAppts(allArr);
+    console.log("Appointment List:", arr);
+    console.log("Hours Left:", hours);
 }
 
 function handlePlanDay()
 {
+    //TODO make sure list is populated before scheduling tasks
     if (planDay === false)
     {
         getUserTasksPreviousDay(user);
     }
     addFocusTime();
     setPlanDay(true);
-    console.log("We Clicked Plan Day");
+    localStorage.setItem(`${day}-${month}-${year}plan`, JSON.stringify(true));
 }
 
 const getUserTasksPreviousDay = async (user) =>
@@ -1029,15 +1040,6 @@ const getUserTasksPreviousDay = async (user) =>
     return;
 }
 
-// Loads local browser data to populate task list
-useEffect(()=>{
-    var cal = JSON.parse(localStorage.getItem(`${day}-${month}-${year}`));
-    if(cal)
-    {
-        setAppointmentList(cal);
-        setoAppointmentList(cal);
-    }
-},[]);
 
 useEffect(()=> {
     findAppt();
@@ -1070,7 +1072,7 @@ const pomoRef = useRef();
 
                     <Box textAlign={"center"}>
                         <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
-                        {/*isThisCurrent(selectedDate)*/ true && (
+                        {isThisCurrent(selectedDate) && (
                             <Button 
                             sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} 
                             color="white" 
