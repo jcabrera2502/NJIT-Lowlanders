@@ -36,6 +36,7 @@ const Home = () => {
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
+    const [getUserTasksPreviousDayData, setGetUserTasksPreviousDayData] = useState(null);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
@@ -873,9 +874,6 @@ function findAppt()
             {
                 evtHr = event.start.dateTime;
                 const dayForEvent = evtHr.slice(8, 10);
-                if (parseInt(dayForEvent) !== parseInt(day)) {
-                    window.location.reload();
-                }
                 evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
             }
             if(parseInt(evtHr) === parseInt(x))
@@ -905,7 +903,123 @@ function findAppt()
 function handlePlanDay()
 {
     addFocusTime();
+    if (planDay == false)
+    {
+        getUserTasksPreviousDay(user);
+    }
     setPlanDay(true);
+    console.log("We Clicked Plan Day");
+}
+
+const getUserTasksPreviousDay = async (user) =>
+{
+    let listOfTasks = [];
+
+    if (!user) {
+        return;
+    }
+    const userTasksPreviousDay = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 0, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay && userTasksPreviousDay.data && Array.isArray(userTasksPreviousDay.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay.data);
+    }
+
+    const userTasksPreviousDay2 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 1, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay2 && userTasksPreviousDay2.data && Array.isArray(userTasksPreviousDay2.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay2.data);
+    }
+
+    const userTasksPreviousDay3 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 3, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay3 && userTasksPreviousDay3.data && Array.isArray(userTasksPreviousDay3.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay3.data);
+    }
+
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.put("/api/updateTaskStatus", {
+            params: {
+                key: getUserTaskData.length + 1,
+                title: listOfTasks[i].taskTitle,
+                email: user.email,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status:3
+            }
+        });
+        if (response) 
+        {
+            console.log("HERE IS THE RESPONSE DATA" , response.data)
+        }
+    }
+
+    //change the day of the tasks to the current day
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        listOfTasks[i].day = day;
+    }
+
+    //insert the tasks into the database with the current day
+
+    let key = getUserTaskData.length + 1;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.post("/api/insertTask", {
+            params: 
+            {
+                key: key,
+                email: user.email,
+                title: listOfTasks[i].taskTitle,
+                type: listOfTasks[i].type,
+                completed: false,
+                taskNote: listOfTasks[i].taskNote,
+                pomodoroCount: listOfTasks[i].pomodoroCount,
+                note: listOfTasks[i].note,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status: 0,
+                usedTimers: listOfTasks[i].usedTimers,
+            } 
+        });
+        //Only sets the data if there is a result
+        if(response){ 
+            //console.log(response)
+            setInsertTaskData(response.data);
+        }
+        key++;
+    }
+    window.location.reload();
+    return;
 }
   
 useEffect(()=> {
