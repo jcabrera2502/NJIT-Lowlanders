@@ -1018,7 +1018,7 @@ const getUserTasksPreviousDay = async (user) =>
         }
         key++;
     }
-    window.location.reload();
+    getUserTasks(user);
     return;
 }
   
