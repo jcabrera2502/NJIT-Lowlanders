@@ -5,7 +5,7 @@ import { auth } from "../../firebase";
 import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, 
          Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, 
          Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
-         List, ListItem} from "@mui/material";
+         List, ListItem, duration} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
@@ -844,22 +844,32 @@ function addFocusTime()
     const tasks = topPri.concat(imp, othr);
     var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
     var t = 0;
+    var slot = 0;
+    
     for (var i = 6; i < 20; i++)
     {
         if (apps[i] && tasks[t])
-        {
+        {                                //Total Pomo time                      Total Short Break Time                         Total Long Break Time
+            const dur = Math.ceil(((tasks[t].pomTimers * taskTime) + (tasks[t].pomTimers * shortTime) + (Math.floor(tasks[t].pomTimers / 4) * longTime)) /60);
+        
             if(!apps[i].name && t < tasks.length)
             {
                 apps[i] = {
                     type: "task",
                     name: tasks[t].title,
-                    start: i,//               Total Pomo time                      Total Short Break Time                         Total Long Break Time
-                    end: i + Math.ceil(((tasks[t].pomTimers * taskTime) + (tasks[t].pomTimers * shortTime) + (Math.floor(tasks[t].pomTimers / 4) * longTime)) /60), // temp, implies task takes 1 hour
+                    start: parseInt(apps[i-1].end),
+                    end: parseInt(apps[i-1].end) + dur, // temp, implies task takes 1 hour
                     timers: { done: tasks[t].usedTimers, total: tasks[t].pomTimers }
                 };
+                slot++;
+            }
+            if(slot === parseInt(dur))
+            {
                 t++;
+                slot = 0;
             }
         }
+        
     }
     setAppointmentList(apps);
     console.log(apps);
@@ -868,7 +878,6 @@ function addFocusTime()
 
 function findAppt()
 {
-    var hours = 24;
     var found = false;
     var arr = [];
     var allArr = [];
@@ -880,7 +889,6 @@ function findAppt()
         }
     });
     for(let x = 0; x < 24; x++){
-        var mult = false;
         nonRecurringEvents.forEach( (event) => {
             var evtHr;
             if(event.start && event.start.dateTime)
@@ -893,14 +901,20 @@ function findAppt()
                 arr.push({type: "appt",
                           time: x, 
                           name: event.summary, 
-                          start: event.start.dateTime, 
-                          end: event.end.dateTime,
+                          start: (event.start.dateTime).slice(event.start.dateTime.search('T')+1, event.start.dateTime.search(':')), // converts start dateTime to hour string
+                          end: (event.end.dateTime).slice(event.end.dateTime.search('T')+1, event.end.dateTime.search(':')), //converts end dateTime to hour string
                           desc: event.description,
                           timers: null});
                 found = true;
                 var evtEndHr = event.end.dateTime;
                 evtEndHr = evtEndHr.slice(evtEndHr.search('T')+1, evtEndHr.search(':'));
-                hours -= (evtEndHr-evtHr);
+            }
+            if(evtEndHr-evtHr > 1)
+            {
+                for(var i=1; i < evtEndHr-evtHr; i++)
+                {
+                    x++;
+                }
             }
         });
         if(!found)
@@ -913,8 +927,6 @@ function findAppt()
     setAppointmentList(arr);
     setoAppointmentList(arr);
     setAllDayAppts(allArr);
-    console.log("Appointment List:", arr);
-    console.log("Hours Left:", hours);
 }
 
 function handlePlanDay()
@@ -2131,7 +2143,7 @@ const pomoRef = useRef();
                                                             pair.type === "appt" ? (
                                                             // Appointment box config
                                                             <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
-                                                                <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
+                                                                <Box sx={{width: "100%", height: (48 * (parseInt(pair.end) - parseInt(pair.start)))}} display = "flex" alignItems="center">
                                                                     <Typography sx={{fontWeight: 700, ml: 2}}>{pair.name}</Typography>
                                                                 </Box>
                                                             </ListItem>
