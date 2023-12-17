@@ -831,8 +831,12 @@ function oauthSignIn() {
 
 function addFocusTime()
 {
-    const tasks = priority.topPriority.items;
-    var apps = appointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
+    const topPri = priority.topPriority.items;
+    const imp = priority.important.items;
+    const othr = priority.other.items;
+    const tasks = topPri.concat(imp, othr);
+    console.log(tasks);
+    var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
     var t = 0;
     for (var i = 6; i < 23; i++)
     {
