@@ -136,7 +136,7 @@ const Profile = () => {
         }
         if (document.querySelector("#LastName").value === "")
         {
-            var lastNameVal = data?.firstName;
+            var lastNameVal = data?.lastName;
         }
         else
         {

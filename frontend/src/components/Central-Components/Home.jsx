@@ -27,19 +27,27 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { get, set } from "mongoose";
 import { PomoPopup } from "./Popup";
 import { useNavigate } from 'react-router-dom';
+import CircleIcon from '@mui/icons-material/Circle';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
-const Home = () => {
+const Home = () => { 
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
+    const [getUserTasksPreviousDayData, setGetUserTasksPreviousDayData] = useState(null);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
     const [selectedDate, setSelectedDate] = React.useState(new Date(year, month - 1, day));
     const [nonRecurringEvents, setNonRecurringEvents] = useState([]);
     const [recurringEvents, setRecurringEvents] = useState([]);
+    const currentTime = new Date();
+    const [appointmentList, setAppointmentList] = useState([]);
+    const [oappointmentList, setoAppointmentList] = useState([]); // to be used with task generation
+    const [allDayappts, setAllDayAppts] = useState([]);
+    const [planDay, setPlanDay] = useState(false);
 
     // Update isThisCurrent function
 function isThisCurrent(date) {
@@ -66,13 +74,13 @@ function isThisCurrent(date) {
                 setTaskTime(parseInt(response.data.pomodoro));
                 setShortTime(parseInt(response.data.shortBreak));
                 setLongTime(parseInt(response.data.longBreak));
-                console.log("TASK TIME",taskTime);
-                console.log("SHORT TIME",shortTime);
-                console.log("LONG TIME",longTime);
-                console.log("-------------------------")
-                console.log("TASK TIME",response.data.pomodoro);
-                console.log("SHORT TIME",response.data.shortBreak);
-                console.log("LONG TIME",response.data.longBreak);
+                //console.log("TASK TIME",taskTime);
+                //console.log("SHORT TIME",shortTime);
+                //console.log("LONG TIME",longTime);
+                //console.log("-------------------------")
+                //console.log("TASK TIME",response.data.pomodoro);
+                //console.log("SHORT TIME",response.data.shortBreak);
+                //console.log("LONG TIME",response.data.longBreak);
                 //reload the page to update the state
                 setData(response.data);
             }
@@ -113,10 +121,10 @@ function isThisCurrent(date) {
     }, [month, day, year]);
     //ADDITIONAL ADD
     useEffect(() => {
-        console.log("THIS IS THE DAY",day);
-        console.log("THIS IS THE MONTH",month);
-        console.log("THIS IS THE YEAR",year);
-
+        //console.log("THIS IS THE DAY",day);
+        //console.log("THIS IS THE MONTH",month);
+        //console.log("THIS IS THE YEAR",year);
+        setPlanDay(false);
         getUserTasks(user);
     }, [day, month, year, user]);
     const handleDayChange = (event) => {
@@ -185,8 +193,8 @@ function isThisCurrent(date) {
 
     //TODO: make these times pull from user settings
     const [taskTime, setTaskTime] = React.useState(1);
-    const [shortTime, setShortTime] = React.useState(1);
-    const [longTime, setLongTime] = React.useState(1);
+    const [shortTime, setShortTime] = React.useState(5);
+    const [longTime, setLongTime] = React.useState(15);
 
     // setTaskTime(1);
     // setShortTime(1);
@@ -211,6 +219,10 @@ function isThisCurrent(date) {
     const handlePomoClose = () => {
         updateUserTasks(user, focusSubBox);
         setPomoOpen(false);
+        if (planDay)
+        {   
+            addFocusTime();
+        }   
         //console.log("close");
     };
 
@@ -320,8 +332,8 @@ function isThisCurrent(date) {
         const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
 
         //http://localhost:3001/google-proxy
-        console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
-        console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
+        //console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
+        //console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
         // Redirect the user to the authorization URL received from the server
         window.location.href = response.data.url;
         } catch (error) {
@@ -563,7 +575,7 @@ const [oauthCalled, setOauthCalled] = useState(() => {
 const isSignInExpired = (signInTimestamp) => {
     const expirationTime = +signInTimestamp + 3599; // or use parseInt(signInTimestamp, 10) + 3599;
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
+    //console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
     return expirationTime < currentTime;
 };
 //idk if this works yet
@@ -587,7 +599,7 @@ const handleSignOut = async (event) => {
           },
         });
   
-        console.log('Access token revoked successfully');
+        //console.log('Access token revoked successfully');
       } catch (error) {
         console.error('Error revoking access token:', error);
       }
@@ -601,95 +613,19 @@ const handleSignOut = async (event) => {
   
     // Other cleanup or redirection logic can be added here
     const signInDiv = document.getElementById("signInDiv");
-    console.log("signInDiv:", signInDiv);
+    //console.log("signInDiv:", signInDiv);
   
     // Check if the element exists before setting properties
     if (signInDiv) {
       signInDiv.hidden = false;
     } else {
-      console.error("Element with ID 'signInDiv' not found.");
+      //console.error("Element with ID 'signInDiv' not found.");
     }
   
     // Clear the URL
     window.history.pushState({}, document.title, window.location.origin + window.location.pathname);
   };
 //instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
-
-
-/*
-useEffect(() => {
-    const fetchData = async () => {
-      // Try to get access token from localStorage
-      const storedAccessToken = localStorage.getItem("accessToken");
-      const storedEmail = localStorage.getItem("userEmail");
-      const signInTimestamp = localStorage.getItem("signInTimestamp"); // Get the sign-in timestamp
-      const storedExpirationTime = localStorage.getItem("expirationTime");
-      const storedSignInTimestamp = localStorage.getItem("expire");
-console.log("TIME STAMP",storedSignInTimestamp)
-      if (oauthCalled || storedAccessToken) {
-        const searchParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = searchParams.get("access_token");
-        const expire = searchParams.get("expires_in");
-        console.log("EXPIRE",expire);
-        console.log("About to enter if loop - status of accessToken:", accessToken, "status of storedAccessToken:", storedAccessToken, "status of oauthCalled:", oauthCalled, "status of storedEmail:", storedEmail, "status of userEmail:", userEmail, "status of user2:", user2, "status of expiration time:",expire);
-        if (
-            oauthCalled && setAccessToken) 
-           // (storedAccessToken &&
-            //  storedSignInTimestamp &&
-            //  !isSignInExpired(Number(storedSignInTimestamp)))
-          {
-          try {
-            console.log("IS SIGN IN EXPIRED????????")
-            console.log(isSignInExpired(Number(storedSignInTimestamp)));
-            const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken || storedAccessToken}`;
-            const emailFetch = await fetch(emailSite);
-            const emailData = await emailFetch.json();
-            const userEmail = emailData.email;
-  
-            // Log and store the email
-            console.log("User's email:", userEmail);
-  
-            // Make the Google Calendar API request
-            const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${accessToken || storedAccessToken}&q=Appointment`;
-            const response = await fetch(calendarApiUrl);
-            const data = await response.json();
-  
-            // Log and process the Google Calendar API response
-            console.log("Google Calendar API Response:", data);
-            listUpcomingEvents(data.items);
-            
-            console.log("This is true")
-            // Set the access token and user email in state
-            console.log("Setting access token:", accessToken || storedAccessToken, "Setting user email:", userEmail || storedEmail)
-            setAccessToken(accessToken || storedAccessToken);
-            setUserEmail(userEmail || storedEmail);
-            console.log("Setting expiration time:", expire);
-            setExpires_in(expire || storedExpirationTime);
-            // Store the values in localStorage
-            localStorage.setItem("accessToken", accessToken || storedAccessToken);
-            localStorage.setItem("userEmail", userEmail || storedEmail);
-          } catch (e) {
-            console.log("Error:", e);
-            setErrorMessage("Error: Unable to fetch data. Please try again.");
-
-            handleSignOut();
-
-          }
-        } else {
-          console.log("NO ACCESS TOKEN");
-          setErrorMessage("Error: Unable to fetch data. Please try again.");
-
-          handleSignOut();
-        }
-      }
-      else{
-        console.log("OAUTH NOT CALLED");
-      }
-    };
-  
-    fetchData();
-  }, [oauthCalled]);
-  */
 
   useEffect(() => {
     console.log("We ENTERED THE USE EFFECT")
@@ -716,7 +652,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
 
                 // Log and process the Google Calendar API response
                 console.log("Google Calendar API Response:", data);
-                console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
+                //console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
                 listUpcomingEvents(data.items);
 
                 // Set the access token, user email, and expiration time in state
@@ -747,8 +683,8 @@ console.log("TIME STAMP",storedSignInTimestamp)
                 // The stored access token exists and is not expired
                 // Continue with your existing logic...
                 try {
-                    console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
-                    console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
+                    //console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
+                    //console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
 
                     const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${storedAccessToken}`;
                     const emailFetch = await fetch(emailSite);
@@ -765,10 +701,10 @@ console.log("TIME STAMP",storedSignInTimestamp)
                     const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${storedAccessToken}&q=Appointment&timeMin=${encodeURIComponent(minDateTime)}&timeMax=${encodeURIComponent(maxDateTime)}`;
                     const response = await fetch(calendarApiUrl);
                     const data = await response.json();
-                    console.log("HERE IS THE DATA")
+                    //console.log("HERE IS THE DATA")
 
                     // Log and process the Google Calendar API response
-                    console.log("Google Calendar API Response:", data);
+                    //console.log("Google Calendar API Response:", data);
                  
                     listUpcomingEvents(data.items);
 
@@ -785,7 +721,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
                     handleSignOut();
                 }
             } else {
-                console.log("No valid access token available.");
+                //console.log("No valid access token available.");
             }
         }
     };
@@ -828,7 +764,7 @@ const saveOauthCalledToStorage = (value) => {
 
 //this function lists the events returned from the google calendar api
 const listUpcomingEvents = (eventsData) => {
-    console.log("Setting events:", eventsData);
+    //console.log("Setting events:", eventsData);
   
     // Separate recurring and non-recurring events
     const recurring = [];
@@ -849,12 +785,12 @@ function oauthSignIn() {
     saveOauthCalledToStorage(true);
   
     if(oauthCalled){
-      console.log("OAUTH CALLED IN OAUTH SIGN IN");
+      //console.log("OAUTH CALLED IN OAUTH SIGN IN");
   
       
     }
     else{
-      console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
+      //console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
     }
     // Google's OAuth 2.0 endpoint for requesting an access token
     var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -890,10 +826,35 @@ function oauthSignIn() {
     form.submit();
   }
 
-  const [appointmentList, setAppointmentList] = useState([]);
-  const [allDayappts, setAllDayAppts] = useState([]);
+  
 
-// I am not proud of this, but it must be done
+// Handles appointment list creation
+
+function addFocusTime()
+{
+    const tasks = priority.topPriority.items;
+    var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
+    var t = 0;
+    for (var i = 6; i < 20; i++)
+    {
+        if (apps[i])
+        {
+            if(!apps[i].name && t < tasks.length)
+            {
+                apps[i] = {
+                    type: "task",
+                    name: tasks[t].title,
+                    start: i,
+                    end: i + 1, // temp, implies task takes 1 hour
+                    timers: { done: tasks[t].usedTimers, total: tasks[t].pomTimers }
+                };
+                t++;
+            }
+        }
+    }
+    setAppointmentList(apps);
+}
+
 function findAppt()
 {
     var found = false;
@@ -913,32 +874,157 @@ function findAppt()
             {
                 evtHr = event.start.dateTime;
                 const dayForEvent = evtHr.slice(8, 10);
-                            if (parseInt(dayForEvent) !== parseInt(day)) {
-                    window.location.reload();
-                }
-                                evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
+                evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
             }
             if(parseInt(evtHr) === parseInt(x))
             {
-                arr.push({time: x, event: event});
+                arr.push({type: "appt",
+                          time: x, 
+                          name: event.summary, 
+                          start: event.start.dateTime, 
+                          end: event.end.dateTime,
+                          desc: event.description,
+                          timers: null});
                 found = true;
             }
         });
         if(!found)
         {
-            arr.push({time: x, event: null});
+            arr.push({time: x, name: null});
         }
         found = false;
     }
+
     setAppointmentList(arr);
+    setoAppointmentList(arr);
     setAllDayAppts(allArr);
+}
+
+function handlePlanDay()
+{
+    addFocusTime();
+    if (planDay == false)
+    {
+        getUserTasksPreviousDay(user);
+    }
+    setPlanDay(true);
+    console.log("We Clicked Plan Day");
+}
+
+const getUserTasksPreviousDay = async (user) =>
+{
+    let listOfTasks = [];
+
+    if (!user) {
+        return;
+    }
+    const userTasksPreviousDay = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 0, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay && userTasksPreviousDay.data && Array.isArray(userTasksPreviousDay.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay.data);
+    }
+
+    const userTasksPreviousDay2 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 1, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay2 && userTasksPreviousDay2.data && Array.isArray(userTasksPreviousDay2.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay2.data);
+    }
+
+    const userTasksPreviousDay3 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 3, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay3 && userTasksPreviousDay3.data && Array.isArray(userTasksPreviousDay3.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay3.data);
+    }
+
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.put("/api/updateTaskStatus", {
+            params: {
+                key: getUserTaskData.length + 1,
+                title: listOfTasks[i].taskTitle,
+                email: user.email,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status:3
+            }
+        });
+        if (response) 
+        {
+            console.log("HERE IS THE RESPONSE DATA" , response.data)
+        }
+    }
+
+    //change the day of the tasks to the current day
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        listOfTasks[i].day = day;
+    }
+
+    //insert the tasks into the database with the current day
+
+    let key = getUserTaskData.length + 1;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.post("/api/insertTask", {
+            params: 
+            {
+                key: key,
+                email: user.email,
+                title: listOfTasks[i].taskTitle,
+                type: listOfTasks[i].type,
+                completed: false,
+                taskNote: listOfTasks[i].taskNote,
+                pomodoroCount: listOfTasks[i].pomodoroCount,
+                note: listOfTasks[i].note,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status: 0,
+                usedTimers: listOfTasks[i].usedTimers,
+            } 
+        });
+        //Only sets the data if there is a result
+        if(response){ 
+            //console.log(response)
+            setInsertTaskData(response.data);
+        }
+        key++;
+    }
+    getUserTasks(user);
+    return;
 }
   
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
-
-const currentTime = new Date();
 
     return(
         <CssBaseline>
@@ -966,7 +1052,12 @@ const currentTime = new Date();
                     <Box textAlign={"center"}>
                         <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
                         {isThisCurrent(selectedDate) && (
-                            <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
+                            <Button 
+                            sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} 
+                            color="white" 
+                            variant="outlined"
+                            onClick={handlePlanDay}
+                            >
                             Plan Day
                             </Button>
                         )} 
@@ -1289,6 +1380,7 @@ const currentTime = new Date();
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
 
                                     <Box sx={{display: "flex", flexDirection: "column"}}>
+
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
                                             ml:2,
@@ -1333,19 +1425,20 @@ const currentTime = new Date();
                                                             <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log(subBox.currentIcon);
+                                                                        //console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
@@ -1358,7 +1451,7 @@ const currentTime = new Date();
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
+                                                                        <IconButton aria-label="drag" sx={{padding: 0}}>
                                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
@@ -1372,7 +1465,7 @@ const currentTime = new Date();
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
                                                                             <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                                Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
@@ -1391,19 +1484,19 @@ const currentTime = new Date();
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
-                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                        setNumTimers(subBox.pomTimers);
-                                                                                        updateUserTasks(user, subBox);
-                                                                                }
+                                                                                    if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
+                                                                                            subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                            setNumTimers(subBox.pomTimers);
+                                                                                            updateUserTasks(user, subBox);
+                                                                                    }
                                                                                 }}>
                                                                                     <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1414,11 +1507,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1433,9 +1526,9 @@ const currentTime = new Date();
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNote=!(subBox.editNote);
-                                                                                setEditNote(subBox.editNote);
-                                                                            }}>
+                                                                                    subBox.editNote=!(subBox.editNote);
+                                                                                    setEditNote(subBox.editNote);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </Grid>
@@ -1498,7 +1591,6 @@ const currentTime = new Date();
                                         
 
                                         { /* Important Task Box*/}
-                                        
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
@@ -1548,19 +1640,20 @@ const currentTime = new Date();
                                                             <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log("Current Icon" , subBox.currentIcon);
+                                                                        //console.log("Current Icon" , subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
@@ -1573,7 +1666,7 @@ const currentTime = new Date();
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
+                                                                        <IconButton sx={{padding: 0}} aria-label="drag">
                                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
@@ -1587,7 +1680,7 @@ const currentTime = new Date();
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
                                                                             <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                                Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
@@ -1606,19 +1699,19 @@ const currentTime = new Date();
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1  && subBox.usedTimers < subBox.pomTimers){
-                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                        setNumTimers(subBox.pomTimers);
-                                                                                        updateUserTasks(user, subBox);
-                                                                                }
+                                                                                    if(subBox.pomTimers > 1  && subBox.usedTimers < subBox.pomTimers){
+                                                                                            subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                            setNumTimers(subBox.pomTimers);
+                                                                                            updateUserTasks(user, subBox);
+                                                                                    }
                                                                                 }}>
                                                                                     <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1629,11 +1722,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1648,9 +1741,9 @@ const currentTime = new Date();
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNote=!(subBox.editNote);
-                                                                                setEditNote(subBox.editNote);
-                                                                            }}>
+                                                                                    subBox.editNote=!(subBox.editNote);
+                                                                                    setEditNote(subBox.editNote);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </Grid>
@@ -1680,11 +1773,11 @@ const currentTime = new Date();
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
@@ -1758,19 +1851,20 @@ const currentTime = new Date();
                                                             <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log(subBox.currentIcon);
+                                                                        //console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
@@ -1783,7 +1877,7 @@ const currentTime = new Date();
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
+                                                                        <IconButton sx={{padding: 0}} aria-label="drag">
                                                                             <OpenWithRoundedIcon sx={{ color:"black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
@@ -1797,7 +1891,7 @@ const currentTime = new Date();
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
                                                                             <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
-                                                                                Number of Pomodoro Timers (30 mins each)
+                                                                                Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
                                                                         <Grid item>
@@ -1826,9 +1920,9 @@ const currentTime = new Date();
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1839,11 +1933,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1890,11 +1984,11 @@ const currentTime = new Date();
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
@@ -2011,33 +2105,39 @@ const currentTime = new Date();
                                                     {/* Display Non-Recurring Events */}
                                                     <List sx={{width: "100%", mt: 1.5, padding: 0}}>
                                                     {appointmentList.map((pair, index) => (
-                                                        pair.event ? (
+                                                        pair.name ? ( // check if task exists
+                                                            pair.type === "appt" ? (
+                                                            // Appointment box config
                                                             <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
-                                                                <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
-                                                                    <AccordionSummary 
-                                                                        expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
-                                                                        aria-controls="panel1a-content"
-                                                                        sx={{ 
-                                                                            width: "100%", 
-                                                                            height: "3vh",  
-                                                                            borderRadius: "8px",
-                                                                            paddingLeft: 0,
-                                                                        }}
-                                                                        elevation={0}
-                                                                    >
-                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{pair.event.summary}</Typography>
-                                                                    </AccordionSummary>
-                                                                    <AccordionDetails>
-                                                                        {pair.event.start && pair.event.start.dateTime && (
-                                                                            <Typography> Start Time: {pair.event.start.dateTime}</Typography>
-                                                                        )}
-                                                                        {pair.event.description && (
-                                                                            <Typography>Description: {pair.event.description}</Typography>
-                                                                        )}
-                                                                    </AccordionDetails>
-                                                                    
-                                                                </Accordion>
+                                                                <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
+                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{pair.name}</Typography>
+                                                                </Box>
                                                             </ListItem>
+                                                            ) : (
+                                                                // Task box config
+                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.start - 1 < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', padding: 0, mt: -.25}}>
+                                                                <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
+                                                                    <Box
+                                                                        display="flex"
+                                                                        flexDirection="row"
+                                                                        sx={{width: "100%"}}
+                                                                    >
+                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
+                                                                        <Box sx={{flexGrow: 1}} />
+                                                                        <HourglassEmptyIcon sx={{color: (pair.start< currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
+                                                                        <Typography sx={{fontWeight: 700, fontSize: "18px"}}> {pair.timers.done}/{pair.timers.total}</Typography>
+                                                                        <Box sx={{flexGrow: .06}} />
+                                                                        {/* Implement current time for task if running */}
+                                                                    </Box>
+                                                                    <IconButton 
+                                                                    onClick={() => {
+                                                                        const task = subBoxes.filter( function(subBox){return (subBox.title===(pair.name))});
+                                                                        handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
+                                                                    }}
+                                                                    ><ExpandCircleDownOutlinedIcon sx={{color: "black", transform: "rotate(270deg)"}} /></IconButton>
+                                                                </Box>
+                                                                </ListItem>
+                                                            )
                                                         ) : (
                                                             <ListItem key={index} sx={{ padding: 0}}>
                                                                 <Box sx={{width: "100%", height: 50}}></Box>
@@ -2065,9 +2165,9 @@ const currentTime = new Date();
                                                 </Box>
                                             </>
                                             )}
-                                        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
+                                        {/*<div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
                                             {errorMessage}
-                                        </div>
+                                            </div> */}
                                         </Grid>
                                         {/* End of Google API data */}
                                     </Box>
