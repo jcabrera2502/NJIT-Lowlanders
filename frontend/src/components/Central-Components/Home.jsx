@@ -325,11 +325,11 @@ function isThisCurrent(date) {
     };
 
 
-
+/*
 
     const handleConnectClick = async () => {
         try {
-        const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
+        const response = await axios.get('http://localhost:3000/google', { withCredentials: true });
 
         //http://localhost:3001/google-proxy
         //console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
@@ -340,7 +340,7 @@ function isThisCurrent(date) {
         console.error('Error connecting to Google Calendar:', error.message);
         }
     };
-      
+    */ 
        
       
 const getUserTasks = async (user) => {
