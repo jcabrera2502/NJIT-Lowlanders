@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useImperativeHandle, useState, useRef, forwardRef } from "react";
 import PropTypes from 'prop-types';
 import { Typography, Button, Box, Dialog, IconButton, TextField } from "@mui/material";
 import Tabs from '@mui/material/Tabs';
@@ -6,15 +6,21 @@ import Tab from '@mui/material/Tab';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import sound from "./Sounds/alarm.mp3"
-export function PomoPopup(props) {
+const PomoPopup = forwardRef(function PomoPopup(props, ref) {
     //popup
     const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, subBox } = props;
+    
+    useImperativeHandle(ref, () => {
+        return{
+            displayTimer: displayTimer,
+        };
+    });
     const handlePomoClose = () => {
         //console.log("closed");
         if (ticking) {
             toggleTimer();
         }
-        resetTimer();
+        //resetTimer();
         onPomoClose();
     };
 
@@ -157,6 +163,7 @@ export function PomoPopup(props) {
             return (longTime > 9 ? longTime : '0' + longTime);
         }
     };
+    
     function displayTimer() {
         if (taskTime > 59 || shortTime > 59 || longTime > 59) {
             return timer;
@@ -165,6 +172,7 @@ export function PomoPopup(props) {
             return timer.substring(3);
         }
     };
+
     const [ticking, setTicking] = useState(false);
     const toggleTimer = () => {
         if (ticking) {
@@ -322,7 +330,8 @@ export function PomoPopup(props) {
             </Box>
         </Dialog>
     );
-}
+})
+
 PomoPopup.propTypes = {
     onPomoClose: PropTypes.func.isRequired,
     pomoOpen: PropTypes.bool.isRequired,
@@ -333,3 +342,5 @@ PomoPopup.propTypes = {
     // usedTimers: PropTypes.number.isRequired,
     subBox: PropTypes.object,
 };
+
+export default PomoPopup;

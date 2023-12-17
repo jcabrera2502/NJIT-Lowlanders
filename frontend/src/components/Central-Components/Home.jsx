@@ -25,7 +25,7 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { get, set } from "mongoose";
-import { PomoPopup } from "./Popup";
+import PomoPopup  from "./Popup";
 import { useNavigate } from 'react-router-dom';
 import CircleIcon from '@mui/icons-material/Circle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
@@ -832,9 +832,9 @@ function oauthSignIn() {
 function addFocusTime()
 {
     const tasks = priority.topPriority.items;
-    var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
+    var apps = appointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
     var t = 0;
-    for (var i = 6; i < 20; i++)
+    for (var i = 6; i < 23; i++)
     {
         if (apps[i])
         {
@@ -912,6 +912,8 @@ useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
 
+const pomoRef = useRef();
+
     return(
         <CssBaseline>
         <Grid container>
@@ -975,7 +977,7 @@ useEffect(()=> {
                     <Grid item xs={10}>
                         {/* Date Navbar */}
                         <Box 
-                            sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF", borderRadius: 3,}}
+                            sx={{mt: 12, width: "100%", bgcolor: "#6284FF26", borderRadius: 3,}}
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
@@ -1193,6 +1195,7 @@ useEffect(()=> {
                             shortTime={shortTime}
                             longTime={longTime}
                             subBox={focusSubBox}
+                            ref = {pomoRef}
                         />
                         {/*End of Pomo Popup*/}
 
@@ -1961,30 +1964,30 @@ useEffect(()=> {
                                             </>) : (<></>)}
                                                 <Grid item xs={1.5} sx={{textAlign: "center"}}>
                                                     <Stack spacing={3.25} sx={{alignItems: "center"}}>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "black", width: 55 }}>12 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 1) ? 700 : 400,  border: (currentTime.getHours() === 1) ? 2 : 0, borderColor: (currentTime.getHours() === 1) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 1) ? "#6284FF" : "black", width: 55 }}>1 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 2) ? 700 : 400,  border: (currentTime.getHours() === 2) ? 2 : 0, borderColor: (currentTime.getHours() === 2) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 2) ? "#6284FF" : "black", width: 55 }}>2 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 3) ? 700 : 400,  border: (currentTime.getHours() === 3) ? 2 : 0, borderColor: (currentTime.getHours() === 3) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 3) ? "#6284FF" : "black", width: 55 }}>3 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 4) ? 700 : 400,  border: (currentTime.getHours() === 4) ? 2 : 0, borderColor: (currentTime.getHours() === 4) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 4) ? "#6284FF" : "black", width: 55 }}>4 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 5) ? 700 : 400,  border: (currentTime.getHours() === 5) ? 2 : 0, borderColor: (currentTime.getHours() === 5) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 5) ? "#6284FF" : "black", width: 55 }}>5 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 6) ? 700 : 400,  border: (currentTime.getHours() === 6) ? 2 : 0, borderColor: (currentTime.getHours() === 6) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 6) ? "#6284FF" : "black", width: 55 }}>6 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 7) ? 700 : 400,  border: (currentTime.getHours() === 7) ? 2 : 0, borderColor: (currentTime.getHours() === 7) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 7) ? "#6284FF" : "black", width: 55 }}>7 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 8) ? 700 : 400,  border: (currentTime.getHours() === 8) ? 2 : 0, borderColor: (currentTime.getHours() === 8) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 8) ? "#6284FF" : "black", width: 55 }}>8 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 9) ? 700 : 400,  border: (currentTime.getHours() === 9) ? 2 : 0, borderColor: (currentTime.getHours() === 9) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 9) ? "#6284FF" : "black", width: 55 }}>9 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 10) ? 700 : 400, border: (currentTime.getHours() === 10) ? 2 : 0, borderColor: (currentTime.getHours() === 10) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 10) ? "#6284FF" : "black", width: 55 }}>10 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 11) ? 700 : 400, border: (currentTime.getHours() === 11) ? 2 : 0, borderColor: (currentTime.getHours() === 11) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 11) ? "#6284FF" : "black", width: 55 }}>11 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 12) ? 700 : 400, border: (currentTime.getHours() === 12) ? 2 : 0, borderColor: (currentTime.getHours() === 12) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 12) ? "#6284FF" : "black", width: 55 }}>12 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 13) ? 700 : 400, border: (currentTime.getHours() === 13) ? 2 : 0, borderColor: (currentTime.getHours() === 13) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 13) ? "#6284FF" : "black", width: 55 }}>1 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 14) ? 700 : 400, border: (currentTime.getHours() === 14) ? 2 : 0, borderColor: (currentTime.getHours() === 14) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 14) ? "#6284FF" : "black", width: 55 }}>2 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 15) ? 700 : 400, border: (currentTime.getHours() === 15) ? 2 : 0, borderColor: (currentTime.getHours() === 15) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 15) ? "#6284FF" : "black", width: 55 }}>3 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 16) ? 700 : 400, border: (currentTime.getHours() === 16) ? 2 : 0, borderColor: (currentTime.getHours() === 16) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 16) ? "#6284FF" : "black", width: 55 }}>4 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 17) ? 700 : 400, border: (currentTime.getHours() === 17) ? 2 : 0, borderColor: (currentTime.getHours() === 17) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 17) ? "#6284FF" : "black", width: 55 }}>5 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 18) ? 700 : 400, border: (currentTime.getHours() === 18) ? 2 : 0, borderColor: (currentTime.getHours() === 18) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 18) ? "#6284FF" : "black", width: 55 }}>6 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 19) ? 700 : 400, border: (currentTime.getHours() === 19) ? 2 : 0, borderColor: (currentTime.getHours() === 19) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 19) ? "#6284FF" : "black", width: 55 }}>7 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 20) ? 700 : 400, border: (currentTime.getHours() === 20) ? 2 : 0, borderColor: (currentTime.getHours() === 20) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 20) ? "#6284FF" : "black", width: 55 }}>8 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 21) ? 700 : 400, border: (currentTime.getHours() === 21) ? 2 : 0, borderColor: (currentTime.getHours() === 21) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 21) ? "#6284FF" : "black", width: 55 }}>9 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 22) ? 700 : 400, border: (currentTime.getHours() === 22) ? 2 : 0, borderColor: (currentTime.getHours() === 22) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 22) ? "#6284FF" : "black", width: 55 }}>10 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 23) ? 700 : 400, border: (currentTime.getHours() === 23) ? 2 : 0, borderColor: (currentTime.getHours() === 23) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 23) ? "#6284FF" : "black", width: 55 }}>11 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "", width: 55 }}>12 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 1) ? 700 : 400,  border: (currentTime.getHours() === 1) ? 2 : 0, borderColor: (currentTime.getHours() === 1) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 1) ? "#6284FF" : "", width: 55 }}>1 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 2) ? 700 : 400,  border: (currentTime.getHours() === 2) ? 2 : 0, borderColor: (currentTime.getHours() === 2) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 2) ? "#6284FF" : "", width: 55 }}>2 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 3) ? 700 : 400,  border: (currentTime.getHours() === 3) ? 2 : 0, borderColor: (currentTime.getHours() === 3) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 3) ? "#6284FF" : "", width: 55 }}>3 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 4) ? 700 : 400,  border: (currentTime.getHours() === 4) ? 2 : 0, borderColor: (currentTime.getHours() === 4) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 4) ? "#6284FF" : "", width: 55 }}>4 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 5) ? 700 : 400,  border: (currentTime.getHours() === 5) ? 2 : 0, borderColor: (currentTime.getHours() === 5) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 5) ? "#6284FF" : "", width: 55 }}>5 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 6) ? 700 : 400,  border: (currentTime.getHours() === 6) ? 2 : 0, borderColor: (currentTime.getHours() === 6) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 6) ? "#6284FF" : "", width: 55 }}>6 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 7) ? 700 : 400,  border: (currentTime.getHours() === 7) ? 2 : 0, borderColor: (currentTime.getHours() === 7) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 7) ? "#6284FF" : "", width: 55 }}>7 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 8) ? 700 : 400,  border: (currentTime.getHours() === 8) ? 2 : 0, borderColor: (currentTime.getHours() === 8) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 8) ? "#6284FF" : "", width: 55 }}>8 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 9) ? 700 : 400,  border: (currentTime.getHours() === 9) ? 2 : 0, borderColor: (currentTime.getHours() === 9) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 9) ? "#6284FF" : "", width: 55 }}>9 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 10) ? 700 : 400, border: (currentTime.getHours() === 10) ? 2 : 0, borderColor: (currentTime.getHours() === 10) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 10) ? "#6284FF" : "", width: 55 }}>10 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 11) ? 700 : 400, border: (currentTime.getHours() === 11) ? 2 : 0, borderColor: (currentTime.getHours() === 11) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 11) ? "#6284FF" : "", width: 55 }}>11 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 12) ? 700 : 400, border: (currentTime.getHours() === 12) ? 2 : 0, borderColor: (currentTime.getHours() === 12) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 12) ? "#6284FF" : "", width: 55 }}>12 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 13) ? 700 : 400, border: (currentTime.getHours() === 13) ? 2 : 0, borderColor: (currentTime.getHours() === 13) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 13) ? "#6284FF" : "", width: 55 }}>1 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 14) ? 700 : 400, border: (currentTime.getHours() === 14) ? 2 : 0, borderColor: (currentTime.getHours() === 14) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 14) ? "#6284FF" : "", width: 55 }}>2 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 15) ? 700 : 400, border: (currentTime.getHours() === 15) ? 2 : 0, borderColor: (currentTime.getHours() === 15) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 15) ? "#6284FF" : "", width: 55 }}>3 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 16) ? 700 : 400, border: (currentTime.getHours() === 16) ? 2 : 0, borderColor: (currentTime.getHours() === 16) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 16) ? "#6284FF" : "", width: 55 }}>4 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 17) ? 700 : 400, border: (currentTime.getHours() === 17) ? 2 : 0, borderColor: (currentTime.getHours() === 17) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 17) ? "#6284FF" : "", width: 55 }}>5 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 18) ? 700 : 400, border: (currentTime.getHours() === 18) ? 2 : 0, borderColor: (currentTime.getHours() === 18) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 18) ? "#6284FF" : "", width: 55 }}>6 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 19) ? 700 : 400, border: (currentTime.getHours() === 19) ? 2 : 0, borderColor: (currentTime.getHours() === 19) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 19) ? "#6284FF" : "", width: 55 }}>7 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 20) ? 700 : 400, border: (currentTime.getHours() === 20) ? 2 : 0, borderColor: (currentTime.getHours() === 20) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 20) ? "#6284FF" : "", width: 55 }}>8 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 21) ? 700 : 400, border: (currentTime.getHours() === 21) ? 2 : 0, borderColor: (currentTime.getHours() === 21) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 21) ? "#6284FF" : "", width: 55 }}>9 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 22) ? 700 : 400, border: (currentTime.getHours() === 22) ? 2 : 0, borderColor: (currentTime.getHours() === 22) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 22) ? "#6284FF" : "", width: 55 }}>10 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 23) ? 700 : 400, border: (currentTime.getHours() === 23) ? 2 : 0, borderColor: (currentTime.getHours() === 23) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 23) ? "#6284FF" : "", width: 55 }}>11 PM</Typography>
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item xs={10.5}>
@@ -2001,7 +2004,7 @@ useEffect(()=> {
                                                             </ListItem>
                                                             ) : (
                                                                 // Task box config
-                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.start - 1 < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', padding: 0, mt: -.25}}>
+                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', backgroundColor: (pair.end === currentTime.getHours() + 1 /*TODO Change to task duration*/ ) ? '#6284FF14' : '', padding: 0, mt: -.25}}>
                                                                 <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
                                                                     <Box
                                                                         display="flex"
@@ -2010,10 +2013,21 @@ useEffect(()=> {
                                                                     >
                                                                         <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <HourglassEmptyIcon sx={{color: (pair.start< currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
+                                                                        <HourglassEmptyIcon sx={{color: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
                                                                         <Typography sx={{fontWeight: 700, fontSize: "18px"}}> {pair.timers.done}/{pair.timers.total}</Typography>
                                                                         <Box sx={{flexGrow: .06}} />
-                                                                        {/* Implement current time for task if running */}
+                                                                        {/* Show time remaining only if highlighted task*/}
+                                                                        {pair.end === currentTime.getHours() + 1 /*TODO Change to task duration*/ ? (
+                                                                        <Box sx={{borderRadius: 2, backgroundColor: '#6284FF1A', height: "29px", width: "50px"}}
+                                                                            display="flex"
+                                                                            alignItems="center"
+                                                                            justifyContent="center"
+                                                                        >
+                                                                            <Typography sx={{color: '#6284FF'}}>{pomoRef.current.displayTimer()}</Typography>
+                                                                        </Box>
+                                                                    ) : (
+                                                                        <></>
+                                                                    )}
                                                                     </Box>
                                                                     <IconButton 
                                                                     onClick={() => {
