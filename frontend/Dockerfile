@@ -1,13 +1,15 @@
-FROM node:17-alpine
+FROM node:lts-alpine AS build 
 
-WORKDIR /app
-
-COPY package.json .
-
-RUN npm install
+WORKDIR /usr/app
 
 COPY . .
 
-EXPOSE 3000
+RUN npm ci
 
-CMD ["npm", "start"]
+RUN npm run build 
+
+FROM nginx:latest
+
+COPY --from=build /usr/app/build /usr/share/nginx/html/
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
