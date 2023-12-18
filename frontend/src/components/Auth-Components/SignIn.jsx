@@ -127,7 +127,6 @@ const SignIn = () => {
       .then((result) => {
         // Handle successful Google sign-in
         const user = result.user;
-        console.log(user);
       })
       .catch((error) => {
         // Handle errors
@@ -139,7 +138,6 @@ const SignIn = () => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential);
         if(userCredential.user.emailVerified == false){
           setError("You must verify your email to login.");
 
