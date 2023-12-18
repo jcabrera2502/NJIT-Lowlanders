@@ -92,6 +92,8 @@ function isThisCurrent(date) {
                 getUserTasks(user);
             } else {
                 setUser(null);
+                window.location.href = "/SignIn";  
+
             }
         });
     }, []);
