@@ -143,7 +143,7 @@ const SignIn = () => {
 
         }
         else{
-        window.location.href = "http://localhost:3000/";}
+        window.location.href = "/";}
         
       })
       
@@ -166,7 +166,7 @@ const SignIn = () => {
   };
 
  /* const handleClick = () => {
-    window.location.href = "http://localhost:3000/";
+    window.location.href = "/";
   };
   */
 
@@ -246,7 +246,7 @@ const SignIn = () => {
                 >
                   <Grid container>
                     <Grid item xs={12}>
-                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Button>
+                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "/SignUp")}>Don't have an account? Sign Up</Button>
                     </Grid>
                     <Grid item xs={12}>
                       <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>

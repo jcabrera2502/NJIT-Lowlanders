@@ -331,7 +331,7 @@ function isThisCurrent(date) {
 
     const handleConnectClick = async () => {
         try {
-        const response = await axios.get('http://localhost:3000/google', { withCredentials: true });
+        const response = await axios.get('/google', { withCredentials: true });
 
         //http://localhost:3001/google-proxy
         //console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
@@ -1098,7 +1098,7 @@ const pomoRef = useRef();
                 </div>
                 <Box sx={{flexGrow: 1}}/>
                 <Box>
-                    <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ height: "45px", borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
+                    <Button onClick={() => (window.location.href = "/AuthDetails")} sx={{ height: "45px", borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
                 </Box>
             </Box>
         </Grid>
@@ -1113,9 +1113,9 @@ const pomoRef = useRef();
                         open={open2}
                         onClose={handleClose}
                     >
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Log Out</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "/Profile")}>Profile</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "/")}>Tasks</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "/AuthDetails")}>Log Out</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>                 
