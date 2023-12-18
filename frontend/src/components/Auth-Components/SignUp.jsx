@@ -119,6 +119,7 @@ const [password, setPassword] = useState("");
 const [confirmPassword, setConfirmPassword] = useState(""); // New state variable for password confirmation
 const [error, setError] = useState(null);
 const [isEmailVerified, setIsEmailVerified] = useState(false);
+const theme = JSON.parse(localStorage.getItem(`theme`));
 
 const signUp = (e) => {
 e.preventDefault();
@@ -235,7 +236,7 @@ setError("You must verify your email to login.");
                   Sign Up</Button>
                 </Box>
                 <Box
-                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2, height: 50}}
+                  sx={{backgroundColor: theme ? "#4D4D4D" : "#F5F7F9", borderRadius: 2, height: 50}}
                   display="flex"
                   justifyContent="center"
                   alignItems="center"
@@ -244,6 +245,7 @@ setError("You must verify your email to login.");
                 </Box>
                 {error && <Typography sx={{ color: "red" }}>{error}</Typography>}
               </form>
+              <Copyright sx={{mt: 5}}/> 
             </Paper>
           </Grid>
         </Grid>
