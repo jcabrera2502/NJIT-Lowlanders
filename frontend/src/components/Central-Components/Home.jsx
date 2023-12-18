@@ -29,6 +29,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
 const Home = () => { 
+    const theme = JSON.parse(localStorage.getItem(`theme`));
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
@@ -281,10 +282,10 @@ function isThisCurrent(date) {
     //progress icons 
 
     const icons = [
-        <CircleOutlinedIcon sx={{ color: 'black' }} />,
-        <HourglassEmptyRoundedIcon sx={{ color: 'black' }} />,
-        <CheckCircleOutlineIcon sx={{ color: 'black' }} />,
-        <SyncAltIcon sx={{ color: 'black' }} />,
+        <CircleOutlinedIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <HourglassEmptyRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <CheckCircleOutlineIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <SyncAltIcon sx={{ color: theme ? "#fff" : "black" }} />,
       ];
     
     // Handles dropdown menu from profile picture
@@ -1105,7 +1106,7 @@ const pomoRef = useRef();
                 <Toolbar>
                     <Typography sx={{fontWeight: "bold"}}variant="h4">Tasks</Typography>
                     <Box sx={{flexGrow: 1}}></Box>
-                    <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                    <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#6284FF26"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: theme ? "#fff" : "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl2}
@@ -1153,6 +1154,17 @@ const pomoRef = useRef();
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",},
                                          '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                    anchorOrigin: {
+                                        vertical: "top",
+                                        horizontal: "left"
+                                    },
+                                    transformOrigin: {
+                                        vertical: "top",
+                                        horizontal: "left"
+                                    },
+                                    PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                    }}
                                 >
                                     <MenuItem value={1}>January</MenuItem>
                                     <MenuItem value={2}>February</MenuItem>
@@ -1219,6 +1231,17 @@ const pomoRef = useRef();
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
                                         '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                        anchorOrigin: {
+                                            vertical: "top",
+                                            horizontal: "left"
+                                        },
+                                        transformOrigin: {
+                                            vertical: "top",
+                                            horizontal: "left"
+                                        },
+                                        PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                        }}
                                 >
                                     <MenuItem value={1}>1</MenuItem>
                                     <MenuItem value={2}>2</MenuItem>
@@ -1306,6 +1329,17 @@ const pomoRef = useRef();
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
                                         '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                        anchorOrigin: {
+                                          vertical: "top",
+                                          horizontal: "left"
+                                        },
+                                        transformOrigin: {
+                                          vertical: "top",
+                                          horizontal: "left"
+                                        },
+                                        PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                      }}
                                 >
                                     <MenuItem value={2022}>2022</MenuItem>
                                     <MenuItem value={2023}>2023</MenuItem>
@@ -1419,7 +1453,7 @@ const pomoRef = useRef();
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",}}>
                                             <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Top Priority
@@ -1455,10 +1489,10 @@ const pomoRef = useRef();
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1476,16 +1510,16 @@ const pomoRef = useRef();
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
                                                                     }}
-                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                    sx={{color: theme ? "#fff" : "black"}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
                                                                         <IconButton aria-label="drag" sx={{padding: 0}}>
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1497,7 +1531,7 @@ const pomoRef = useRef();
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1586,7 +1620,7 @@ const pomoRef = useRef();
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
@@ -1601,7 +1635,7 @@ const pomoRef = useRef();
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -1629,7 +1663,7 @@ const pomoRef = useRef();
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",
                                             }}
                                         >
@@ -1670,10 +1704,10 @@ const pomoRef = useRef();
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1691,16 +1725,16 @@ const pomoRef = useRef();
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
                                                                     }}
-                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                    sx={{color: theme ? "#fff" : "black"}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
                                                                         <IconButton sx={{padding: 0}} aria-label="drag">
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1712,7 +1746,7 @@ const pomoRef = useRef();
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1801,7 +1835,7 @@ const pomoRef = useRef();
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
@@ -1815,7 +1849,7 @@ const pomoRef = useRef();
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -1844,7 +1878,7 @@ const pomoRef = useRef();
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",}}>
                                             <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
@@ -1881,10 +1915,10 @@ const pomoRef = useRef();
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1906,12 +1940,12 @@ const pomoRef = useRef();
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
                                                                         <IconButton sx={{padding: 0}} aria-label="drag">
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1923,7 +1957,7 @@ const pomoRef = useRef();
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -2012,7 +2046,7 @@ const pomoRef = useRef();
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
@@ -2026,7 +2060,7 @@ const pomoRef = useRef();
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -2178,7 +2212,7 @@ const pomoRef = useRef();
                                                                         const task = subBoxes.filter( function(subBox){return (subBox.title===(pair.name))});
                                                                         handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
                                                                     }}
-                                                                    ><ExpandCircleDownOutlinedIcon sx={{color: "black", transform: "rotate(270deg)"}} /></IconButton>
+                                                                    ><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black", transform: "rotate(270deg)"}} /></IconButton>
                                                                 </Box>
                                                                 </ListItem>
                                                             )
@@ -2197,7 +2231,7 @@ const pomoRef = useRef();
                                                     sx={{ml:2,
                                                         width: "100%", 
                                                         minHeight: "66.7vh",  
-                                                        bgcolor: "#F5F7F9",
+                                                        bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                                         borderRadius: "8px",
                                                     }}
                                                     display = "flex"

@@ -62,7 +62,8 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   }));
 
 let userPresentInDatabase = 0;
-const Profile = () => {
+const Profile = (props) => {
+    const theme = JSON.parse(localStorage.getItem(`theme`));
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [userInserted, setUserInserted] = useState(false);
@@ -75,7 +76,7 @@ const Profile = () => {
 
     const [error, setError] = useState(''); // Define the error state variable
 
-
+    
     const handlePasswordUpdate = async () => {
         updateUserData();
         window.location.reload();
@@ -262,6 +263,12 @@ const Profile = () => {
         setAnchorEl2(null);
     };
 
+    function handleTheme()
+    {
+        var theme = JSON.parse(localStorage.getItem(`theme`));
+        localStorage.setItem(`theme`, JSON.stringify(!theme));
+        window.location.reload();
+    }
     return (
         <CssBaseline>
             {/* Nav bar on the top and crush it on the left*/}
@@ -297,7 +304,7 @@ const Profile = () => {
                         <Toolbar>
                             <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                             <Box sx={{flexGrow: 1}}></Box>
-                            <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                            <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#6284FF26"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: theme ? "#fff" : "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                             <Menu
                                 id="profile-menu"
                                 anchorEl={anchorEl2}
@@ -323,7 +330,7 @@ const Profile = () => {
                             >
                                 <Typography variant="h5" sx={{mb: 2, fontWeight: "bold"}}>User Info</Typography>
                                 <Box sx={{flexGrow:1}} />
-                                <MaterialUISwitch onChange={()=>{console.log("Switched")}} />
+                                <MaterialUISwitch defaultChecked={JSON.parse(localStorage.getItem(`theme`))} onChange={handleTheme} />
                             </Box>
                             <Paper sx={{width: "100%", height: "15vh", borderRadius: 3}} elevation={12}>
                                 <Box
