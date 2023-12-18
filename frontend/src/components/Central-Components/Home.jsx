@@ -1,11 +1,11 @@
-import { onAuthStateChanged, setPersistence } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState, useRef } from "react";
 import { auth } from "../../firebase";
 import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, 
          Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, 
-         Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
-         List, ListItem} from "@mui/material";
+         Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
+         List, ListItem, duration} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
@@ -24,13 +24,12 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { get, set } from "mongoose";
-import { PomoPopup } from "./Popup";
-import { useNavigate } from 'react-router-dom';
+import PomoPopup  from "./Popup";
 import CircleIcon from '@mui/icons-material/Circle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
 const Home = () => { 
+    const theme = JSON.parse(localStorage.getItem(`theme`));
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
@@ -45,7 +44,7 @@ const Home = () => {
     const [recurringEvents, setRecurringEvents] = useState([]);
     const currentTime = new Date();
     const [appointmentList, setAppointmentList] = useState([]);
-    const [oappointmentList, setoAppointmentList] = useState([]); // to be used with task generation
+    const [oappointmentList, setoAppointmentList] = useState([]);
     const [allDayappts, setAllDayAppts] = useState([]);
     const [planDay, setPlanDay] = useState(false);
 
@@ -124,7 +123,14 @@ function isThisCurrent(date) {
         //console.log("THIS IS THE DAY",day);
         //console.log("THIS IS THE MONTH",month);
         //console.log("THIS IS THE YEAR",year);
-        setPlanDay(false);
+        if(JSON.parse(localStorage.getItem(`${day}-${month}-${year}plan`)))
+        {
+            setPlanDay(JSON.parse(localStorage.getItem(`${day}-${month}-${year}plan`)));
+        }
+        else
+        {
+            setPlanDay(false);
+        }
         getUserTasks(user);
     }, [day, month, year, user]);
     const handleDayChange = (event) => {
@@ -218,12 +224,8 @@ function isThisCurrent(date) {
     };
     const handlePomoClose = () => {
         updateUserTasks(user, focusSubBox);
-        setPomoOpen(false);
-        if (planDay)
-        {   
-            addFocusTime();
-        }   
-        //console.log("close");
+        setPomoOpen(false);   
+        addFocusTime();
     };
 
 
@@ -280,10 +282,10 @@ function isThisCurrent(date) {
     //progress icons 
 
     const icons = [
-        <CircleOutlinedIcon sx={{ color: 'black' }} />,
-        <HourglassEmptyRoundedIcon sx={{ color: 'black' }} />,
-        <CheckCircleOutlineIcon sx={{ color: 'black' }} />,
-        <SyncAltIcon sx={{ color: 'black' }} />,
+        <CircleOutlinedIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <HourglassEmptyRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <CheckCircleOutlineIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <SyncAltIcon sx={{ color: theme ? "#fff" : "black" }} />,
       ];
     
     // Handles dropdown menu from profile picture
@@ -493,6 +495,11 @@ useEffect(() => {
     setSubBoxesImportant(priority.important.items);
     setSubBoxesTopPriority(priority.topPriority.items);
     setSubBoxesOther(priority.other.items);
+    if(planDay)
+    {
+        // console.log("Priority Change");
+        // addFocusTime();
+    }
 }, [priority]);
 // Handles arrays for draggable objects
 // NOTE: Draggable ID matches subBox key, we can keep track of tasks like this
@@ -628,7 +635,7 @@ const handleSignOut = async (event) => {
 //instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
 
   useEffect(() => {
-    console.log("We ENTERED THE USE EFFECT")
+    //console.log("We ENTERED THE USE EFFECT")
     const fetchData = async () => {
         // Check if the page was redirected from OAuth provider
         const searchParams = new URLSearchParams(window.location.hash.substring(1));
@@ -832,27 +839,41 @@ function oauthSignIn() {
 
 function addFocusTime()
 {
-    const tasks = priority.topPriority.items;
+    const topPri = priority.topPriority.items;
+    const imp = priority.important.items;
+    const othr = priority.other.items;
+    const tasks = topPri.concat(imp, othr);
     var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
     var t = 0;
+    var slot = 0;
+    
     for (var i = 6; i < 20; i++)
     {
-        if (apps[i])
-        {
+        if (apps[i] && tasks[t])
+        {                                //Total Pomo time                      Total Short Break Time                         Total Long Break Time
+            const dur = Math.ceil(((tasks[t].pomTimers * taskTime) + (tasks[t].pomTimers * shortTime) + (Math.floor(tasks[t].pomTimers / 4) * longTime)) /60);
+        
             if(!apps[i].name && t < tasks.length)
             {
                 apps[i] = {
                     type: "task",
                     name: tasks[t].title,
-                    start: i,
-                    end: i + 1, // temp, implies task takes 1 hour
+                    start: parseInt(apps[i-1].end),
+                    end: parseInt(apps[i-1].end) + 1, // temp, implies task takes 1 hour
                     timers: { done: tasks[t].usedTimers, total: tasks[t].pomTimers }
                 };
+                slot++;
+            }
+            if(slot === parseInt(dur))
+            {
                 t++;
+                slot = 0;
             }
         }
+        
     }
     setAppointmentList(apps);
+
 }
 
 function findAppt()
@@ -873,7 +894,6 @@ function findAppt()
             if(event.start && event.start.dateTime)
             {
                 evtHr = event.start.dateTime;
-                const dayForEvent = evtHr.slice(8, 10);
                 evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
             }
             if(parseInt(evtHr) === parseInt(x))
@@ -881,11 +901,20 @@ function findAppt()
                 arr.push({type: "appt",
                           time: x, 
                           name: event.summary, 
-                          start: event.start.dateTime, 
-                          end: event.end.dateTime,
+                          start: (event.start.dateTime).slice(event.start.dateTime.search('T')+1, event.start.dateTime.search(':')), // converts start dateTime to hour string
+                          end: (event.end.dateTime).slice(event.end.dateTime.search('T')+1, event.end.dateTime.search(':')), //converts end dateTime to hour string
                           desc: event.description,
                           timers: null});
                 found = true;
+                var evtEndHr = event.end.dateTime;
+                evtEndHr = evtEndHr.slice(evtEndHr.search('T')+1, evtEndHr.search(':'));
+            }
+            if(evtEndHr-evtHr > 1)
+            {
+                for(var i=1; i < evtEndHr-evtHr; i++)
+                {
+                    x++;
+                }
             }
         });
         if(!found)
@@ -902,13 +931,14 @@ function findAppt()
 
 function handlePlanDay()
 {
-    addFocusTime();
-    if (planDay == false)
+    //TODO make sure list is populated before scheduling tasks
+    if (planDay === false)
     {
         getUserTasksPreviousDay(user);
     }
+    addFocusTime();
     setPlanDay(true);
-    console.log("We Clicked Plan Day");
+    localStorage.setItem(`${day}-${month}-${year}plan`, JSON.stringify(true));
 }
 
 const getUserTasksPreviousDay = async (user) =>
@@ -1021,10 +1051,13 @@ const getUserTasksPreviousDay = async (user) =>
     getUserTasks(user);
     return;
 }
-  
+
+
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
+
+const pomoRef = useRef();
 
     return(
         <CssBaseline>
@@ -1073,7 +1106,7 @@ useEffect(()=> {
                 <Toolbar>
                     <Typography sx={{fontWeight: "bold"}}variant="h4">Tasks</Typography>
                     <Box sx={{flexGrow: 1}}></Box>
-                    <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                    <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#6284FF26"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: theme ? "#fff" : "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl2}
@@ -1089,7 +1122,7 @@ useEffect(()=> {
                     <Grid item xs={10}>
                         {/* Date Navbar */}
                         <Box 
-                            sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF", borderRadius: 3,}}
+                            sx={{mt: 12, width: "100%", bgcolor: "#6284FF26", borderRadius: 3,}}
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
@@ -1121,6 +1154,17 @@ useEffect(()=> {
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",},
                                          '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                    anchorOrigin: {
+                                        vertical: "top",
+                                        horizontal: "left"
+                                    },
+                                    transformOrigin: {
+                                        vertical: "top",
+                                        horizontal: "left"
+                                    },
+                                    PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                    }}
                                 >
                                     <MenuItem value={1}>January</MenuItem>
                                     <MenuItem value={2}>February</MenuItem>
@@ -1187,6 +1231,17 @@ useEffect(()=> {
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
                                         '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                        anchorOrigin: {
+                                            vertical: "top",
+                                            horizontal: "left"
+                                        },
+                                        transformOrigin: {
+                                            vertical: "top",
+                                            horizontal: "left"
+                                        },
+                                        PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                        }}
                                 >
                                     <MenuItem value={1}>1</MenuItem>
                                     <MenuItem value={2}>2</MenuItem>
@@ -1274,6 +1329,17 @@ useEffect(()=> {
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
                                         '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                        anchorOrigin: {
+                                          vertical: "top",
+                                          horizontal: "left"
+                                        },
+                                        transformOrigin: {
+                                          vertical: "top",
+                                          horizontal: "left"
+                                        },
+                                        PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                      }}
                                 >
                                     <MenuItem value={2022}>2022</MenuItem>
                                     <MenuItem value={2023}>2023</MenuItem>
@@ -1307,6 +1373,7 @@ useEffect(()=> {
                             shortTime={shortTime}
                             longTime={longTime}
                             subBox={focusSubBox}
+                            ref = {pomoRef}
                         />
                         {/*End of Pomo Popup*/}
 
@@ -1386,7 +1453,7 @@ useEffect(()=> {
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",}}>
                                             <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Top Priority
@@ -1422,10 +1489,10 @@ useEffect(()=> {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1443,16 +1510,16 @@ useEffect(()=> {
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
                                                                     }}
-                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                    sx={{color: theme ? "#fff" : "black"}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
                                                                         <IconButton aria-label="drag" sx={{padding: 0}}>
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1464,7 +1531,7 @@ useEffect(()=> {
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1553,7 +1620,7 @@ useEffect(()=> {
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
@@ -1568,7 +1635,7 @@ useEffect(()=> {
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -1596,7 +1663,7 @@ useEffect(()=> {
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",
                                             }}
                                         >
@@ -1637,10 +1704,10 @@ useEffect(()=> {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1658,16 +1725,16 @@ useEffect(()=> {
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
                                                                     }}
-                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                    sx={{color: theme ? "#fff" : "black"}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
                                                                         <IconButton sx={{padding: 0}} aria-label="drag">
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1679,7 +1746,7 @@ useEffect(()=> {
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1768,7 +1835,7 @@ useEffect(()=> {
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
@@ -1782,7 +1849,7 @@ useEffect(()=> {
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -1811,7 +1878,7 @@ useEffect(()=> {
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",}}>
                                             <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
@@ -1848,10 +1915,10 @@ useEffect(()=> {
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: "black"}}  /></IconButton>}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
@@ -1873,12 +1940,12 @@ useEffect(()=> {
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
                                                                         <IconButton sx={{padding: 0}} aria-label="drag">
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1890,7 +1957,7 @@ useEffect(()=> {
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1979,7 +2046,7 @@ useEffect(()=> {
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
@@ -1993,7 +2060,7 @@ useEffect(()=> {
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -2075,30 +2142,30 @@ useEffect(()=> {
                                             </>) : (<></>)}
                                                 <Grid item xs={1.5} sx={{textAlign: "center"}}>
                                                     <Stack spacing={3.25} sx={{alignItems: "center"}}>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "black", width: 55 }}>12 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 1) ? 700 : 400,  border: (currentTime.getHours() === 1) ? 2 : 0, borderColor: (currentTime.getHours() === 1) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 1) ? "#6284FF" : "black", width: 55 }}>1 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 2) ? 700 : 400,  border: (currentTime.getHours() === 2) ? 2 : 0, borderColor: (currentTime.getHours() === 2) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 2) ? "#6284FF" : "black", width: 55 }}>2 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 3) ? 700 : 400,  border: (currentTime.getHours() === 3) ? 2 : 0, borderColor: (currentTime.getHours() === 3) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 3) ? "#6284FF" : "black", width: 55 }}>3 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 4) ? 700 : 400,  border: (currentTime.getHours() === 4) ? 2 : 0, borderColor: (currentTime.getHours() === 4) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 4) ? "#6284FF" : "black", width: 55 }}>4 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 5) ? 700 : 400,  border: (currentTime.getHours() === 5) ? 2 : 0, borderColor: (currentTime.getHours() === 5) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 5) ? "#6284FF" : "black", width: 55 }}>5 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 6) ? 700 : 400,  border: (currentTime.getHours() === 6) ? 2 : 0, borderColor: (currentTime.getHours() === 6) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 6) ? "#6284FF" : "black", width: 55 }}>6 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 7) ? 700 : 400,  border: (currentTime.getHours() === 7) ? 2 : 0, borderColor: (currentTime.getHours() === 7) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 7) ? "#6284FF" : "black", width: 55 }}>7 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 8) ? 700 : 400,  border: (currentTime.getHours() === 8) ? 2 : 0, borderColor: (currentTime.getHours() === 8) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 8) ? "#6284FF" : "black", width: 55 }}>8 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 9) ? 700 : 400,  border: (currentTime.getHours() === 9) ? 2 : 0, borderColor: (currentTime.getHours() === 9) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 9) ? "#6284FF" : "black", width: 55 }}>9 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 10) ? 700 : 400, border: (currentTime.getHours() === 10) ? 2 : 0, borderColor: (currentTime.getHours() === 10) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 10) ? "#6284FF" : "black", width: 55 }}>10 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 11) ? 700 : 400, border: (currentTime.getHours() === 11) ? 2 : 0, borderColor: (currentTime.getHours() === 11) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 11) ? "#6284FF" : "black", width: 55 }}>11 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 12) ? 700 : 400, border: (currentTime.getHours() === 12) ? 2 : 0, borderColor: (currentTime.getHours() === 12) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 12) ? "#6284FF" : "black", width: 55 }}>12 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 13) ? 700 : 400, border: (currentTime.getHours() === 13) ? 2 : 0, borderColor: (currentTime.getHours() === 13) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 13) ? "#6284FF" : "black", width: 55 }}>1 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 14) ? 700 : 400, border: (currentTime.getHours() === 14) ? 2 : 0, borderColor: (currentTime.getHours() === 14) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 14) ? "#6284FF" : "black", width: 55 }}>2 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 15) ? 700 : 400, border: (currentTime.getHours() === 15) ? 2 : 0, borderColor: (currentTime.getHours() === 15) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 15) ? "#6284FF" : "black", width: 55 }}>3 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 16) ? 700 : 400, border: (currentTime.getHours() === 16) ? 2 : 0, borderColor: (currentTime.getHours() === 16) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 16) ? "#6284FF" : "black", width: 55 }}>4 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 17) ? 700 : 400, border: (currentTime.getHours() === 17) ? 2 : 0, borderColor: (currentTime.getHours() === 17) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 17) ? "#6284FF" : "black", width: 55 }}>5 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 18) ? 700 : 400, border: (currentTime.getHours() === 18) ? 2 : 0, borderColor: (currentTime.getHours() === 18) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 18) ? "#6284FF" : "black", width: 55 }}>6 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 19) ? 700 : 400, border: (currentTime.getHours() === 19) ? 2 : 0, borderColor: (currentTime.getHours() === 19) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 19) ? "#6284FF" : "black", width: 55 }}>7 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 20) ? 700 : 400, border: (currentTime.getHours() === 20) ? 2 : 0, borderColor: (currentTime.getHours() === 20) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 20) ? "#6284FF" : "black", width: 55 }}>8 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 21) ? 700 : 400, border: (currentTime.getHours() === 21) ? 2 : 0, borderColor: (currentTime.getHours() === 21) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 21) ? "#6284FF" : "black", width: 55 }}>9 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 22) ? 700 : 400, border: (currentTime.getHours() === 22) ? 2 : 0, borderColor: (currentTime.getHours() === 22) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 22) ? "#6284FF" : "black", width: 55 }}>10 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 23) ? 700 : 400, border: (currentTime.getHours() === 23) ? 2 : 0, borderColor: (currentTime.getHours() === 23) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 23) ? "#6284FF" : "black", width: 55 }}>11 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "", width: 55 }}>12 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 1) ? 700 : 400,  border: (currentTime.getHours() === 1) ? 2 : 0, borderColor: (currentTime.getHours() === 1) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 1) ? "#6284FF" : "", width: 55 }}>1 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 2) ? 700 : 400,  border: (currentTime.getHours() === 2) ? 2 : 0, borderColor: (currentTime.getHours() === 2) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 2) ? "#6284FF" : "", width: 55 }}>2 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 3) ? 700 : 400,  border: (currentTime.getHours() === 3) ? 2 : 0, borderColor: (currentTime.getHours() === 3) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 3) ? "#6284FF" : "", width: 55 }}>3 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 4) ? 700 : 400,  border: (currentTime.getHours() === 4) ? 2 : 0, borderColor: (currentTime.getHours() === 4) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 4) ? "#6284FF" : "", width: 55 }}>4 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 5) ? 700 : 400,  border: (currentTime.getHours() === 5) ? 2 : 0, borderColor: (currentTime.getHours() === 5) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 5) ? "#6284FF" : "", width: 55 }}>5 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 6) ? 700 : 400,  border: (currentTime.getHours() === 6) ? 2 : 0, borderColor: (currentTime.getHours() === 6) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 6) ? "#6284FF" : "", width: 55 }}>6 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 7) ? 700 : 400,  border: (currentTime.getHours() === 7) ? 2 : 0, borderColor: (currentTime.getHours() === 7) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 7) ? "#6284FF" : "", width: 55 }}>7 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 8) ? 700 : 400,  border: (currentTime.getHours() === 8) ? 2 : 0, borderColor: (currentTime.getHours() === 8) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 8) ? "#6284FF" : "", width: 55 }}>8 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 9) ? 700 : 400,  border: (currentTime.getHours() === 9) ? 2 : 0, borderColor: (currentTime.getHours() === 9) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 9) ? "#6284FF" : "", width: 55 }}>9 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 10) ? 700 : 400, border: (currentTime.getHours() === 10) ? 2 : 0, borderColor: (currentTime.getHours() === 10) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 10) ? "#6284FF" : "", width: 55 }}>10 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 11) ? 700 : 400, border: (currentTime.getHours() === 11) ? 2 : 0, borderColor: (currentTime.getHours() === 11) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 11) ? "#6284FF" : "", width: 55 }}>11 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 12) ? 700 : 400, border: (currentTime.getHours() === 12) ? 2 : 0, borderColor: (currentTime.getHours() === 12) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 12) ? "#6284FF" : "", width: 55 }}>12 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 13) ? 700 : 400, border: (currentTime.getHours() === 13) ? 2 : 0, borderColor: (currentTime.getHours() === 13) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 13) ? "#6284FF" : "", width: 55 }}>1 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 14) ? 700 : 400, border: (currentTime.getHours() === 14) ? 2 : 0, borderColor: (currentTime.getHours() === 14) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 14) ? "#6284FF" : "", width: 55 }}>2 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 15) ? 700 : 400, border: (currentTime.getHours() === 15) ? 2 : 0, borderColor: (currentTime.getHours() === 15) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 15) ? "#6284FF" : "", width: 55 }}>3 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 16) ? 700 : 400, border: (currentTime.getHours() === 16) ? 2 : 0, borderColor: (currentTime.getHours() === 16) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 16) ? "#6284FF" : "", width: 55 }}>4 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 17) ? 700 : 400, border: (currentTime.getHours() === 17) ? 2 : 0, borderColor: (currentTime.getHours() === 17) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 17) ? "#6284FF" : "", width: 55 }}>5 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 18) ? 700 : 400, border: (currentTime.getHours() === 18) ? 2 : 0, borderColor: (currentTime.getHours() === 18) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 18) ? "#6284FF" : "", width: 55 }}>6 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 19) ? 700 : 400, border: (currentTime.getHours() === 19) ? 2 : 0, borderColor: (currentTime.getHours() === 19) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 19) ? "#6284FF" : "", width: 55 }}>7 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 20) ? 700 : 400, border: (currentTime.getHours() === 20) ? 2 : 0, borderColor: (currentTime.getHours() === 20) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 20) ? "#6284FF" : "", width: 55 }}>8 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 21) ? 700 : 400, border: (currentTime.getHours() === 21) ? 2 : 0, borderColor: (currentTime.getHours() === 21) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 21) ? "#6284FF" : "", width: 55 }}>9 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 22) ? 700 : 400, border: (currentTime.getHours() === 22) ? 2 : 0, borderColor: (currentTime.getHours() === 22) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 22) ? "#6284FF" : "", width: 55 }}>10 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 23) ? 700 : 400, border: (currentTime.getHours() === 23) ? 2 : 0, borderColor: (currentTime.getHours() === 23) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 23) ? "#6284FF" : "", width: 55 }}>11 PM</Typography>
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item xs={10.5}>
@@ -2109,32 +2176,43 @@ useEffect(()=> {
                                                             pair.type === "appt" ? (
                                                             // Appointment box config
                                                             <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
-                                                                <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
+                                                                <Box sx={{width: "100%", height: (48 * (parseInt(pair.end) - parseInt(pair.start)))}} display = "flex" alignItems="center">
                                                                     <Typography sx={{fontWeight: 700, ml: 2}}>{pair.name}</Typography>
                                                                 </Box>
                                                             </ListItem>
                                                             ) : (
                                                                 // Task box config
-                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.start - 1 < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', padding: 0, mt: -.25}}>
+                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', backgroundColor: (pair.end === currentTime.getHours() + 1) ? '#6284FF14' : '', padding: 0, mt: -.25}}>
                                                                 <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
                                                                     <Box
                                                                         display="flex"
                                                                         flexDirection="row"
                                                                         sx={{width: "100%"}}
                                                                     >
-                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.start < currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
+                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <HourglassEmptyIcon sx={{color: (pair.start< currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
+                                                                        <HourglassEmptyIcon sx={{color: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
                                                                         <Typography sx={{fontWeight: 700, fontSize: "18px"}}> {pair.timers.done}/{pair.timers.total}</Typography>
                                                                         <Box sx={{flexGrow: .06}} />
-                                                                        {/* Implement current time for task if running */}
+                                                                        {/* Show time remaining only if highlighted task*/}
+                                                                        {pair.end === currentTime.getHours() + 1 ? (
+                                                                        <Box sx={{borderRadius: 2, backgroundColor: '#6284FF1A', height: "29px", width: "50px"}}
+                                                                            display="flex"
+                                                                            alignItems="center"
+                                                                            justifyContent="center"
+                                                                        >
+                                                                            <Typography sx={{color: '#6284FF'}}>{pomoRef.current.displayTimer()}</Typography>
+                                                                        </Box>
+                                                                    ) : (
+                                                                        <></>
+                                                                    )}
                                                                     </Box>
                                                                     <IconButton 
                                                                     onClick={() => {
                                                                         const task = subBoxes.filter( function(subBox){return (subBox.title===(pair.name))});
                                                                         handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
                                                                     }}
-                                                                    ><ExpandCircleDownOutlinedIcon sx={{color: "black", transform: "rotate(270deg)"}} /></IconButton>
+                                                                    ><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black", transform: "rotate(270deg)"}} /></IconButton>
                                                                 </Box>
                                                                 </ListItem>
                                                             )
@@ -2153,7 +2231,7 @@ useEffect(()=> {
                                                     sx={{ml:2,
                                                         width: "100%", 
                                                         minHeight: "66.7vh",  
-                                                        bgcolor: "#F5F7F9",
+                                                        bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                                         borderRadius: "8px",
                                                     }}
                                                     display = "flex"

@@ -118,6 +118,7 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [error, setError] = useState(null);
+  const theme = JSON.parse(localStorage.getItem(`theme`));
 
 
   const signInWithGoogle = () => {
@@ -126,7 +127,6 @@ const SignIn = () => {
       .then((result) => {
         // Handle successful Google sign-in
         const user = result.user;
-        console.log(user);
       })
       .catch((error) => {
         // Handle errors
@@ -138,7 +138,6 @@ const SignIn = () => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential);
         if(userCredential.user.emailVerified == false){
           setError("You must verify your email to login.");
 
@@ -240,7 +239,7 @@ const SignIn = () => {
               </form>
               {!resetEmailSent ? (
                 <Box 
-                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2}}
+                  sx={{backgroundColor: theme ? "#4D4D4D" : "#F5F7F9", borderRadius: 2}}
                   display="flex"
                   justifyContent="left"
                   alignItems="left"
@@ -262,7 +261,8 @@ const SignIn = () => {
 
               )
             }
-            {error && <Typography style={{ color: "red" }}>{error}</Typography>}    
+            {error && <Typography style={{ color: "red" }}>{error}</Typography>} 
+                <Copyright sx={{mt: 5}}/>   
               </Paper>
             </Grid>
           </Grid>
