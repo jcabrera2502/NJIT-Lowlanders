@@ -296,7 +296,7 @@ const Profile = (props) => {
                         </div>
                         
                         <Box sx={{mt: "32vh"}}>
-                            <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
+                            <Button onClick={() => (window.location.href = "/AuthDetails")} sx={{ mt: 5, mb: 2, borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
                         </Box>
                     </Box>
                 </Grid>
@@ -311,9 +311,9 @@ const Profile = (props) => {
                                 open={open2}
                                 onClose={handleClose}
                             >
-                                <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
-                                <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
-                                <MenuItem onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Log Out</MenuItem>
+                                <MenuItem onClick={() => (window.location.href = "/Profile")}>Profile</MenuItem>
+                                <MenuItem onClick={() => (window.location.href = "/")}>Tasks</MenuItem>
+                                <MenuItem onClick={() => (window.location.href = "/AuthDetails")}>Log Out</MenuItem>
                             </Menu>
                         </Toolbar>
                     </AppBar>

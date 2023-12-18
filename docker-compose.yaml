@@ -2,22 +2,10 @@ version: '3.8'
 services:
   backend:
     build: ./backend
-    container_name: backend_c
-    ports:
-      - '5000:5000'
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-
+    container_name: backend
+    hostname: backend
   frontend:
     build: ./frontend
-    container_name: frontend_c
+    container_name: frontend
     ports:
-      - '3000:3000'
-    stdin_open: true
-    tty: true
-
-
-    # volumes:
-    #   - ./frontend:/app
-    #   - ./app/node_modules
+      - '3001:80'

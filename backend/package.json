@@ -9,7 +9,8 @@
     "backend": "nodemon index.js --ignore ../frontend",
     "frontend": "npm run start --prefix ../frontend",
     "live": "concurrently --kill-others-on-fail \"npm run backend\" \"npm run frontend\"",
-    "dev": "nodemon -L index.js"
+    "dev": "nodemon -L index.js",
+    "prod": "node index.js"
   },
   "keywords": [],
   "author": "",
