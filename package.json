@@ -31,7 +31,6 @@
     "testEnvironment": "jsdom"
   },
   "dependencies": {
-    "firebase": "^10.7.1",
     "googleapis": "^129.0.0",
     "ts-jest": "^29.1.1",
     "use-resize-observer": "^9.1.0",
