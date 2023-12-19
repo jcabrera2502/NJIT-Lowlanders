@@ -245,7 +245,7 @@ setError("You must verify your email to login.");
                 </Box>
                 {error && <Typography sx={{ color: "red" }}>{error}</Typography>}
               </form>
-              <Copyright sx={{mt: 5}}/> 
+              <Copyright sx={{padding: .5}}/>
             </Paper>
           </Grid>
         </Grid>
