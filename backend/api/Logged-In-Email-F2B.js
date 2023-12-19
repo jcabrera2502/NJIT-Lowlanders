@@ -112,7 +112,6 @@ router.get('/api/getTaskPreviousDay', async (req, res) =>
     const month = parseInt(req.query.month);
     const year = parseInt(req.query.year);
     const status = parseInt(req.query.status);
-    console.log("REQUEST" , req.query.status)
     const result = await collection.find({email: req.query.email, day: day, month: month, year: year, status: status}).toArray();
     res.send(result);
 });

@@ -313,6 +313,196 @@ function isThisCurrent(date) {
         else if (tempList.length === 6)
             setSubBoxes([...subBoxes, tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5]]);
     }
+}
+
+function handlePlanDay()
+{
+    //TODO make sure list is populated before scheduling tasks
+    console.log("Value of planDay: ", planDay);
+    //give me the total number of tasks for the previous day using an API call to the database
+
+    //give me length of tasks array
+    if (planDay === false ||  planDayAddedTasks === 0)
+    {
+        getUserTasksPreviousDay(user);
+    }
+    addFocusTime();
+    setPlanDay(true);
+    localStorage.setItem(`${day}-${month}-${year}plan`, JSON.stringify(true));
+}
+
+const getUserTasksPreviousDay = async (user) =>
+{
+    let listOfTasks = [];
+
+    if (!user) {
+        return;
+    }
+    const userTasksPreviousDay = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 0, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay && userTasksPreviousDay.data && Array.isArray(userTasksPreviousDay.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay.data);
+    }
+
+    const userTasksPreviousDay2 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 1, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay2 && userTasksPreviousDay2.data && Array.isArray(userTasksPreviousDay2.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay2.data);
+    }
+
+    const userTasksPreviousDay3 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 3, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay3 && userTasksPreviousDay3.data && Array.isArray(userTasksPreviousDay3.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay3.data);
+    }
+
+
+
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.put("/api/updateTaskStatus", {
+            params: {
+                key: getUserTaskData.length + 1,
+                title: listOfTasks[i].taskTitle,
+                email: user.email,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status:3
+            }
+        });
+        if (response) 
+        {
+            console.log("HERE IS THE RESPONSE DATA" , response.data)
+        }
+    }
+
+    //change the day of the tasks to the current day
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        listOfTasks[i].day = day;
+        listOfTasks[i].key = getUserTaskData.length + 1 + i;
+        setPlanDayAddedTasks(planDayAddedTasks + 1)
+    }
+
+    //loop through all tasks and change the first 3 important tasks to top priority, and stop after 3
+
+    //find out how many top priority tasks there are
+    let topPriorityCount = 0;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        if (listOfTasks[i].type === "topPriority")
+        {
+             topPriorityCount++;
+        }
+    }
+    
+    if (topPriorityCount < 3)
+    {
+        let count = 0;
+        for (let i = 0; i < listOfTasks.length; i++)
+        {
+            if (listOfTasks[i].type === "important")
+            {
+                listOfTasks[i].type = "topPriority";
+                count++;
+            }
+            if (count === 3 - topPriorityCount)
+            {
+                break;
+            }
+        }
+    }
+
+    //check how many important tasks there are now
+    let importantCount = 0;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        if (listOfTasks[i].type === "important")
+        {
+            importantCount++;
+        }
+    }
+
+    if (importantCount == 0)
+    {
+        for (let i = 0; i < listOfTasks.length; i++)
+        {
+            if (listOfTasks[i].type === "other")
+            {
+                listOfTasks[i].type = "important";
+            }
+        }
+    }
+
+
+    //insert the tasks into the database with the current day
+
+    let key = getUserTaskData.length + 1;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.post("/api/insertTask", {
+            params: 
+            {
+                key: key,
+                email: user.email,
+                title: listOfTasks[i].taskTitle,
+                type: listOfTasks[i].type,
+                completed: false,
+                taskNote: listOfTasks[i].taskNote,
+                pomodoroCount: listOfTasks[i].pomodoroCount,
+                note: listOfTasks[i].note,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status: 0,
+                usedTimers: listOfTasks[i].usedTimers,
+            } 
+        });
+        //Only sets the data if there is a result
+        if(response){ 
+            //console.log(response)
+            setInsertTaskData(response.data);
+        }
+        key++;
+    }
+    getUserTasks(user);
+    return;
+}
+
+
+useEffect(()=> {
+    findAppt();
+}, [nonRecurringEvents]);
+
+const pomoRef = useRef();
 
     return(
         <CssBaseline>
