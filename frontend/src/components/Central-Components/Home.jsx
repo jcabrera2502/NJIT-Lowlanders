@@ -238,37 +238,31 @@ function isThisCurrent(date) {
         
     };
     // get current time
-    var systemTime = new Date();
-    // function getCurrentTime() {
-    //     systemTime = new Date();
-    //     // var hours = systemTime.getHours();
-    //     // var minutes = systemTime.getMinutes();
-    //     // var ampm = hours >= 12 ? 'PM' : 'AM';
-    //     // hours = hours % 12;
-    //     // hours = hours ? hours : 12;
-    //     // minutes = minutes < 10 ? '0' + minutes : minutes;
-    //     // systemTime = hours + ':' + minutes + ' ' + ampm;
-    //     return systemTime;
-    // }
-    function updateClock() {
-        systemTime = new Date();
-        systemTime = systemTime.getHours();
-    }
-    // reset systemTimer every 1 second
-    setInterval(updateClock, 1000);
-
-    //click on popup automatically when time arrives
-    const iconButtonRef = useRef(null);
-    // const handleIconClick = () => {
-    //     const currTaskTime= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))})
-    //     // Check the condition before clicking
-    //     if (  && iconButtonRef.current) {
-    //       // Call the click method on the IconButton
-    //       iconButtonRef.current.click();
-    //       iconButtonRef = useRef(null);
-    //     }
-    //   };
-    
+     var systemTime = new Date();
+     function updateClock() {
+         systemTime = new Date();
+         systemTime = systemTime.getHours();
+         // console.log("this is da time", systemTime);
+     }
+     // reset systemTimer every 1 second
+     updateClock();
+     setInterval(updateClock, 1000);
+ 
+     function autoPopup(){
+         if (glbApps.length > 0) {
+             for (let index = 0; index < glbApps.length; index++) {
+                console.log(glbApps[index].start);
+                 if (glbApps[index].start ===  6) {
+                    const task = subBoxes.filter( function(subBox){return(subBox.title===(glbApps[index].name))});
+                    handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
+                    
+                 }
+             }
+         }
+     }
+     // autoPopup();
+     // // check autoPopup every 10 second
+     // setInterval(autoPopup, 10000);
 
 
     
@@ -920,8 +914,8 @@ function oauthSignIn() {
     // Parameters to pass to OAuth 2.0 endpoint.
     var params = {
       'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
-      'redirect_uri': 'https://gauthamcity.com/',
-      //'redirect_uri': 'http://localhost:3000',
+    //   'redirect_uri': 'https://gauthamcity.com/',
+      'redirect_uri': 'http://localhost:3000',
       'response_type': 'token',
       'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
       'include_granted_scopes': 'true',
@@ -947,7 +941,7 @@ function oauthSignIn() {
   
 
 // Handles appointment list creation
-
+let glbApps;
 function addFocusTime()
 {
     const topPri = priority.topPriority.items;
@@ -983,6 +977,7 @@ function addFocusTime()
         }
         
     }
+    glbApps = [...apps];
     setAppointmentList(apps);
 
 }
@@ -1062,6 +1057,9 @@ function handlePlanDay()
         getUserTasksPreviousDay(user);
     }
     addFocusTime();
+    autoPopup();
+     //check autoPopup every 10 second
+     setInterval(autoPopup, 10000);
     setPlanDay(true);
     localStorage.setItem(`${day}-${month}-${year}plan`, JSON.stringify(true));
 }
