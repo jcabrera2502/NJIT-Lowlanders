@@ -224,8 +224,12 @@ function isThisCurrent(date) {
     };
     const handlePomoClose = () => {
         updateUserTasks(user, focusSubBox);
-        setPomoOpen(false);   
-        addFocusTime();
+        setPomoOpen(false);
+        if(planDay)
+        {
+            addFocusTime();
+        }   
+        
     };
 
 

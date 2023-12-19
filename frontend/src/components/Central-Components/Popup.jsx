@@ -8,6 +8,7 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import sound from "./Sounds/alarm.mp3"
 const PomoPopup = forwardRef(function PomoPopup(props, ref) {
     //popup
+    const theme = JSON.parse(localStorage.getItem(`theme`));
     const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, subBox } = props;
     
     useImperativeHandle(ref, () => {
@@ -231,9 +232,9 @@ const PomoPopup = forwardRef(function PomoPopup(props, ref) {
                 <Box>
                     <Box sx={{padding: "1em"}}>
                         <Tabs value={tabValue} onChange={handleTabChange}>
-                            <Tab sx={{fontWeight: 700, color: "black"}} label="Pomodoro" {...tabProps(0)} />
-                            <Tab sx={{fontWeight: 700, color: "black"}} label="Short Break" {...tabProps(1)} />
-                            <Tab sx={{fontWeight: 700, color: "black"}} label="Long Break" {...tabProps(2)} />
+                            <Tab sx={{fontWeight: 700, color: theme ? "#fff" : "black"}} label="Pomodoro" {...tabProps(0)} />
+                            <Tab sx={{fontWeight: 700, color: theme ? "#fff" : "black"}} label="Short Break" {...tabProps(1)} />
+                            <Tab sx={{fontWeight: 700, color: theme ? "#fff" : "black"}} label="Long Break" {...tabProps(2)} />
                         </Tabs>
                     </Box>
                 </Box>
@@ -241,7 +242,7 @@ const PomoPopup = forwardRef(function PomoPopup(props, ref) {
                 <Box
                 display="flex"
                 flexDirection="column"
-                sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2}}
+                sx={{ bgcolor: theme ? "#4D4D4D" : "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2}}
                 textAlign={"center"}
                 alignItems={"center"}
                 >
@@ -260,13 +261,13 @@ const PomoPopup = forwardRef(function PomoPopup(props, ref) {
 
                 {/* Title Box */}
                 <Box sx={{ml: "1.5em", mt: "1em", mb: "1em"}}>
-                    <Typography display={"inline"} sx={{ fontWeight: 700, fontSize:'20px', color:"black", flexGrow: 1}}>
+                    <Typography display={"inline"} sx={{ fontWeight: 700, fontSize:'20px', color: theme ? "#fff" : "black", flexGrow: 1}}>
                         {taskTitle}
                     </Typography>
                 </Box>
                 
                 {/* Notes Box */}
-                <Box sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2, padding: "1em"}}>
+                <Box sx={{ bgcolor: theme ? "#4D4D4D" : "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2, padding: "1em"}}>
                     <Box>
                         {editNote ? (
                         <>
