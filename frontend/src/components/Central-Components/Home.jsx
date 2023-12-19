@@ -27,6 +27,7 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import PomoPopup  from "./Popup";
 import CircleIcon from '@mui/icons-material/Circle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 
 const Home = () => { 
     const theme = JSON.parse(localStorage.getItem(`theme`));
@@ -233,6 +234,39 @@ function isThisCurrent(date) {
         }   
         
     };
+    // get current time
+    var systemTime = new Date();
+    // function getCurrentTime() {
+    //     systemTime = new Date();
+    //     // var hours = systemTime.getHours();
+    //     // var minutes = systemTime.getMinutes();
+    //     // var ampm = hours >= 12 ? 'PM' : 'AM';
+    //     // hours = hours % 12;
+    //     // hours = hours ? hours : 12;
+    //     // minutes = minutes < 10 ? '0' + minutes : minutes;
+    //     // systemTime = hours + ':' + minutes + ' ' + ampm;
+    //     return systemTime;
+    // }
+    function updateClock() {
+        systemTime = new Date();
+        systemTime = systemTime.getHours();
+        console.log("this is da time", systemTime);
+    }
+    // reset systemTimer every 1 second
+    setInterval(updateClock, 1000);
+
+    //click on popup automatically when time arrives
+    const iconButtonRef = useRef(null);
+    // const handleIconClick = () => {
+    //     const currTaskTime= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))})
+    //     // Check the condition before clicking
+    //     if (  && iconButtonRef.current) {
+    //       // Call the click method on the IconButton
+    //       iconButtonRef.current.click();
+    //       iconButtonRef = useRef(null);
+    //     }
+    //   };
+    
 
 
     
@@ -263,7 +297,7 @@ function isThisCurrent(date) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const titles= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))})
+        const titles= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))});
         // console.log(titles)
         // console.log(taskTitle)
         if (titles.length === 0) {
@@ -303,6 +337,7 @@ function isThisCurrent(date) {
         <HourglassEmptyRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />,
         <CheckCircleOutlineIcon sx={{ color: theme ? "#fff" : "black" }} />,
         <SyncAltIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <CancelOutlinedIcon sx={{ color: theme ? "#fff" : "black" }}/>
       ];
     
     // Handles dropdown menu from profile picture
@@ -827,7 +862,8 @@ function oauthSignIn() {
     // Parameters to pass to OAuth 2.0 endpoint.
     var params = {
       'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
-      'redirect_uri': 'https://gauthamcity.com/',
+    //   'redirect_uri': 'https://gauthamcity.com/',
+      'redirect_uri': 'http://localhost:3000',
       'response_type': 'token',
       'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
       'include_granted_scopes': 'true',
@@ -2227,7 +2263,7 @@ const pomoRef = useRef();
                                                                         <></>
                                                                     )}
                                                                     </Box>
-                                                                    <IconButton 
+                                                                     <IconButton 
                                                                     onClick={() => {
                                                                         const task = subBoxes.filter( function(subBox){return (subBox.title===(pair.name))});
                                                                         handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
