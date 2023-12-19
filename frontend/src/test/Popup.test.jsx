@@ -1,5 +1,6 @@
 import React from 'react';
-import { PomoPopup } from '../components/Central-Components/Popup';
+//import { PomoPopup } from '../components/Central-Components/Popup';
+import PomoPopup from '../components/Central-Components/Popup';
 import { render, screen, fireEvent } from '@testing-library/react'; // Make sure to import the render function
 import '@testing-library/jest-dom'
 

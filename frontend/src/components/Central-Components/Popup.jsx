@@ -219,6 +219,13 @@ const PomoPopup = forwardRef(function PomoPopup(props, ref) {
     const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
                                                                     (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime) + 
                                                                     (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444 );
+
+    const [switchCheck, setSwitchCheck] = useState(null);
+    function handleSwitch() {
+        setSwitchCheck(taskTitle);
+        resetTimer();
+    }
+
     //display
     return (
         <Dialog 
@@ -246,13 +253,14 @@ const PomoPopup = forwardRef(function PomoPopup(props, ref) {
                 alignItems={"center"}
                 >
                     <Typography variant="h1" display={"inline"} sx={{flexGrow: 1, mt: ".3em"}}>
+                        {(switchCheck != taskTitle) ? (handleSwitch()) : null}
                         {displayTimer()}
                     </Typography>
                     <Button 
                         variant="contained" 
                         onClick={toggleTimer}
                         sx={{minWidth: '9em', minHeight: "3.5em", borderRadius: 3.5, mt: "1.5em", mb: "1.7em", fontFamily: "DM Sans"}}
-                        color="purple"
+                        //color="purple"
                     >
                         {(ticking ? "STOP" : "START")}
                     </Button>
