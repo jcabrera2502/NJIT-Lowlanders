@@ -1,6 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import { auth } from "../../firebase";
 import { Button, TextField, Paper, Typography, 
     CssBaseline, Divider, Box, Avatar, FormControl, Grid, AppBar, Toolbar,
@@ -12,6 +12,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth"; // Import the necessary Firebase functions
+import { storage, upload, useAuth } from "../../firebase";
+import { ref, uploadBytes, getDownloadURL} from "firebase/storage";
+
 
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
@@ -253,6 +256,44 @@ const Profile = (props) => {
         }
     };
 
+    //Profile Picture Change
+        const [image, setImage] = useState(null);
+        const [photoURL, setphotoURL] = useState(null);
+        const currentUser = useAuth();
+        const [loading, setLoading] = useState(false)
+
+        const handleImageChange = (e) => {
+            if(e.target.files[0]) {
+                setImage(e.target.files[0]);
+            }
+        };
+        function handleSubmit() {
+            upload(image, currentUser, setLoading );
+        }
+        useEffect(() => {
+            if(currentUser?.photoURL){
+                setphotoURL(currentUser.photoURL);
+        }
+        }, [currentUser])
+
+    /*const handleSubmit = () => {
+        const imageRef = ref(storage, "image");
+        uploadBytes(imageRef, image)
+        .then(() => {
+            getDownloadURL(imageRef).then((url) => {
+                setUrl(url);
+            })
+            .catch((error) => {
+                console.log(error.message, "error getting image url");
+            });
+            setImage(null);
+        })
+        .catch((error) => {
+            console.log(error.message);
+    });
+};
+    */
+    
     // Handles dropdown menu from profile picture
     const [anchorEl2, setAnchorEl2] = React.useState(null);
     const open2 = Boolean(anchorEl2);
@@ -304,7 +345,7 @@ const Profile = (props) => {
                         <Toolbar>
                             <Typography sx={{fontWeight: "bold"}}variant="h4">Profile</Typography>
                             <Box sx={{flexGrow: 1}}></Box>
-                            <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#6284FF26"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: theme ? "#fff" : "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                            <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar src= {photoURL} sx={{bgcolor: "#6284FF26"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: theme ? "#fff" : "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                             <Menu
                                 id="profile-menu"
                                 anchorEl={anchorEl2}
@@ -334,10 +375,11 @@ const Profile = (props) => {
                             </Box>
                             <Paper sx={{width: "100%", height: "15vh", borderRadius: 3}} elevation={12}>
                                 <Box
-                                    sx={{display: "flex", flexDirection: "row", ml: 3, mt: "2vh"}}
+                                    sx={{display: "flex", flexDirection: "row", ml: 4, mt: "2vh"}}
                                 >
                                     <Typography sx={{flexGrow: 1}}><PermIdentityRoundedIcon color="purple" />First Name</Typography>
-                                    <Typography sx={{flexGrow: 1}}><PermIdentityRoundedIcon color="purple" />Last Name</Typography>
+                                    <Typography sx={{flexGrow: .9}}><PermIdentityRoundedIcon color="purple" />Last Name</Typography>
+                                    <Typography sx={{flexGrow: .4}}><PermIdentityRoundedIcon color="purple" />Profile Picture</Typography>
                                 </Box>
                                 <Box
                                     sx={{display: "flex", flexDirection: "row"}}
@@ -357,6 +399,10 @@ const Profile = (props) => {
                                         defaultValue={data?.lastName} 
                                         id='LastName'> 
                                     </TextField>
+                                    <Box>
+                                    <input type="file"  onChange={handleImageChange} />
+                                    <Button disabled = {loading || !image} color="purple" sx={{width: "18%", height: "3vh", borderRadius: 3, boxShadow: 12}} variant="contained"  onClick={handleSubmit}>Submit</Button>
+                                    </Box>
                                 </Box>
                             </Paper>
 
