@@ -120,8 +120,11 @@ const PomoPopup = forwardRef(function PomoPopup(props, ref) {
                     resetTimer();
                     setTabValue(0);
                     setTimer('00:' + chooseTime(0) + ':00');
+                    if (subBox.usedTimers == subBox.pomTimers) {
+                        handlePomoClose();
+                    }
                 }
-                console.log("TIMER END");
+                //console.log("TIMER END");
             }
         }
     };
