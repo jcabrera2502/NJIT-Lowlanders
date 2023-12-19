@@ -812,7 +812,7 @@ function oauthSignIn() {
     // Parameters to pass to OAuth 2.0 endpoint.
     var params = {
       'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
-      'redirect_uri': 'http://localhost:3000',
+      'redirect_uri': 'https://gauthamcity.com/',
       'response_type': 'token',
       'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
       'include_granted_scopes': 'true',
