@@ -1148,16 +1148,31 @@ const getUserTasksPreviousDay = async (user) =>
     }
 
     //loop through all tasks and change the first 3 important tasks to top priority, and stop after 3
-    let count = 0;
+
+    //find out how many top priority tasks there are
+    let topPriorityCount = 0;
     for (let i = 0; i < listOfTasks.length; i++)
     {
-        if (listOfTasks[i].type === "important")
+        if (listOfTasks[i].type === "topPriority")
         {
-            listOfTasks[i].type = "topPriority";
+             topPriorityCount++;
         }
-        if (count === 3)
+    }
+    
+    if (topPriorityCount < 3)
+    {
+        let count = 0;
+        for (let i = 0; i < listOfTasks.length; i++)
         {
-            break;
+            if (listOfTasks[i].type === "important")
+            {
+                listOfTasks[i].type = "topPriority";
+                count++;
+            }
+            if (count === 3 - topPriorityCount)
+            {
+                break;
+            }
         }
     }
 
