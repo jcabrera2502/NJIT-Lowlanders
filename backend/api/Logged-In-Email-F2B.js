@@ -121,10 +121,14 @@ router.delete('/api/deleteTask', async (req, res) => {
   const collection = mongoose.connection.db.collection("user-tasks");
   let email = req.query.email;
   email = decodeURIComponent(email);
-  const title = req.query.title;
+  let title = req.query.title;
+  title = decodeURIComponent(title);
+  const day = parseInt(req.query.day);
+  const month = parseInt(req.query.month);
+  const year = parseInt(req.query.year);
 
   try {
-      const result = await collection.deleteOne({ email: email, taskTitle: title });
+      const result = await collection.deleteOne({ email: email, taskTitle: title, day: day, month: month, year: year});
       res.send(result);
   } catch (error) {
       console.error('Error deleting task:', error);
