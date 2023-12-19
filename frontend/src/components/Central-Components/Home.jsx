@@ -261,6 +261,17 @@ function isThisCurrent(date) {
         setTaskNote('');
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const titles= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))})
+        // console.log(titles)
+        // console.log(taskTitle)
+        if (titles.length === 0) {
+            handleAddSubBox();
+        } 
+      };
+    
+
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 
@@ -1404,48 +1415,51 @@ const pomoRef = useRef();
                                         horizontal: 'left',
                                       }}
                                     >
-                                        <FormControl>
-                                            <Box p={2}>
-                                                <Typography sx={{mb:0.5}}>Task Title*</Typography>
-                                                <TextField
-                                                    sx={{mb:2}}
-                                                    label="Title"
-                                                    required
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    value={taskTitle}
-                                                    onChange={(e) => setTaskTitle(e.target.value)}
-                                                />
-                                                <Typography sx={{mb:0.5}}>Number of Pomodoro Timers</Typography>
-                                                <TextField
-                                                    sx={{mb:2}}
-                                                    type='number'
-                                                    InputProps={{
-                                                        inputProps: { min: 1 }
-                                                    }}
-                                                    label="Pomodoro Timers"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    value={numTimers}
-                                                    onChange={(e) => {
-                                                        setNumTimers(e.target.value);
-                                                    }}
-                                                />
-                                                <Typography sx={{mb:0.5}}>Notes (Optional)</Typography>
-                                                <TextField
-                                                    sx={{mb:2}}
-                                                    label="Note"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    value={taskNote}
-                                                    onChange={(e) => setTaskNote(e.target.value)}
-                                                    multiline
-                                                />
-                                                <Button type="submit" color="primary" onClick={handleAddSubBox}>
-                                                    Add Task
-                                                </Button>
-                                            </Box>
-                                        </FormControl>
+                                        <form onSubmit={handleSubmit}>
+                                            <FormControl >
+                                                <Box p={2}>
+                                                    <Typography sx={{mb:0.5}}>Task Title*</Typography>
+                                                    <TextField
+                                                        sx={{mb:2}}
+                                                        label="Title"
+                                                        required
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        value={taskTitle}
+                                                        helperText='Task title must be unique'
+                                                        onChange={(e) => setTaskTitle(e.target.value)}
+                                                    />
+                                                    <Typography sx={{mb:0.5}}>Number of Pomodoro Timers</Typography>
+                                                    <TextField
+                                                        sx={{mb:2}}
+                                                        type='number'
+                                                        InputProps={{
+                                                            inputProps: { min: 1 }
+                                                        }}
+                                                        label="Pomodoro Timers"
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        value={numTimers}
+                                                        onChange={(e) => {
+                                                            setNumTimers(parseInt(e.target.value));
+                                                        }}
+                                                    />
+                                                    <Typography sx={{mb:0.5}}>Notes (Optional)</Typography>
+                                                    <TextField
+                                                        sx={{mb:2}}
+                                                        label="Note"
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        value={taskNote}
+                                                        onChange={(e) => setTaskNote(e.target.value)}
+                                                        multiline
+                                                    />
+                                                    <Button type="submit" color="primary">
+                                                        Add Task
+                                                    </Button>
+                                                </Box>
+                                            </FormControl>
+                                        </form>
                                     </Popover>
                                 </Typography>
                                                                                     
