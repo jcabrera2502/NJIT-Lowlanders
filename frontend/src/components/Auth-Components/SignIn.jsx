@@ -262,7 +262,7 @@ const SignIn = () => {
               )
             }
             {error && <Typography style={{ color: "red" }}>{error}</Typography>} 
-                <Copyright sx={{mt: 5}}/>   
+                <Copyright sx={{padding: .5}}/>   
               </Paper>
             </Grid>
           </Grid>
