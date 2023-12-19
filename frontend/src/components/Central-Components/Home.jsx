@@ -49,14 +49,14 @@ const Home = () => {
     const [planDay, setPlanDay] = useState(false);
 
     // Update isThisCurrent function
-function isThisCurrent(date) {
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0); // Set current date to midnight
-    date.setHours(0, 0, 0, 0); // Set selected date to midnight
-    //console.log("Current Date:", currentDate);
-    //console.log("Selected Date:", date);
-    return date.getTime() === currentDate.getTime();
-  }
+    function isThisCurrent(date) {
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Set current date to midnight
+        date.setHours(0, 0, 0, 0); // Set selected date to midnight
+        //console.log("Current Date:", currentDate);
+        //console.log("Selected Date:", date);
+        return date.getTime() === currentDate.getTime();
+    }
     const fetchUserData = async (user) => {
         if (!userPresentInDatabase) {
             const response = await axios.get("/api/email", {
@@ -233,7 +233,25 @@ function isThisCurrent(date) {
         }   
         
     };
-
+    // get current time
+    // var systemTime = new Date();
+    // function getCurrentTime() {
+    //     systemTime = new Date();
+    //     var hours = systemTime.getHours();
+    //     var minutes = systemTime.getMinutes();
+    //     var ampm = hours >= 12 ? 'PM' : 'AM';
+    //     hours = hours % 12;
+    //     hours = hours ? hours : 12;
+    //     minutes = minutes < 10 ? '0' + minutes : minutes;
+    //     systemTime = hours + ':' + minutes + ' ' + ampm;
+    //     return systemTime;
+    // }
+    // function updateClock() {
+    //     systemTime = getCurrentTime();
+    //     // console.log("this is da time", systemTime);
+    // }
+    // // reset systemTimer every 1 second
+    // setInterval(updateClock, 1000);
 
     
     // Popup for adding Tasks
@@ -828,6 +846,7 @@ function oauthSignIn() {
     var params = {
       'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
       'redirect_uri': 'https://gauthamcity.com/',
+    //   'redirect_uri': 'http://localhost:3000',
       'response_type': 'token',
       'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
       'include_granted_scopes': 'true',
