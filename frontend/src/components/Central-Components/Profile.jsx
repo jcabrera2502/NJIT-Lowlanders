@@ -132,6 +132,8 @@ const Profile = (props) => {
                 setUser(user);
             } else {
                 setUser(null);
+                window.location.href = "/SignIn";  
+
             }
         });
     }, []);
