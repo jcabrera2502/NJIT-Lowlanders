@@ -28,6 +28,7 @@ import PomoPopup  from "./Popup";
 import CircleIcon from '@mui/icons-material/Circle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import { set } from "mongoose";
 
 const Home = () => { 
     const theme = JSON.parse(localStorage.getItem(`theme`));
@@ -36,7 +37,7 @@ const Home = () => {
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
-    const [getUserTasksPreviousDayData, setGetUserTasksPreviousDayData] = useState(null);
+    const [getUserTasksPreviousDayData, setGetUserTasksPreviousDayData] = useState([]);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
@@ -49,6 +50,7 @@ const Home = () => {
     const [allDayappts, setAllDayAppts] = useState([]);
     const [planDay, setPlanDay] = useState(false);
     const [doWeHaveAppointments, setDoWeHaveAppointments] = useState(false);
+    const [planDayAddedTasks, setPlanDayAddedTasks] = useState(0);
 
     // Update isThisCurrent function
 function isThisCurrent(date) {
@@ -251,7 +253,6 @@ function isThisCurrent(date) {
     function updateClock() {
         systemTime = new Date();
         systemTime = systemTime.getHours();
-        console.log("this is da time", systemTime);
     }
     // reset systemTimer every 1 second
     setInterval(updateClock, 1000);
@@ -430,6 +431,31 @@ const getUserTasks = async (user) => {
     } catch (error) {
         console.error("Error fetching user tasks:", error);
     }
+
+    try {
+        const response = await axios.get("/api/getTasks", {
+            params: {
+                email: user.email,
+                day: day - 1,
+                month: month,
+                year: year,
+            }
+        });
+
+        if (response && response.data && Array.isArray(response.data)) {
+            const filteredTasks = response.data.filter(task => {
+                const taskDate = new Date(task.year, task.month - 1, task.day);
+                return isSameDay(taskDate, new Date(year, month - 1, day - 1));
+            });
+
+            setGetUserTasksPreviousDayData(filteredTasks);
+        } else {
+            console.error("Invalid or missing data in the API response");
+        }
+    }
+    catch (error) {
+        console.error("Error fetching user tasks:", error);
+    }
 }
 
 const isSameDay = (date1, date2) => {
@@ -520,14 +546,17 @@ const updateUserTasks = async (user, subBox) =>
         //console.log(response.data);
     } 
     
-    if (subBox.currentIcon === 2) {
+    if (subBox.currentIcon === 4) {
         console.log("Deleting Task");
     
         try {
             const response = await axios.delete('/api/deleteTask', {
                 params: {
                     email: encodeURIComponent(user.email),
-                    title: encodeURIComponent(subBox.title)
+                    title: encodeURIComponent(subBox.title),
+                    day: day,
+                    month: month,
+                    year: year,
                 }
             });
     
@@ -1024,7 +1053,11 @@ function findAppt()
 function handlePlanDay()
 {
     //TODO make sure list is populated before scheduling tasks
-    if (planDay === false)
+    console.log("Value of planDay: ", planDay);
+    //give me the total number of tasks for the previous day using an API call to the database
+
+    //give me length of tasks array
+    if (planDay === false ||  planDayAddedTasks === 0)
     {
         getUserTasksPreviousDay(user);
     }
@@ -1085,6 +1118,8 @@ const getUserTasksPreviousDay = async (user) =>
         listOfTasks.push(...userTasksPreviousDay3.data);
     }
 
+
+
     for (let i = 0; i < listOfTasks.length; i++)
     {
         const response = await axios.put("/api/updateTaskStatus", {
@@ -1108,7 +1143,45 @@ const getUserTasksPreviousDay = async (user) =>
     for (let i = 0; i < listOfTasks.length; i++)
     {
         listOfTasks[i].day = day;
+        listOfTasks[i].key = getUserTaskData.length + 1 + i;
+        setPlanDayAddedTasks(planDayAddedTasks + 1)
     }
+
+    //loop through all tasks and change the first 3 important tasks to top priority, and stop after 3
+    let count = 0;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        if (listOfTasks[i].type === "important")
+        {
+            listOfTasks[i].type = "topPriority";
+        }
+        if (count === 3)
+        {
+            break;
+        }
+    }
+
+    //check how many important tasks there are now
+    let importantCount = 0;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        if (listOfTasks[i].type === "important")
+        {
+            importantCount++;
+        }
+    }
+
+    if (importantCount == 0)
+    {
+        for (let i = 0; i < listOfTasks.length; i++)
+        {
+            if (listOfTasks[i].type === "other")
+            {
+                listOfTasks[i].type = "important";
+            }
+        }
+    }
+
 
     //insert the tasks into the database with the current day
 
