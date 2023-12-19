@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useImperativeHandle, useState, useRef, forwardRef } from "react";
 import PropTypes from 'prop-types';
 import { Typography, Button, Box, Dialog, IconButton, TextField } from "@mui/material";
 import Tabs from '@mui/material/Tabs';
@@ -6,15 +6,22 @@ import Tab from '@mui/material/Tab';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import sound from "./Sounds/alarm.mp3"
-export function PomoPopup(props) {
+const PomoPopup = forwardRef(function PomoPopup(props, ref) {
     //popup
+    const theme = JSON.parse(localStorage.getItem(`theme`));
     const { onPomoClose, pomoOpen, taskTitle, taskDesc, taskTimers, taskTime, shortTime, longTime, subBox } = props;
+    
+    useImperativeHandle(ref, () => {
+        return{
+            displayTimer: displayTimer,
+        };
+    });
     const handlePomoClose = () => {
         //console.log("closed");
         if (ticking) {
             toggleTimer();
         }
-        resetTimer();
+        //resetTimer();
         onPomoClose();
     };
 
@@ -93,10 +100,10 @@ export function PomoPopup(props) {
                 play(); //play alarm
                 clearInterval(Ref.current);
                 setTicking(false);
-                if (tabValue == 0) {
+                if (tabValue === 0) {
                     subBox.usedTimers= ((subBox != null) ? (subBox.usedTimers) : 444);
                     subBox.usedTimers= subBox.usedTimers+1;
-                    if (subBox.usedTimers % 4 == 0){
+                    if (subBox.usedTimers % 4 === 0){
                         // if (subBox.usedTimers != subBox.pomTimers) {
                             resetTimer();
                             setTabValue(2);
@@ -114,8 +121,11 @@ export function PomoPopup(props) {
                     resetTimer();
                     setTabValue(0);
                     setTimer('00:' + chooseTime(0) + ':00');
+                    if (subBox.usedTimers == subBox.pomTimers) {
+                        handlePomoClose();
+                    }
                 }
-                console.log("TIMER END");
+                //console.log("TIMER END");
             }
         }
     };
@@ -157,6 +167,7 @@ export function PomoPopup(props) {
             return (longTime > 9 ? longTime : '0' + longTime);
         }
     };
+    
     function displayTimer() {
         if (taskTime > 59 || shortTime > 59 || longTime > 59) {
             return timer;
@@ -165,6 +176,7 @@ export function PomoPopup(props) {
             return timer.substring(3);
         }
     };
+
     const [ticking, setTicking] = useState(false);
     const toggleTimer = () => {
         if (ticking) {
@@ -173,7 +185,7 @@ export function PomoPopup(props) {
         }
         else if( subBox.usedTimers <= subBox.pomTimers ) {
         // else {
-            if (tabValue === 0 && subBox.usedTimers == subBox.pomTimers) {
+            if (tabValue === 0 && subBox.usedTimers === subBox.pomTimers) {
                 // setTicking(true);
                 // //console.log("here " + ticking);
                 // clearTimer(getDeadTime(), true);
@@ -202,7 +214,7 @@ export function PomoPopup(props) {
         const [hours, minutes] = militaryTime.split(':').map(Number);
         const totalMinutes = hours * 60 + minutes;
         const newTotalMinutes = totalMinutes + fractionOfHours * 60;
-        const newHours = Math.floor(newTotalMinutes / 60) % 24;
+        const newHours = Math.floor(newTotalMinutes / 60) % 12;
         const newMinutes = Math.floor(newTotalMinutes) % 60;
         const result = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
         return result;
@@ -211,46 +223,41 @@ export function PomoPopup(props) {
     const timerEnd= timeOfTimerEnd(militaryTime, (subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
                                                                     (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime) + 
                                                                     (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444 );
+
+    const [switchCheck, setSwitchCheck] = useState(null);
+    function handleSwitch() {
+        setSwitchCheck(taskTitle);
+        resetTimer();
+    }
+
     //display
     return (
         <Dialog 
             onClose={handlePomoClose} 
             open={pomoOpen}  
-            minWidth={"sm"}
             fullWidth
-            minHeigt={"sm"}
-            borderRadius={2}
+            PaperProps={{sx: { borderRadius: 3 }}}
         >
             <Box>
                 <Box>
                     <Box sx={{padding: "1em"}}>
                         <Tabs value={tabValue} onChange={handleTabChange}>
-                            <Tab sx={{fontWeight: 700, color: "black"}} label="Pomodoro" {...tabProps(0)} />
-                            <Tab sx={{fontWeight: 700, color: "black"}} label="Short Break" {...tabProps(1)} />
-                            <Tab sx={{fontWeight: 700, color: "black"}} label="Long Break" {...tabProps(2)} />
+                            <Tab sx={{fontWeight: 700, color: theme ? "#fff" : "black"}} label="Pomodoro" {...tabProps(0)} />
+                            <Tab sx={{fontWeight: 700, color: theme ? "#fff" : "black"}} label="Short Break" {...tabProps(1)} />
+                            <Tab sx={{fontWeight: 700, color: theme ? "#fff" : "black"}} label="Long Break" {...tabProps(2)} />
                         </Tabs>
                     </Box>
-                    {/*
-                    <TabPanel value={tabValue} index={0}>
-                        po
-                    </TabPanel>
-                    <TabPanel value={tabValue} index={1}>
-                        sh
-                    </TabPanel>
-                    <TabPanel value={tabValue} index={2}>
-                        lo
-                    </TabPanel>
-                    */}
                 </Box>
 
                 <Box
                 display="flex"
                 flexDirection="column"
-                sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2}}
+                sx={{ bgcolor: theme ? "#4D4D4D" : "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2}}
                 textAlign={"center"}
                 alignItems={"center"}
                 >
                     <Typography variant="h1" display={"inline"} sx={{flexGrow: 1, mt: ".3em"}}>
+                        {(switchCheck != taskTitle) ? (handleSwitch()) : null}
                         {displayTimer()}
                     </Typography>
                     <Button 
@@ -265,13 +272,13 @@ export function PomoPopup(props) {
 
                 {/* Title Box */}
                 <Box sx={{ml: "1.5em", mt: "1em", mb: "1em"}}>
-                    <Typography display={"inline"} sx={{ fontWeight: 700, fontSize:'20px', color:"black", flexGrow: 1}}>
+                    <Typography display={"inline"} sx={{ fontWeight: 700, fontSize:'20px', color: theme ? "#fff" : "black", flexGrow: 1}}>
                         {taskTitle}
                     </Typography>
                 </Box>
                 
                 {/* Notes Box */}
-                <Box sx={{ bgcolor: "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2, padding: "1em"}}>
+                <Box sx={{ bgcolor: theme ? "#4D4D4D" : "#F5F7F9", mr: "1.5em", ml: "1.5em", mt: ".6em", borderRadius: 2, padding: "1em"}}>
                     <Box>
                         {editNote ? (
                         <>
@@ -324,18 +331,19 @@ export function PomoPopup(props) {
                     <Box sx={{flexGrow: .15}}/>
                     <Typography sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color:"#FFFFFF"}}>
                             Finish At:
-                            <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
+                    </Typography>
+                    <Typography display={"inline-block"} sx={{ ml: 1, fontWeight: 700, fontSize:'20px', color: "#407BFF"}}>
                                 {timerEnd}  ({(subBox != null) ? (Math.round(((((subBox.pomTimers - subBox.usedTimers) * taskTime) + 
                                                                             (((subBox.pomTimers - subBox.usedTimers)-Math.floor((subBox.pomTimers - subBox.usedTimers)/4))* shortTime ) + 
                                                                             (Math.floor((subBox.pomTimers - subBox.usedTimers)/4)*longTime)) /60) *100) /100) : 444}h)
-                            </Typography>
                     </Typography>
                     <Box sx={{flexGrow: .5}}/>
                 </Box>
             </Box>
         </Dialog>
     );
-}
+})
+
 PomoPopup.propTypes = {
     onPomoClose: PropTypes.func.isRequired,
     pomoOpen: PropTypes.bool.isRequired,
@@ -346,3 +354,5 @@ PomoPopup.propTypes = {
     // usedTimers: PropTypes.number.isRequired,
     subBox: PropTypes.object,
 };
+
+export default PomoPopup;

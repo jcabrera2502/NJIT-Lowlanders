@@ -52,7 +52,23 @@ test('PomoPopup displays task desc', () => {
 
     expect(screen.getByText(/amazing description/)).toBeInTheDocument();
 });
+test('PomoPopup displays long time', () => {
+    render(<PomoPopup
+        pomoOpen={true}
+        onPomoClose={onPomoClose}
+        taskTitle={'example title'}
+        taskDesc={'example description'}
+        taskTimers={1}
+        taskTime={25}
+        shortTime={5}
+        longTime={timeVals[3]}
+    />);
 
+    const longTab = screen.getByText('Long Break');
+    fireEvent.click(longTab);
+
+    expect(screen.getAllByText(/4/)[0]).toBeInTheDocument();
+});
 test('PomoPopup displays number of pomo times', () => {
     render(<PomoPopup
         pomoOpen={true}
@@ -82,7 +98,23 @@ test('PomoPopup displays task time', () => {
 
     expect(screen.getAllByText(/2/)[0]).toBeInTheDocument();
 });
+test('PomoPopup displays long time', () => {
+    render(<PomoPopup
+        pomoOpen={true}
+        onPomoClose={onPomoClose}
+        taskTitle={'example title'}
+        taskDesc={'example description'}
+        taskTimers={1}
+        taskTime={25}
+        shortTime={5}
+        longTime={timeVals[3]}
+    />);
 
+    const longTab = screen.getByText('Long Break');
+    fireEvent.click(longTab);
+
+    expect(screen.getAllByText(/4/)[0]).toBeInTheDocument();
+});
 test('PomoPopup displays short time', () => {
     render(<PomoPopup
         pomoOpen={true}
@@ -184,6 +216,41 @@ test('timer pauses', async () => {
     fireEvent.click(timer);
     await new Promise((r) => setTimeout(r, 2000));
     expect(screen.getAllByText(/59/)[0]).toBeInTheDocument();
+});
+test('PomoPopup displays long time', () => {
+    render(<PomoPopup
+        pomoOpen={true}
+        onPomoClose={onPomoClose}
+        taskTitle={'example title'}
+        taskDesc={'example description'}
+        taskTimers={1}
+        taskTime={25}
+        shortTime={5}
+        longTime={timeVals[3]}
+    />);
+
+    const longTab = screen.getByText('Long Break');
+    fireEvent.click(longTab);
+
+    expect(screen.getAllByText(/4/)[0]).toBeInTheDocument();
+});
+test('timer starts', async () => {
+    render(<PomoPopup
+        pomoOpen={true}
+        onPomoClose={onPomoClose}
+        taskTitle={'example title'}
+        taskDesc={'example description'}
+        taskTimers={2}
+        taskTime={30}
+        shortTime={5}
+        longTime={15}
+        subBox={{"usedTimers":0, "pomTimers":2}}
+    />);
+
+    const timer = screen.getByText('START');
+    fireEvent.click(timer);
+    await new Promise((r) => setTimeout(r, 2000));
+    expect(screen.getAllByText(/29/)[0]).toBeInTheDocument();
 });
 
 /*

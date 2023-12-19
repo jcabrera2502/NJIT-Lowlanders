@@ -119,6 +119,7 @@ const [password, setPassword] = useState("");
 const [confirmPassword, setConfirmPassword] = useState(""); // New state variable for password confirmation
 const [error, setError] = useState(null);
 const [isEmailVerified, setIsEmailVerified] = useState(false);
+const theme = JSON.parse(localStorage.getItem(`theme`));
 
 const signUp = (e) => {
 e.preventDefault();
@@ -145,7 +146,7 @@ sendEmailVerification(userCredential.user);
 alert(`A verification email has been sent to ${email}. Please click on the link in the email to verify your email address.`);
 
 
-window.location.href = "http://localhost:3000/SignIn";  
+window.location.href = "/SignIn";  
 
 // The user's email address is now verified.  redirect them to the main page.
 if(!userCredential.user.emailVerified)
@@ -235,15 +236,16 @@ setError("You must verify your email to login.");
                   Sign Up</Button>
                 </Box>
                 <Box
-                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2, height: 50}}
+                  sx={{backgroundColor: theme ? "#4D4D4D" : "#F5F7F9", borderRadius: 2, height: 50}}
                   display="flex"
                   justifyContent="center"
                   alignItems="center"
                 >
-                <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/Signin")}> Already have an account? Sign In</Button>
+                <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "/Signin")}> Already have an account? Sign In</Button>
                 </Box>
                 {error && <Typography sx={{ color: "red" }}>{error}</Typography>}
               </form>
+              <Copyright sx={{padding: .5}}/>
             </Paper>
           </Grid>
         </Grid>

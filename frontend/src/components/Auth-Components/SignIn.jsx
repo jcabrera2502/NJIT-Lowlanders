@@ -118,6 +118,7 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [error, setError] = useState(null);
+  const theme = JSON.parse(localStorage.getItem(`theme`));
 
 
   const signInWithGoogle = () => {
@@ -126,7 +127,6 @@ const SignIn = () => {
       .then((result) => {
         // Handle successful Google sign-in
         const user = result.user;
-        console.log(user);
       })
       .catch((error) => {
         // Handle errors
@@ -138,13 +138,12 @@ const SignIn = () => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential);
         if(userCredential.user.emailVerified == false){
           setError("You must verify your email to login.");
 
         }
         else{
-        window.location.href = "http://localhost:3000/";}
+        window.location.href = "/";}
         
       })
       
@@ -167,7 +166,7 @@ const SignIn = () => {
   };
 
  /* const handleClick = () => {
-    window.location.href = "http://localhost:3000/";
+    window.location.href = "/";
   };
   */
 
@@ -240,14 +239,14 @@ const SignIn = () => {
               </form>
               {!resetEmailSent ? (
                 <Box 
-                  sx={{backgroundColor: "#F5F7F9", borderRadius: 2}}
+                  sx={{backgroundColor: theme ? "#4D4D4D" : "#F5F7F9", borderRadius: 2}}
                   display="flex"
                   justifyContent="left"
                   alignItems="left"
                 >
                   <Grid container>
                     <Grid item xs={12}>
-                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "http://localhost:3000/SignUp")}>Don't have an account? Sign Up</Button>
+                      <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={() => (window.location.href = "/SignUp")}>Don't have an account? Sign Up</Button>
                     </Grid>
                     <Grid item xs={12}>
                       <Button color="purple" disableRipple style={{backgroundColor: "transparent"}} type="button" onClick={handleForgotPassword}>Forgot Password?</Button>
@@ -262,7 +261,8 @@ const SignIn = () => {
 
               )
             }
-            {error && <Typography style={{ color: "red" }}>{error}</Typography>}    
+            {error && <Typography style={{ color: "red" }}>{error}</Typography>} 
+                <Copyright sx={{padding: .5}}/>   
               </Paper>
             </Grid>
           </Grid>

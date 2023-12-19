@@ -8,7 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "backend": "nodemon index.js --ignore ../frontend",
     "frontend": "npm run start --prefix ../frontend",
-    "live": "concurrently --kill-others-on-fail \"npm run backend\" \"npm run frontend\""
+    "live": "concurrently --kill-others-on-fail \"npm run backend\" \"npm run frontend\"",
+    "dev": "nodemon -L index.js",
+    "prod": "node index.js"
   },
   "keywords": [],
   "author": "",

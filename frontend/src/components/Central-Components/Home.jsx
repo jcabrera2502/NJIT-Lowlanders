@@ -1,11 +1,11 @@
-import { onAuthStateChanged, setPersistence } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import React, { useEffect, useState, useRef } from "react";
 import { auth } from "../../firebase";
 import { Typography, CssBaseline, Box, MenuItem, Divider, Button, AppBar, Grid, 
          Toolbar, Avatar, Paper, IconButton, TextField, Select, Popover, 
-         Collapse, Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
-         List, ListItem} from "@mui/material";
+         Menu, Accordion, AccordionSummary, AccordionDetails, Stack, 
+         List, ListItem, duration} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import { getCurrentMonth, getCurrentDay, getCurrentYear} from "./date_functions";
 import WebIcon from "../../Images/Logo.svg";
@@ -24,22 +24,33 @@ import CheckBoxRoundedIcon from '@mui/icons-material/CheckBoxRounded';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { get, set } from "mongoose";
-import { PomoPopup } from "./Popup";
-import { useNavigate } from 'react-router-dom';
+import PomoPopup  from "./Popup";
+import CircleIcon from '@mui/icons-material/Circle';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import { set } from "mongoose";
 
-const Home = () => {
+const Home = () => { 
+    const theme = JSON.parse(localStorage.getItem(`theme`));
     const [user, setUser] = useState(null);
     const [userPresentInDatabase, setUserPresentInDatabase] = useState(false);
     const [data, setData] = useState(null);
     const [insertTaskData, setInsertTaskData] = useState(null);
     const [getUserTaskData, setGetUserTaskData] = useState(null);
+    const [getUserTasksPreviousDayData, setGetUserTasksPreviousDayData] = useState([]);
     const [month, setMonth] = React.useState(getCurrentMonth);
     const [day, setDay] = React.useState(getCurrentDay);
     const [year, setYear] = React.useState(getCurrentYear);
     const [selectedDate, setSelectedDate] = React.useState(new Date(year, month - 1, day));
     const [nonRecurringEvents, setNonRecurringEvents] = useState([]);
     const [recurringEvents, setRecurringEvents] = useState([]);
+    const currentTime = new Date();
+    const [appointmentList, setAppointmentList] = useState([]);
+    const [oappointmentList, setoAppointmentList] = useState([]);
+    const [allDayappts, setAllDayAppts] = useState([]);
+    const [planDay, setPlanDay] = useState(false);
+    const [doWeHaveAppointments, setDoWeHaveAppointments] = useState(false);
+    const [planDayAddedTasks, setPlanDayAddedTasks] = useState(0);
 
     // Update isThisCurrent function
 function isThisCurrent(date) {
@@ -66,13 +77,13 @@ function isThisCurrent(date) {
                 setTaskTime(parseInt(response.data.pomodoro));
                 setShortTime(parseInt(response.data.shortBreak));
                 setLongTime(parseInt(response.data.longBreak));
-                console.log("TASK TIME",taskTime);
-                console.log("SHORT TIME",shortTime);
-                console.log("LONG TIME",longTime);
-                console.log("-------------------------")
-                console.log("TASK TIME",response.data.pomodoro);
-                console.log("SHORT TIME",response.data.shortBreak);
-                console.log("LONG TIME",response.data.longBreak);
+                //console.log("TASK TIME",taskTime);
+                //console.log("SHORT TIME",shortTime);
+                //console.log("LONG TIME",longTime);
+                //console.log("-------------------------")
+                //console.log("TASK TIME",response.data.pomodoro);
+                //console.log("SHORT TIME",response.data.shortBreak);
+                //console.log("LONG TIME",response.data.longBreak);
                 //reload the page to update the state
                 setData(response.data);
             }
@@ -85,6 +96,8 @@ function isThisCurrent(date) {
                 getUserTasks(user);
             } else {
                 setUser(null);
+                window.location.href = "/SignIn";  
+
             }
         });
     }, []);
@@ -113,10 +126,17 @@ function isThisCurrent(date) {
     }, [month, day, year]);
     //ADDITIONAL ADD
     useEffect(() => {
-        console.log("THIS IS THE DAY",day);
-        console.log("THIS IS THE MONTH",month);
-        console.log("THIS IS THE YEAR",year);
-
+        //console.log("THIS IS THE DAY",day);
+        //console.log("THIS IS THE MONTH",month);
+        //console.log("THIS IS THE YEAR",year);
+        if(JSON.parse(localStorage.getItem(`${day}-${month}-${year}plan`)))
+        {
+            setPlanDay(JSON.parse(localStorage.getItem(`${day}-${month}-${year}plan`)));
+        }
+        else
+        {
+            setPlanDay(false);
+        }
         getUserTasks(user);
     }, [day, month, year, user]);
     const handleDayChange = (event) => {
@@ -211,8 +231,44 @@ function isThisCurrent(date) {
     const handlePomoClose = () => {
         updateUserTasks(user, focusSubBox);
         setPomoOpen(false);
-        //console.log("close");
+        if(planDay)
+        {
+            addFocusTime();
+        }   
+        
     };
+    // get current time
+    var systemTime = new Date();
+    // function getCurrentTime() {
+    //     systemTime = new Date();
+    //     // var hours = systemTime.getHours();
+    //     // var minutes = systemTime.getMinutes();
+    //     // var ampm = hours >= 12 ? 'PM' : 'AM';
+    //     // hours = hours % 12;
+    //     // hours = hours ? hours : 12;
+    //     // minutes = minutes < 10 ? '0' + minutes : minutes;
+    //     // systemTime = hours + ':' + minutes + ' ' + ampm;
+    //     return systemTime;
+    // }
+    function updateClock() {
+        systemTime = new Date();
+        systemTime = systemTime.getHours();
+    }
+    // reset systemTimer every 1 second
+    setInterval(updateClock, 1000);
+
+    //click on popup automatically when time arrives
+    const iconButtonRef = useRef(null);
+    // const handleIconClick = () => {
+    //     const currTaskTime= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))})
+    //     // Check the condition before clicking
+    //     if (  && iconButtonRef.current) {
+    //       // Call the click method on the IconButton
+    //       iconButtonRef.current.click();
+    //       iconButtonRef = useRef(null);
+    //     }
+    //   };
+    
 
 
     
@@ -241,6 +297,17 @@ function isThisCurrent(date) {
         setTaskNote('');
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const titles= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))});
+        // console.log(titles)
+        // console.log(taskTitle)
+        if (titles.length === 0) {
+            handleAddSubBox();
+        } 
+      };
+    
+
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 
@@ -268,10 +335,11 @@ function isThisCurrent(date) {
     //progress icons 
 
     const icons = [
-        <CircleOutlinedIcon sx={{ color: 'black' }} />,
-        <HourglassEmptyRoundedIcon sx={{ color: 'black' }} />,
-        <CheckCircleOutlineIcon sx={{ color: 'black' }} />,
-        <SyncAltIcon sx={{ color: 'black' }} />,
+        <CircleOutlinedIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <HourglassEmptyRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <CheckCircleOutlineIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <SyncAltIcon sx={{ color: theme ? "#fff" : "black" }} />,
+        <CancelOutlinedIcon sx={{ color: theme ? "#fff" : "black" }}/>
       ];
     
     // Handles dropdown menu from profile picture
@@ -313,22 +381,22 @@ function isThisCurrent(date) {
     };
 
 
-
+/*
 
     const handleConnectClick = async () => {
         try {
-        const response = await axios.get('http://localhost:3001/google', { withCredentials: true });
+        const response = await axios.get('/google', { withCredentials: true });
 
         //http://localhost:3001/google-proxy
-        console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
-        console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
+        //console.log("THIS IS THE RESPONSE FROM GOOGLE",response.data);
+        //console.log("I AM INSIDE THE HANDLE CONNECT CLICK FUNCTION")
         // Redirect the user to the authorization URL received from the server
         window.location.href = response.data.url;
         } catch (error) {
         console.error('Error connecting to Google Calendar:', error.message);
         }
     };
-      
+    */ 
        
       
 const getUserTasks = async (user) => {
@@ -361,6 +429,31 @@ const getUserTasks = async (user) => {
             console.error("Invalid or missing data in the API response");
         }
     } catch (error) {
+        console.error("Error fetching user tasks:", error);
+    }
+
+    try {
+        const response = await axios.get("/api/getTasks", {
+            params: {
+                email: user.email,
+                day: day - 1,
+                month: month,
+                year: year,
+            }
+        });
+
+        if (response && response.data && Array.isArray(response.data)) {
+            const filteredTasks = response.data.filter(task => {
+                const taskDate = new Date(task.year, task.month - 1, task.day);
+                return isSameDay(taskDate, new Date(year, month - 1, day - 1));
+            });
+
+            setGetUserTasksPreviousDayData(filteredTasks);
+        } else {
+            console.error("Invalid or missing data in the API response");
+        }
+    }
+    catch (error) {
         console.error("Error fetching user tasks:", error);
     }
 }
@@ -432,6 +525,8 @@ const insertIntoSubBoxesOther = (response) => {
 
 const updateUserTasks = async (user, subBox) =>
 {
+    console.log("SubBox Status Value: ", subBox.currentIcon);
+
     const response = await axios.put("/api/updateTask", {
         params: {
             key: subBox.key,
@@ -449,6 +544,35 @@ const updateUserTasks = async (user, subBox) =>
     });
     if (response) {
         //console.log(response.data);
+    } 
+    
+    if (subBox.currentIcon === 4) {
+        console.log("Deleting Task");
+    
+        try {
+            const response = await axios.delete('/api/deleteTask', {
+                params: {
+                    email: encodeURIComponent(user.email),
+                    title: encodeURIComponent(subBox.title),
+                    day: day,
+                    month: month,
+                    year: year,
+                }
+            });
+    
+            // Check the response status
+            if (response.status === 200) {
+                console.log("Task deleted successfully");
+                window.location.reload();
+                // Handle any additional logic after successful deletion
+            } else {
+                console.error("Failed to delete task. Server responded with status:", response.status);
+                // Handle the error or provide user feedback accordingly
+            }
+        } catch (error) {
+            console.error("Error deleting task:", error);
+            // Handle the error or provide user feedback accordingly
+        }
     }
 }
 
@@ -481,6 +605,11 @@ useEffect(() => {
     setSubBoxesImportant(priority.important.items);
     setSubBoxesTopPriority(priority.topPriority.items);
     setSubBoxesOther(priority.other.items);
+    if(planDay)
+    {
+        // console.log("Priority Change");
+        // addFocusTime();
+    }
 }, [priority]);
 // Handles arrays for draggable objects
 // NOTE: Draggable ID matches subBox key, we can keep track of tasks like this
@@ -563,7 +692,7 @@ const [oauthCalled, setOauthCalled] = useState(() => {
 const isSignInExpired = (signInTimestamp) => {
     const expirationTime = +signInTimestamp + 3599; // or use parseInt(signInTimestamp, 10) + 3599;
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
+    //console.log('Expiration Time:', expirationTime, 'Current Time:', currentTime);
     return expirationTime < currentTime;
 };
 //idk if this works yet
@@ -587,7 +716,7 @@ const handleSignOut = async (event) => {
           },
         });
   
-        console.log('Access token revoked successfully');
+        //console.log('Access token revoked successfully');
       } catch (error) {
         console.error('Error revoking access token:', error);
       }
@@ -601,13 +730,13 @@ const handleSignOut = async (event) => {
   
     // Other cleanup or redirection logic can be added here
     const signInDiv = document.getElementById("signInDiv");
-    console.log("signInDiv:", signInDiv);
+    //console.log("signInDiv:", signInDiv);
   
     // Check if the element exists before setting properties
     if (signInDiv) {
       signInDiv.hidden = false;
     } else {
-      console.error("Element with ID 'signInDiv' not found.");
+      //console.error("Element with ID 'signInDiv' not found.");
     }
   
     // Clear the URL
@@ -615,84 +744,8 @@ const handleSignOut = async (event) => {
   };
 //instead of signing in multiple times, just sign in once and then use the access token to get the calendar events
 
-
-/*
-useEffect(() => {
-    const fetchData = async () => {
-      // Try to get access token from localStorage
-      const storedAccessToken = localStorage.getItem("accessToken");
-      const storedEmail = localStorage.getItem("userEmail");
-      const signInTimestamp = localStorage.getItem("signInTimestamp"); // Get the sign-in timestamp
-      const storedExpirationTime = localStorage.getItem("expirationTime");
-      const storedSignInTimestamp = localStorage.getItem("expire");
-console.log("TIME STAMP",storedSignInTimestamp)
-      if (oauthCalled || storedAccessToken) {
-        const searchParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = searchParams.get("access_token");
-        const expire = searchParams.get("expires_in");
-        console.log("EXPIRE",expire);
-        console.log("About to enter if loop - status of accessToken:", accessToken, "status of storedAccessToken:", storedAccessToken, "status of oauthCalled:", oauthCalled, "status of storedEmail:", storedEmail, "status of userEmail:", userEmail, "status of user2:", user2, "status of expiration time:",expire);
-        if (
-            oauthCalled && setAccessToken) 
-           // (storedAccessToken &&
-            //  storedSignInTimestamp &&
-            //  !isSignInExpired(Number(storedSignInTimestamp)))
-          {
-          try {
-            console.log("IS SIGN IN EXPIRED????????")
-            console.log(isSignInExpired(Number(storedSignInTimestamp)));
-            const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken || storedAccessToken}`;
-            const emailFetch = await fetch(emailSite);
-            const emailData = await emailFetch.json();
-            const userEmail = emailData.email;
-  
-            // Log and store the email
-            console.log("User's email:", userEmail);
-  
-            // Make the Google Calendar API request
-            const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${accessToken || storedAccessToken}&q=Appointment`;
-            const response = await fetch(calendarApiUrl);
-            const data = await response.json();
-  
-            // Log and process the Google Calendar API response
-            console.log("Google Calendar API Response:", data);
-            listUpcomingEvents(data.items);
-            
-            console.log("This is true")
-            // Set the access token and user email in state
-            console.log("Setting access token:", accessToken || storedAccessToken, "Setting user email:", userEmail || storedEmail)
-            setAccessToken(accessToken || storedAccessToken);
-            setUserEmail(userEmail || storedEmail);
-            console.log("Setting expiration time:", expire);
-            setExpires_in(expire || storedExpirationTime);
-            // Store the values in localStorage
-            localStorage.setItem("accessToken", accessToken || storedAccessToken);
-            localStorage.setItem("userEmail", userEmail || storedEmail);
-          } catch (e) {
-            console.log("Error:", e);
-            setErrorMessage("Error: Unable to fetch data. Please try again.");
-
-            handleSignOut();
-
-          }
-        } else {
-          console.log("NO ACCESS TOKEN");
-          setErrorMessage("Error: Unable to fetch data. Please try again.");
-
-          handleSignOut();
-        }
-      }
-      else{
-        console.log("OAUTH NOT CALLED");
-      }
-    };
-  
-    fetchData();
-  }, [oauthCalled]);
-  */
-
   useEffect(() => {
-    console.log("We ENTERED THE USE EFFECT")
+    //console.log("We ENTERED THE USE EFFECT")
     const fetchData = async () => {
         // Check if the page was redirected from OAuth provider
         const searchParams = new URLSearchParams(window.location.hash.substring(1));
@@ -716,7 +769,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
 
                 // Log and process the Google Calendar API response
                 console.log("Google Calendar API Response:", data);
-                console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
+                //console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken2);
                 listUpcomingEvents(data.items);
 
                 // Set the access token, user email, and expiration time in state
@@ -747,8 +800,8 @@ console.log("TIME STAMP",storedSignInTimestamp)
                 // The stored access token exists and is not expired
                 // Continue with your existing logic...
                 try {
-                    console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
-                    console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
+                    //console.log("RIGHT AFTER GOOGLE CAL RESPONSE TOKEN",storedAccessToken);
+                    //console.log("RIGHT AFTER GOOGLE CAL OG ACCESS TOKEN",accessToken);
 
                     const emailSite = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${storedAccessToken}`;
                     const emailFetch = await fetch(emailSite);
@@ -765,10 +818,10 @@ console.log("TIME STAMP",storedSignInTimestamp)
                     const calendarApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?access_token=${storedAccessToken}&q=Appointment&timeMin=${encodeURIComponent(minDateTime)}&timeMax=${encodeURIComponent(maxDateTime)}`;
                     const response = await fetch(calendarApiUrl);
                     const data = await response.json();
-                    console.log("HERE IS THE DATA")
+                    //console.log("HERE IS THE DATA")
 
                     // Log and process the Google Calendar API response
-                    console.log("Google Calendar API Response:", data);
+                    //console.log("Google Calendar API Response:", data);
                  
                     listUpcomingEvents(data.items);
 
@@ -785,7 +838,7 @@ console.log("TIME STAMP",storedSignInTimestamp)
                     handleSignOut();
                 }
             } else {
-                console.log("No valid access token available.");
+                //console.log("No valid access token available.");
             }
         }
     };
@@ -828,7 +881,7 @@ const saveOauthCalledToStorage = (value) => {
 
 //this function lists the events returned from the google calendar api
 const listUpcomingEvents = (eventsData) => {
-    console.log("Setting events:", eventsData);
+    //console.log("Setting events:", eventsData);
   
     // Separate recurring and non-recurring events
     const recurring = [];
@@ -849,12 +902,12 @@ function oauthSignIn() {
     saveOauthCalledToStorage(true);
   
     if(oauthCalled){
-      console.log("OAUTH CALLED IN OAUTH SIGN IN");
+      //console.log("OAUTH CALLED IN OAUTH SIGN IN");
   
       
     }
     else{
-      console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
+      //console.log("OAUTH NOT CALLED IN OAUTH SIGN IN");
     }
     // Google's OAuth 2.0 endpoint for requesting an access token
     var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -867,7 +920,8 @@ function oauthSignIn() {
     // Parameters to pass to OAuth 2.0 endpoint.
     var params = {
       'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
-      'redirect_uri': 'http://localhost:3000',
+      'redirect_uri': 'https://gauthamcity.com/',
+      //'redirect_uri': 'http://localhost:3000',
       'response_type': 'token',
       'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
       'include_granted_scopes': 'true',
@@ -890,10 +944,49 @@ function oauthSignIn() {
     form.submit();
   }
 
-  const [appointmentList, setAppointmentList] = useState([]);
-  const [allDayappts, setAllDayAppts] = useState([]);
+  
 
-// I am not proud of this, but it must be done
+// Handles appointment list creation
+
+function addFocusTime()
+{
+    const topPri = priority.topPriority.items;
+    const imp = priority.important.items;
+    const othr = priority.other.items;
+    const tasks = topPri.concat(imp, othr);
+    var apps = oappointmentList.slice(0); // to restore "task duplication bug for testing purposes, change to appointmentList instead of oappointmentList"
+    var t = 0;
+    var slot = 0;
+    
+    for (var i = 6; i < 20; i++)
+    {
+        if (apps[i] && tasks[t])
+        {                                //Total Pomo time                      Total Short Break Time                         Total Long Break Time
+            const dur = Math.ceil(((tasks[t].pomTimers * taskTime) + (tasks[t].pomTimers * shortTime) + (Math.floor(tasks[t].pomTimers / 4) * longTime)) /60);
+        
+            if(!apps[i].name && t < tasks.length)
+            {
+                apps[i] = {
+                    type: "task",
+                    name: tasks[t].title,
+                    start: parseInt(apps[i-1].end),
+                    end: parseInt(apps[i-1].end) + 1, // temp, implies task takes 1 hour
+                    timers: { done: tasks[t].usedTimers, total: tasks[t].pomTimers }
+                };
+                slot++;
+            }
+            if(slot === parseInt(dur))
+            {
+                t++;
+                slot = 0;
+            }
+        }
+        
+    }
+    setAppointmentList(apps);
+
+}
+
 function findAppt()
 {
     var found = false;
@@ -912,33 +1005,239 @@ function findAppt()
             if(event.start && event.start.dateTime)
             {
                 evtHr = event.start.dateTime;
-                const dayForEvent = evtHr.slice(8, 10);
-                if (parseInt(dayForEvent) !== parseInt(day)) {
-                    window.location.reload();
-                }
                 evtHr = evtHr.slice(evtHr.search('T')+1, evtHr.search(':'));
             }
             if(parseInt(evtHr) === parseInt(x))
             {
-                arr.push({time: x, event: event});
+                arr.push({type: "appt",
+                          time: x, 
+                          name: event.summary, 
+                          start: (event.start.dateTime).slice(event.start.dateTime.search('T')+1, event.start.dateTime.search(':')), // converts start dateTime to hour string
+                          end: (event.end.dateTime).slice(event.end.dateTime.search('T')+1, event.end.dateTime.search(':')), //converts end dateTime to hour string
+                          desc: event.description,
+                          timers: null});
                 found = true;
+                var evtEndHr = event.end.dateTime;
+                evtEndHr = evtEndHr.slice(evtEndHr.search('T')+1, evtEndHr.search(':'));
+            }
+            if(evtEndHr-evtHr > 1)
+            {
+                for(var i=1; i < evtEndHr-evtHr; i++)
+                {
+                    x++;
+                }
             }
         });
         if(!found)
         {
-            arr.push({time: x, event: null});
+            arr.push({time: x, name: null});
         }
         found = false;
     }
     setAppointmentList(arr);
+    setoAppointmentList(arr);
     setAllDayAppts(allArr);
+
+
+    // Check if the site needs to be refreshed
+    const refreshKey = `${day}-${month}-${year}refresh`;
+    const shouldRefresh = JSON.parse(localStorage.getItem(refreshKey));
+
+    if (shouldRefresh !== true) {
+        // Set the state variable to true and reload the site
+        localStorage.setItem(refreshKey, JSON.stringify(true));
+        window.location.reload();
+    }
 }
-  
+
+function handlePlanDay()
+{
+    //TODO make sure list is populated before scheduling tasks
+    console.log("Value of planDay: ", planDay);
+    //give me the total number of tasks for the previous day using an API call to the database
+
+    //give me length of tasks array
+    if (planDay === false ||  planDayAddedTasks === 0)
+    {
+        getUserTasksPreviousDay(user);
+    }
+    addFocusTime();
+    setPlanDay(true);
+    localStorage.setItem(`${day}-${month}-${year}plan`, JSON.stringify(true));
+}
+
+const getUserTasksPreviousDay = async (user) =>
+{
+    let listOfTasks = [];
+
+    if (!user) {
+        return;
+    }
+    const userTasksPreviousDay = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 0, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay && userTasksPreviousDay.data && Array.isArray(userTasksPreviousDay.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay.data);
+    }
+
+    const userTasksPreviousDay2 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 1, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay2 && userTasksPreviousDay2.data && Array.isArray(userTasksPreviousDay2.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay2.data);
+    }
+
+    const userTasksPreviousDay3 = await axios.get("/api/getTaskPreviousDay", {
+        params: {
+            email: user.email,
+            day: day - 1,
+            month: month,
+            year: year,
+            status: 3, // Only fetch tasks with status 0, 1, or 2
+        }
+    });
+
+    if (userTasksPreviousDay3 && userTasksPreviousDay3.data && Array.isArray(userTasksPreviousDay3.data))
+    {
+        listOfTasks.push(...userTasksPreviousDay3.data);
+    }
+
+
+
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.put("/api/updateTaskStatus", {
+            params: {
+                key: getUserTaskData.length + 1,
+                title: listOfTasks[i].taskTitle,
+                email: user.email,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status:3
+            }
+        });
+        if (response) 
+        {
+            console.log("HERE IS THE RESPONSE DATA" , response.data)
+        }
+    }
+
+    //change the day of the tasks to the current day
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        listOfTasks[i].day = day;
+        listOfTasks[i].key = getUserTaskData.length + 1 + i;
+        setPlanDayAddedTasks(planDayAddedTasks + 1)
+    }
+
+    //loop through all tasks and change the first 3 important tasks to top priority, and stop after 3
+
+    //find out how many top priority tasks there are
+    let topPriorityCount = 0;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        if (listOfTasks[i].type === "topPriority")
+        {
+             topPriorityCount++;
+        }
+    }
+    
+    if (topPriorityCount < 3)
+    {
+        let count = 0;
+        for (let i = 0; i < listOfTasks.length; i++)
+        {
+            if (listOfTasks[i].type === "important")
+            {
+                listOfTasks[i].type = "topPriority";
+                count++;
+            }
+            if (count === 3 - topPriorityCount)
+            {
+                break;
+            }
+        }
+    }
+
+    //check how many important tasks there are now
+    let importantCount = 0;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        if (listOfTasks[i].type === "important")
+        {
+            importantCount++;
+        }
+    }
+
+    if (importantCount == 0)
+    {
+        for (let i = 0; i < listOfTasks.length; i++)
+        {
+            if (listOfTasks[i].type === "other")
+            {
+                listOfTasks[i].type = "important";
+            }
+        }
+    }
+
+
+    //insert the tasks into the database with the current day
+
+    let key = getUserTaskData.length + 1;
+    for (let i = 0; i < listOfTasks.length; i++)
+    {
+        const response = await axios.post("/api/insertTask", {
+            params: 
+            {
+                key: key,
+                email: user.email,
+                title: listOfTasks[i].taskTitle,
+                type: listOfTasks[i].type,
+                completed: false,
+                taskNote: listOfTasks[i].taskNote,
+                pomodoroCount: listOfTasks[i].pomodoroCount,
+                note: listOfTasks[i].note,
+                day: listOfTasks[i].day,
+                month: listOfTasks[i].month,
+                year: listOfTasks[i].year,
+                status: 0,
+                usedTimers: listOfTasks[i].usedTimers,
+            } 
+        });
+        //Only sets the data if there is a result
+        if(response){ 
+            //console.log(response)
+            setInsertTaskData(response.data);
+        }
+        key++;
+    }
+    getUserTasks(user);
+    return;
+}
+
+
 useEffect(()=> {
     findAppt();
 }, [nonRecurringEvents]);
 
-const currentTime = new Date();
+const pomoRef = useRef();
 
     return(
         <CssBaseline>
@@ -966,7 +1265,12 @@ const currentTime = new Date();
                     <Box textAlign={"center"}>
                         <Typography textAlign={"center"} variant={"h5"}>{`It’s time to plan your day!`}</Typography>
                         {isThisCurrent(selectedDate) && (
-                            <Button sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} color="white" variant="outlined">
+                            <Button 
+                            sx={{ mt: 5, mb: 2, borderRadius: 3, width: 150, height: 50, border: "2px solid" }} 
+                            color="white" 
+                            variant="outlined"
+                            onClick={handlePlanDay}
+                            >
                             Plan Day
                             </Button>
                         )} 
@@ -974,7 +1278,7 @@ const currentTime = new Date();
                 </div>
                 <Box sx={{flexGrow: 1}}/>
                 <Box>
-                    <Button onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")} sx={{ height: "45px", borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
+                    <Button onClick={() => (window.location.href = "/AuthDetails")} sx={{ height: "45px", borderRadius: 3, border: "1px solid"}} color="white" variant="outlined"><LogoutOutlinedIcon sx={{width: 20, height: 20, mr: 1}}/>Log Out</Button>
                 </Box>
             </Box>
         </Grid>
@@ -982,23 +1286,23 @@ const currentTime = new Date();
                 <Toolbar>
                     <Typography sx={{fontWeight: "bold"}}variant="h4">Tasks</Typography>
                     <Box sx={{flexGrow: 1}}></Box>
-                    <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#E8EDFF"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
+                    <Button sx={{textTransform: "none"}} onClick={handleClick}><Avatar sx={{bgcolor: "#6284FF26"}}><PermIdentityRoundedIcon sx={{color: "#6284FF"}} /></Avatar><Typography sx={{fontWeight: "bold", color: theme ? "#fff" : "black", ml: 1}}>{data?.firstName} {data?.lastName}</Typography></Button>
                     <Menu
                         id="profile-menu"
                         anchorEl={anchorEl2}
                         open={open2}
                         onClose={handleClose}
                     >
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/Profile")}>Profile</MenuItem>
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/")}>Tasks</MenuItem>
-                        <MenuItem onClick={() => (window.location.href = "http://localhost:3000/AuthDetails")}>Log Out</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "/Profile")}>Profile</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "/")}>Tasks</MenuItem>
+                        <MenuItem onClick={() => (window.location.href = "/AuthDetails")}>Log Out</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>                 
                     <Grid item xs={10}>
                         {/* Date Navbar */}
                         <Box 
-                            sx={{mt: 12, width: "100%", bgcolor: "#E8EDFF", borderRadius: 3,}}
+                            sx={{mt: 12, width: "100%", bgcolor: "#6284FF26", borderRadius: 3,}}
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
@@ -1030,6 +1334,17 @@ const currentTime = new Date();
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",},
                                          '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                    anchorOrigin: {
+                                        vertical: "top",
+                                        horizontal: "left"
+                                    },
+                                    transformOrigin: {
+                                        vertical: "top",
+                                        horizontal: "left"
+                                    },
+                                    PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                    }}
                                 >
                                     <MenuItem value={1}>January</MenuItem>
                                     <MenuItem value={2}>February</MenuItem>
@@ -1096,6 +1411,17 @@ const currentTime = new Date();
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
                                         '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                        anchorOrigin: {
+                                            vertical: "top",
+                                            horizontal: "left"
+                                        },
+                                        transformOrigin: {
+                                            vertical: "top",
+                                            horizontal: "left"
+                                        },
+                                        PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                        }}
                                 >
                                     <MenuItem value={1}>1</MenuItem>
                                     <MenuItem value={2}>2</MenuItem>
@@ -1183,6 +1509,17 @@ const currentTime = new Date();
                                         borderRadius: 3, 
                                         '& .MuiOutlinedInput-notchedOutline': {border: 1, borderColor: "#6284FF",}, 
                                         '.MuiSvgIcon-root': {fill: "#6284FF"}}}
+                                    MenuProps={{
+                                        anchorOrigin: {
+                                          vertical: "top",
+                                          horizontal: "left"
+                                        },
+                                        transformOrigin: {
+                                          vertical: "top",
+                                          horizontal: "left"
+                                        },
+                                        PaperProps: { sx: { maxHeight: 200, border: 1, borderColor: "#6284FF", borderRadius: 3} }
+                                      }}
                                 >
                                     <MenuItem value={2022}>2022</MenuItem>
                                     <MenuItem value={2023}>2023</MenuItem>
@@ -1216,6 +1553,7 @@ const currentTime = new Date();
                             shortTime={shortTime}
                             longTime={longTime}
                             subBox={focusSubBox}
+                            ref = {pomoRef}
                         />
                         {/*End of Pomo Popup*/}
 
@@ -1240,48 +1578,51 @@ const currentTime = new Date();
                                         horizontal: 'left',
                                       }}
                                     >
-                                        <FormControl>
-                                            <Box p={2}>
-                                                <Typography sx={{mb:0.5}}>Task Title*</Typography>
-                                                <TextField
-                                                    sx={{mb:2}}
-                                                    label="Title"
-                                                    required
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    value={taskTitle}
-                                                    onChange={(e) => setTaskTitle(e.target.value)}
-                                                />
-                                                <Typography sx={{mb:0.5}}>Number of Pomodoro Timers</Typography>
-                                                <TextField
-                                                    sx={{mb:2}}
-                                                    type='number'
-                                                    InputProps={{
-                                                        inputProps: { min: 1 }
-                                                    }}
-                                                    label="Pomodoro Timers"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    value={numTimers}
-                                                    onChange={(e) => {
-                                                        setNumTimers(e.target.value);
-                                                    }}
-                                                />
-                                                <Typography sx={{mb:0.5}}>Notes (Optional)</Typography>
-                                                <TextField
-                                                    sx={{mb:2}}
-                                                    label="Note"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    value={taskNote}
-                                                    onChange={(e) => setTaskNote(e.target.value)}
-                                                    multiline
-                                                />
-                                                <Button type="submit" color="primary" onClick={handleAddSubBox}>
-                                                    Add Task
-                                                </Button>
-                                            </Box>
-                                        </FormControl>
+                                        <form onSubmit={handleSubmit}>
+                                            <FormControl >
+                                                <Box p={2}>
+                                                    <Typography sx={{mb:0.5}}>Task Title*</Typography>
+                                                    <TextField
+                                                        sx={{mb:2}}
+                                                        label="Title"
+                                                        required
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        value={taskTitle}
+                                                        helperText='Task title must be unique'
+                                                        onChange={(e) => setTaskTitle(e.target.value)}
+                                                    />
+                                                    <Typography sx={{mb:0.5}}>Number of Pomodoro Timers</Typography>
+                                                    <TextField
+                                                        sx={{mb:2}}
+                                                        type='number'
+                                                        InputProps={{
+                                                            inputProps: { min: 1 }
+                                                        }}
+                                                        label="Pomodoro Timers"
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        value={numTimers}
+                                                        onChange={(e) => {
+                                                            setNumTimers(parseInt(e.target.value));
+                                                        }}
+                                                    />
+                                                    <Typography sx={{mb:0.5}}>Notes (Optional)</Typography>
+                                                    <TextField
+                                                        sx={{mb:2}}
+                                                        label="Note"
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        value={taskNote}
+                                                        onChange={(e) => setTaskNote(e.target.value)}
+                                                        multiline
+                                                    />
+                                                    <Button type="submit" color="primary">
+                                                        Add Task
+                                                    </Button>
+                                                </Box>
+                                            </FormControl>
+                                        </form>
                                     </Popover>
                                 </Typography>
                                                                                     
@@ -1289,12 +1630,13 @@ const currentTime = new Date();
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
 
                                     <Box sx={{display: "flex", flexDirection: "column"}}>
+
                                         {/* Top Priority Task Box*/}
                                         <Box sx={{ 
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",}}>
                                             <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Top Priority
@@ -1330,36 +1672,37 @@ const currentTime = new Date();
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log(subBox.currentIcon);
+                                                                        //console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
                                                                     }}
-                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                    sx={{color: theme ? "#fff" : "black"}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                        <IconButton aria-label="drag" sx={{padding: 0}}>
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1371,7 +1714,7 @@ const currentTime = new Date();
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1391,19 +1734,19 @@ const currentTime = new Date();
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
-                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                        setNumTimers(subBox.pomTimers);
-                                                                                        updateUserTasks(user, subBox);
-                                                                                }
+                                                                                    if(subBox.pomTimers > 1 && subBox.usedTimers < subBox.pomTimers){
+                                                                                            subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                            setNumTimers(subBox.pomTimers);
+                                                                                            updateUserTasks(user, subBox);
+                                                                                    }
                                                                                 }}>
                                                                                     <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1414,11 +1757,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1433,9 +1776,9 @@ const currentTime = new Date();
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNote=!(subBox.editNote);
-                                                                                setEditNote(subBox.editNote);
-                                                                            }}>
+                                                                                    subBox.editNote=!(subBox.editNote);
+                                                                                    setEditNote(subBox.editNote);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </Grid>
@@ -1460,7 +1803,7 @@ const currentTime = new Date();
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
@@ -1475,7 +1818,7 @@ const currentTime = new Date();
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -1498,13 +1841,12 @@ const currentTime = new Date();
                                         
 
                                         { /* Important Task Box*/}
-                                        
                                         <Box sx={{ 
                                             mt:1,
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",
                                             }}
                                         >
@@ -1545,36 +1887,37 @@ const currentTime = new Date();
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log("Current Icon" , subBox.currentIcon);
+                                                                        //console.log("Current Icon" , subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
                                                                     }}
-                                                                    sx={{color: 'black'}} aria-label="icon">
+                                                                    sx={{color: theme ? "#fff" : "black"}} aria-label="icon">
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                        <IconButton sx={{padding: 0}} aria-label="drag">
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black" }} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1586,7 +1929,7 @@ const currentTime = new Date();
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1606,19 +1949,19 @@ const currentTime = new Date();
                                                                                     </Typography>
 
                                                                                 <IconButton aria-label="minusTimer" onClick={() => {
-                                                                                if(subBox.pomTimers > 1  && subBox.usedTimers < subBox.pomTimers){
-                                                                                        subBox.pomTimers= subBox.pomTimers - 1;
-                                                                                        setNumTimers(subBox.pomTimers);
-                                                                                        updateUserTasks(user, subBox);
-                                                                                }
+                                                                                    if(subBox.pomTimers > 1  && subBox.usedTimers < subBox.pomTimers){
+                                                                                            subBox.pomTimers= subBox.pomTimers - 1;
+                                                                                            setNumTimers(subBox.pomTimers);
+                                                                                            updateUserTasks(user, subBox);
+                                                                                    }
                                                                                 }}>
                                                                                     <IndeterminateCheckBoxOutlinedIcon sx={{color:"#9FA3A8"}} />
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1629,11 +1972,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1648,9 +1991,9 @@ const currentTime = new Date();
                                                                             </Grid>
                                                                             <Grid item>
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNote=!(subBox.editNote);
-                                                                                setEditNote(subBox.editNote);
-                                                                            }}>
+                                                                                    subBox.editNote=!(subBox.editNote);
+                                                                                    setEditNote(subBox.editNote);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </Grid>
@@ -1675,21 +2018,21 @@ const currentTime = new Date();
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -1718,7 +2061,7 @@ const currentTime = new Date();
                                             ml:2,
                                             width: "95%", 
                                             height: "100%",  
-                                            bgcolor: "#F5F7F9",
+                                            bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                             borderRadius: "8px",}}>
                                             <Typography sx={{ml:2,mt:2, mb:1, fontWeight: 700, fontSize:'20px'}}>
                                                 Other
@@ -1755,22 +2098,23 @@ const currentTime = new Date();
                                                                 alignItems="center"
                                                                 flexDirection="column"
                                                             >
-                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
+                                                            <Accordion expanded={subBox.exp} key={subBox.key} sx={{width: "95%", borderRadius: "10px", '&:before': {display: 'none',}, bgcolor: theme ? "#737373" : ""}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
 
                                                                 <AccordionSummary 
-                                                                expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} onClick={() => dropdownClick(subBox)} />}
+                                                                expandIcon={<IconButton onClick={() => dropdownClick(subBox)}><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black"}}  /></IconButton>}
                                                                 aria-controls="panel1a-content"
                                                                 sx={{ 
                                                                     width: "100%", 
                                                                     height: "3vh",  
                                                                     borderRadius: "8px",
                                                                     paddingLeft: 0,
+                                                                    paddingRight: 1,
                                                                 }}
                                                                 elevation={0}
                                                                 >
                                                                 <Toolbar disableGutters sx={{width: "100%"}}>
                                                                         <IconButton onClick={() => {
-                                                                        console.log(subBox.currentIcon);
+                                                                        //console.log(subBox.currentIcon);
                                                                         subBox.currentIcon=(subBox.currentIcon + 1) % icons.length;
                                                                         setCurrentIcon(subBox.currentIcon);
                                                                         updateUserTasks(user, subBox);
@@ -1779,12 +2123,12 @@ const currentTime = new Date();
                                                                             {icons[subBox.currentIcon]}
                                                                         {/* {subBox.currentIcon} */}
                                                                         </IconButton>
-                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color:"#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
+                                                                        <Button onClick={() => {handleOpenPomo(subBox.title, subBox.note, subBox.pomTimers, subBox)}} sx={{ ml: 1, fontWeight: 700, fontSize:'16px', color: theme ? "#859FFF" : "#6284FF", textTransform: "none", justifyContent: "flex-start"}}>
                                                                             {subBox.title}
                                                                         </Button>
                                                                         <Box sx={{flexGrow: 1}} />
-                                                                        <IconButton aria-label="drag">
-                                                                            <OpenWithRoundedIcon sx={{ color:"black"}} />
+                                                                        <IconButton sx={{padding: 0}} aria-label="drag">
+                                                                            <OpenWithRoundedIcon sx={{ color: theme ? "#fff" : "black"}} />
                                                                         </IconButton> 
                                                                         <Box sx={{ mr: ".3em"}} />                                                                                             
                                                             </Toolbar>
@@ -1796,7 +2140,7 @@ const currentTime = new Date();
 
                                                                     <Grid container alignItems="center">
                                                                         <Grid item xs>
-                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color:"#1F1F1F"}}>
+                                                                            <Typography display={"inline"} sx={{ml: 2, mt:1, fontWeight: 500, fontSize:'16px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                 Number of Pomodoro Timers ({taskTime} mins each)
                                                                             </Typography>
                                                                         </Grid>
@@ -1826,9 +2170,9 @@ const currentTime = new Date();
                                                                                 </IconButton>
 
                                                                                 <IconButton aria-label="editingTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
                                                                                     <CheckBoxRoundedIcon sx={{color:"#6284FF"}} />
                                                                                 </IconButton>
                                                                             </>
@@ -1839,11 +2183,11 @@ const currentTime = new Date();
                                                                                 </Typography>
                                                                             
                                                                                 <IconButton sx={{ml: 2}} aria-label="editNumOfTimers" onClick={() => {
-                                                                                subBox.editNumTimer=!(subBox.editNumTimer);
-                                                                                setEditNumTimer(subBox.editNumTimer);
-                                                                            }}>
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
-                                                                                    </IconButton>
+                                                                                    subBox.editNumTimer=!(subBox.editNumTimer);
+                                                                                    setEditNumTimer(subBox.editNumTimer);
+                                                                                }}>
+                                                                                    <BorderColorOutlinedIcon sx={{color:"#6284FF"}} />
+                                                                                </IconButton>
                                                                             </>
                                                                         )}
                                                                         </Grid>
@@ -1885,21 +2229,21 @@ const currentTime = new Date();
                                                                         <>
                                                                             <Grid container alignItems="center">
                                                                                 <Grid item xs>
-                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color:"#545454"}}>
+                                                                                    <Typography sx={{ml:2, mt:1, fontWeight: 500, fontSize:'12px', color: theme ? "#444444" : "#545454"}}>
                                                                                         Notes
                                                                                     </Typography>
                                                                                 </Grid>
                                                                                 <Grid item>
-                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote">
-                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}} onClick={() => {
+                                                                                    <IconButton sx={{ml: 2}} aria-label="editNote" onClick={() => {
                                                                                         subBox.editNote=!(subBox.editNote);
                                                                                         setEditNote(subBox.editNote);
-                                                                                    }} />
+                                                                                    }}>
+                                                                                        <BorderColorOutlinedIcon sx={{color:"#6284FF"}}  />
                                                                                     </IconButton>
                                                                                 </Grid>
                                                                             </Grid>
                                                                             <Box sx={{ml:2, mt:1,mb:1, width: "85%"}}>
-                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color:"#1F1F1F"}}>
+                                                                                <Typography display={"inline"} sx={{fontWeight: 700, fontSize:'14px', color: theme ? "#FFF" : "#1F1F1F"}}>
                                                                                     {subBox.note}
                                                                                 </Typography>    
                                                                             </Box> 
@@ -1981,63 +2325,80 @@ const currentTime = new Date();
                                             </>) : (<></>)}
                                                 <Grid item xs={1.5} sx={{textAlign: "center"}}>
                                                     <Stack spacing={3.25} sx={{alignItems: "center"}}>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "black", width: 55 }}>12 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 1) ? 700 : 400,  border: (currentTime.getHours() === 1) ? 2 : 0, borderColor: (currentTime.getHours() === 1) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 1) ? "#6284FF" : "black", width: 55 }}>1 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 2) ? 700 : 400,  border: (currentTime.getHours() === 2) ? 2 : 0, borderColor: (currentTime.getHours() === 2) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 2) ? "#6284FF" : "black", width: 55 }}>2 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 3) ? 700 : 400,  border: (currentTime.getHours() === 3) ? 2 : 0, borderColor: (currentTime.getHours() === 3) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 3) ? "#6284FF" : "black", width: 55 }}>3 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 4) ? 700 : 400,  border: (currentTime.getHours() === 4) ? 2 : 0, borderColor: (currentTime.getHours() === 4) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 4) ? "#6284FF" : "black", width: 55 }}>4 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 5) ? 700 : 400,  border: (currentTime.getHours() === 5) ? 2 : 0, borderColor: (currentTime.getHours() === 5) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 5) ? "#6284FF" : "black", width: 55 }}>5 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 6) ? 700 : 400,  border: (currentTime.getHours() === 6) ? 2 : 0, borderColor: (currentTime.getHours() === 6) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 6) ? "#6284FF" : "black", width: 55 }}>6 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 7) ? 700 : 400,  border: (currentTime.getHours() === 7) ? 2 : 0, borderColor: (currentTime.getHours() === 7) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 7) ? "#6284FF" : "black", width: 55 }}>7 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 8) ? 700 : 400,  border: (currentTime.getHours() === 8) ? 2 : 0, borderColor: (currentTime.getHours() === 8) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 8) ? "#6284FF" : "black", width: 55 }}>8 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 9) ? 700 : 400,  border: (currentTime.getHours() === 9) ? 2 : 0, borderColor: (currentTime.getHours() === 9) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 9) ? "#6284FF" : "black", width: 55 }}>9 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 10) ? 700 : 400, border: (currentTime.getHours() === 10) ? 2 : 0, borderColor: (currentTime.getHours() === 10) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 10) ? "#6284FF" : "black", width: 55 }}>10 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 11) ? 700 : 400, border: (currentTime.getHours() === 11) ? 2 : 0, borderColor: (currentTime.getHours() === 11) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 11) ? "#6284FF" : "black", width: 55 }}>11 AM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 12) ? 700 : 400, border: (currentTime.getHours() === 12) ? 2 : 0, borderColor: (currentTime.getHours() === 12) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 12) ? "#6284FF" : "black", width: 55 }}>12 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 13) ? 700 : 400, border: (currentTime.getHours() === 13) ? 2 : 0, borderColor: (currentTime.getHours() === 13) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 13) ? "#6284FF" : "black", width: 55 }}>1 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 14) ? 700 : 400, border: (currentTime.getHours() === 14) ? 2 : 0, borderColor: (currentTime.getHours() === 14) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 14) ? "#6284FF" : "black", width: 55 }}>2 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 15) ? 700 : 400, border: (currentTime.getHours() === 15) ? 2 : 0, borderColor: (currentTime.getHours() === 15) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 15) ? "#6284FF" : "black", width: 55 }}>3 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 16) ? 700 : 400, border: (currentTime.getHours() === 16) ? 2 : 0, borderColor: (currentTime.getHours() === 16) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 16) ? "#6284FF" : "black", width: 55 }}>4 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 17) ? 700 : 400, border: (currentTime.getHours() === 17) ? 2 : 0, borderColor: (currentTime.getHours() === 17) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 17) ? "#6284FF" : "black", width: 55 }}>5 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 18) ? 700 : 400, border: (currentTime.getHours() === 18) ? 2 : 0, borderColor: (currentTime.getHours() === 18) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 18) ? "#6284FF" : "black", width: 55 }}>6 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 19) ? 700 : 400, border: (currentTime.getHours() === 19) ? 2 : 0, borderColor: (currentTime.getHours() === 19) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 19) ? "#6284FF" : "black", width: 55 }}>7 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 20) ? 700 : 400, border: (currentTime.getHours() === 20) ? 2 : 0, borderColor: (currentTime.getHours() === 20) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 20) ? "#6284FF" : "black", width: 55 }}>8 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 21) ? 700 : 400, border: (currentTime.getHours() === 21) ? 2 : 0, borderColor: (currentTime.getHours() === 21) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 21) ? "#6284FF" : "black", width: 55 }}>9 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 22) ? 700 : 400, border: (currentTime.getHours() === 22) ? 2 : 0, borderColor: (currentTime.getHours() === 22) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 22) ? "#6284FF" : "black", width: 55 }}>10 PM</Typography>
-                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 23) ? 700 : 400, border: (currentTime.getHours() === 23) ? 2 : 0, borderColor: (currentTime.getHours() === 23) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 23) ? "#6284FF" : "black", width: 55 }}>11 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 0) ? 700 : 400,  border: (currentTime.getHours() === 0) ? 2 : 0, borderColor: (currentTime.getHours() === 0) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 0) ? "#6284FF" : "", width: 55 }}>12 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 1) ? 700 : 400,  border: (currentTime.getHours() === 1) ? 2 : 0, borderColor: (currentTime.getHours() === 1) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 1) ? "#6284FF" : "", width: 55 }}>1 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 2) ? 700 : 400,  border: (currentTime.getHours() === 2) ? 2 : 0, borderColor: (currentTime.getHours() === 2) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 2) ? "#6284FF" : "", width: 55 }}>2 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 3) ? 700 : 400,  border: (currentTime.getHours() === 3) ? 2 : 0, borderColor: (currentTime.getHours() === 3) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 3) ? "#6284FF" : "", width: 55 }}>3 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 4) ? 700 : 400,  border: (currentTime.getHours() === 4) ? 2 : 0, borderColor: (currentTime.getHours() === 4) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 4) ? "#6284FF" : "", width: 55 }}>4 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 5) ? 700 : 400,  border: (currentTime.getHours() === 5) ? 2 : 0, borderColor: (currentTime.getHours() === 5) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 5) ? "#6284FF" : "", width: 55 }}>5 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 6) ? 700 : 400,  border: (currentTime.getHours() === 6) ? 2 : 0, borderColor: (currentTime.getHours() === 6) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 6) ? "#6284FF" : "", width: 55 }}>6 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 7) ? 700 : 400,  border: (currentTime.getHours() === 7) ? 2 : 0, borderColor: (currentTime.getHours() === 7) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 7) ? "#6284FF" : "", width: 55 }}>7 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 8) ? 700 : 400,  border: (currentTime.getHours() === 8) ? 2 : 0, borderColor: (currentTime.getHours() === 8) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 8) ? "#6284FF" : "", width: 55 }}>8 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 9) ? 700 : 400,  border: (currentTime.getHours() === 9) ? 2 : 0, borderColor: (currentTime.getHours() === 9) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 9) ? "#6284FF" : "", width: 55 }}>9 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 10) ? 700 : 400, border: (currentTime.getHours() === 10) ? 2 : 0, borderColor: (currentTime.getHours() === 10) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 10) ? "#6284FF" : "", width: 55 }}>10 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 11) ? 700 : 400, border: (currentTime.getHours() === 11) ? 2 : 0, borderColor: (currentTime.getHours() === 11) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 11) ? "#6284FF" : "", width: 55 }}>11 AM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 12) ? 700 : 400, border: (currentTime.getHours() === 12) ? 2 : 0, borderColor: (currentTime.getHours() === 12) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 12) ? "#6284FF" : "", width: 55 }}>12 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 13) ? 700 : 400, border: (currentTime.getHours() === 13) ? 2 : 0, borderColor: (currentTime.getHours() === 13) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 13) ? "#6284FF" : "", width: 55 }}>1 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 14) ? 700 : 400, border: (currentTime.getHours() === 14) ? 2 : 0, borderColor: (currentTime.getHours() === 14) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 14) ? "#6284FF" : "", width: 55 }}>2 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 15) ? 700 : 400, border: (currentTime.getHours() === 15) ? 2 : 0, borderColor: (currentTime.getHours() === 15) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 15) ? "#6284FF" : "", width: 55 }}>3 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 16) ? 700 : 400, border: (currentTime.getHours() === 16) ? 2 : 0, borderColor: (currentTime.getHours() === 16) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 16) ? "#6284FF" : "", width: 55 }}>4 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 17) ? 700 : 400, border: (currentTime.getHours() === 17) ? 2 : 0, borderColor: (currentTime.getHours() === 17) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 17) ? "#6284FF" : "", width: 55 }}>5 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 18) ? 700 : 400, border: (currentTime.getHours() === 18) ? 2 : 0, borderColor: (currentTime.getHours() === 18) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 18) ? "#6284FF" : "", width: 55 }}>6 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 19) ? 700 : 400, border: (currentTime.getHours() === 19) ? 2 : 0, borderColor: (currentTime.getHours() === 19) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 19) ? "#6284FF" : "", width: 55 }}>7 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 20) ? 700 : 400, border: (currentTime.getHours() === 20) ? 2 : 0, borderColor: (currentTime.getHours() === 20) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 20) ? "#6284FF" : "", width: 55 }}>8 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 21) ? 700 : 400, border: (currentTime.getHours() === 21) ? 2 : 0, borderColor: (currentTime.getHours() === 21) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 21) ? "#6284FF" : "", width: 55 }}>9 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 22) ? 700 : 400, border: (currentTime.getHours() === 22) ? 2 : 0, borderColor: (currentTime.getHours() === 22) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 22) ? "#6284FF" : "", width: 55 }}>10 PM</Typography>
+                                                        <Typography sx={{ fontWeight: (currentTime.getHours() === 23) ? 700 : 400, border: (currentTime.getHours() === 23) ? 2 : 0, borderColor: (currentTime.getHours() === 23) ? "#6284FF" : "#FFF", borderRadius: 2, color: (currentTime.getHours() === 23) ? "#6284FF" : "", width: 55 }}>11 PM</Typography>
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item xs={10.5}>
                                                     {/* Display Non-Recurring Events */}
                                                     <List sx={{width: "100%", mt: 1.5, padding: 0}}>
                                                     {appointmentList.map((pair, index) => (
-                                                        pair.event ? (
+                                                        pair.name ? ( // check if task exists
+                                                            pair.type === "appt" ? (
+                                                            // Appointment box config
                                                             <ListItem key={index} sx={{border: 2, borderColor: '#E2EAF1', padding: 0, mt: -.25}}>
-                                                                <Accordion sx={{width: "100%", '&:before': {display: 'none',}}} elevation={0} TransitionProps={{ unmountOnExit: true }}>
-                                                                    <AccordionSummary 
-                                                                        expandIcon={<ExpandCircleDownOutlinedIcon sx={{color: "black"}} />}
-                                                                        aria-controls="panel1a-content"
-                                                                        sx={{ 
-                                                                            width: "100%", 
-                                                                            height: "3vh",  
-                                                                            borderRadius: "8px",
-                                                                            paddingLeft: 0,
-                                                                        }}
-                                                                        elevation={0}
-                                                                    >
-                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{pair.event.summary}</Typography>
-                                                                    </AccordionSummary>
-                                                                    <AccordionDetails>
-                                                                        {pair.event.start && pair.event.start.dateTime && (
-                                                                            <Typography> Start Time: {pair.event.start.dateTime}</Typography>
-                                                                        )}
-                                                                        {pair.event.description && (
-                                                                            <Typography>Description: {pair.event.description}</Typography>
-                                                                        )}
-                                                                    </AccordionDetails>
-                                                                    
-                                                                </Accordion>
+                                                                <Box sx={{width: "100%", height: (48 * (parseInt(pair.end) - parseInt(pair.start)))}} display = "flex" alignItems="center">
+                                                                    <Typography sx={{fontWeight: 700, ml: 2}}>{pair.name}</Typography>
+                                                                </Box>
                                                             </ListItem>
+                                                            ) : (
+                                                                // Task box config
+                                                                <ListItem key={index} sx={{border: 2, borderColor: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', backgroundColor: (pair.end === currentTime.getHours() + 1) ? '#6284FF14' : '', padding: 0, mt: -.25}}>
+                                                                <Box sx={{width: "100%", height: 48}} display = "flex" alignItems="center">
+                                                                    <Box
+                                                                        display="flex"
+                                                                        flexDirection="row"
+                                                                        sx={{width: "100%"}}
+                                                                    >
+                                                                        <Typography sx={{fontWeight: 700, ml: 2}}>Focus Time <CircleIcon sx={{color: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', height: 10, width: 10, ml: 1}}/> {pair.name}</Typography>
+                                                                        <Box sx={{flexGrow: 1}} />
+                                                                        <HourglassEmptyIcon sx={{color: (pair.end <= currentTime.getHours()) ? '#E2EAF1' : '#6284FF', mr: .4}} />
+                                                                        <Typography sx={{fontWeight: 700, fontSize: "18px"}}> {pair.timers.done}/{pair.timers.total}</Typography>
+                                                                        <Box sx={{flexGrow: .06}} />
+                                                                        {/* Show time remaining only if highlighted task*/}
+                                                                        {pair.end === currentTime.getHours() + 1 ? (
+                                                                        <Box sx={{borderRadius: 2, backgroundColor: '#6284FF1A', height: "29px", width: "50px"}}
+                                                                            display="flex"
+                                                                            alignItems="center"
+                                                                            justifyContent="center"
+                                                                        >
+                                                                            <Typography sx={{color: '#6284FF'}}>{pomoRef.current.displayTimer()}</Typography>
+                                                                        </Box>
+                                                                    ) : (
+                                                                        <></>
+                                                                    )}
+                                                                    </Box>
+                                                                     <IconButton 
+                                                                    onClick={() => {
+                                                                        const task = subBoxes.filter( function(subBox){return (subBox.title===(pair.name))});
+                                                                        handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
+                                                                    }}
+                                                                    ><ExpandCircleDownOutlinedIcon sx={{color: theme ? "#fff" : "black", transform: "rotate(270deg)"}} /></IconButton>
+                                                                </Box>
+                                                                </ListItem>
+                                                            )
                                                         ) : (
                                                             <ListItem key={index} sx={{ padding: 0}}>
                                                                 <Box sx={{width: "100%", height: 50}}></Box>
@@ -2053,7 +2414,7 @@ const currentTime = new Date();
                                                     sx={{ml:2,
                                                         width: "100%", 
                                                         minHeight: "66.7vh",  
-                                                        bgcolor: "#F5F7F9",
+                                                        bgcolor: theme ? "#4D4D4D" : "#F5F7F9",
                                                         borderRadius: "8px",
                                                     }}
                                                     display = "flex"
@@ -2065,9 +2426,9 @@ const currentTime = new Date();
                                                 </Box>
                                             </>
                                             )}
-                                        <div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
+                                        {/*<div id="error-message" style={{ color: 'red', fontWeight: 'bold' }}>
                                             {errorMessage}
-                                        </div>
+                                            </div> */}
                                         </Grid>
                                         {/* End of Google API data */}
                                     </Box>
