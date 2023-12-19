@@ -48,6 +48,7 @@ const Home = () => {
     const [oappointmentList, setoAppointmentList] = useState([]);
     const [allDayappts, setAllDayAppts] = useState([]);
     const [planDay, setPlanDay] = useState(false);
+    const [doWeHaveAppointments, setDoWeHaveAppointments] = useState(false);
 
     // Update isThisCurrent function
 function isThisCurrent(date) {
@@ -498,6 +499,8 @@ const insertIntoSubBoxesOther = (response) => {
 
 const updateUserTasks = async (user, subBox) =>
 {
+    console.log("SubBox Status Value: ", subBox.currentIcon);
+
     const response = await axios.put("/api/updateTask", {
         params: {
             key: subBox.key,
@@ -515,6 +518,32 @@ const updateUserTasks = async (user, subBox) =>
     });
     if (response) {
         //console.log(response.data);
+    } 
+    
+    if (subBox.currentIcon === 2) {
+        console.log("Deleting Task");
+    
+        try {
+            const response = await axios.delete('/api/deleteTask', {
+                params: {
+                    email: encodeURIComponent(user.email),
+                    title: encodeURIComponent(subBox.title)
+                }
+            });
+    
+            // Check the response status
+            if (response.status === 200) {
+                console.log("Task deleted successfully");
+                window.location.reload();
+                // Handle any additional logic after successful deletion
+            } else {
+                console.error("Failed to delete task. Server responded with status:", response.status);
+                // Handle the error or provide user feedback accordingly
+            }
+        } catch (error) {
+            console.error("Error deleting task:", error);
+            // Handle the error or provide user feedback accordingly
+        }
     }
 }
 
@@ -862,8 +891,8 @@ function oauthSignIn() {
     // Parameters to pass to OAuth 2.0 endpoint.
     var params = {
       'client_id': '150401460223-dpijoj0c3f8qqbref8j00kqqbn460qgf.apps.googleusercontent.com',
-    //   'redirect_uri': 'https://gauthamcity.com/',
-      'redirect_uri': 'http://localhost:3000',
+      'redirect_uri': 'https://gauthamcity.com/',
+      //'redirect_uri': 'http://localhost:3000',
       'response_type': 'token',
       'scope': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
       'include_granted_scopes': 'true',
@@ -976,10 +1005,20 @@ function findAppt()
         }
         found = false;
     }
-
     setAppointmentList(arr);
     setoAppointmentList(arr);
     setAllDayAppts(allArr);
+
+
+    // Check if the site needs to be refreshed
+    const refreshKey = `${day}-${month}-${year}refresh`;
+    const shouldRefresh = JSON.parse(localStorage.getItem(refreshKey));
+
+    if (shouldRefresh !== true) {
+        // Set the state variable to true and reload the site
+        localStorage.setItem(refreshKey, JSON.stringify(true));
+        window.location.reload();
+    }
 }
 
 function handlePlanDay()
