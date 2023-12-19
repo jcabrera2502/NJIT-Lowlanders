@@ -236,36 +236,30 @@ function isThisCurrent(date) {
     };
     // get current time
     var systemTime = new Date();
-    // function getCurrentTime() {
-    //     systemTime = new Date();
-    //     // var hours = systemTime.getHours();
-    //     // var minutes = systemTime.getMinutes();
-    //     // var ampm = hours >= 12 ? 'PM' : 'AM';
-    //     // hours = hours % 12;
-    //     // hours = hours ? hours : 12;
-    //     // minutes = minutes < 10 ? '0' + minutes : minutes;
-    //     // systemTime = hours + ':' + minutes + ' ' + ampm;
-    //     return systemTime;
-    // }
     function updateClock() {
         systemTime = new Date();
         systemTime = systemTime.getHours();
-        console.log("this is da time", systemTime);
+        // console.log("this is da time", systemTime);
     }
     // reset systemTimer every 1 second
+    updateClock();
     setInterval(updateClock, 1000);
 
-    //click on popup automatically when time arrives
-    const iconButtonRef = useRef(null);
-    // const handleIconClick = () => {
-    //     const currTaskTime= subBoxes.filter(function(subBox){return (subBox.title===(taskTitle))})
-    //     // Check the condition before clicking
-    //     if (  && iconButtonRef.current) {
-    //       // Call the click method on the IconButton
-    //       iconButtonRef.current.click();
-    //       iconButtonRef = useRef(null);
-    //     }
-    //   };
+    function autoPopup(){
+        if (glbApps.length > 0) {
+            for (let index = 0; index < glbApps.length; index++) {
+                if (glbApps[index].start ===  parseInt(systemTime)) {
+                    const task = subBoxes.filter( function(subBox){return(subBox.title===(glbApps[index].name))});
+                    handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
+                }
+            }
+        }
+    }
+    // autoPopup();
+    // // check autoPopup every 10 second
+    // setInterval(autoPopup, 10000);
+
+    
     
 
 
@@ -889,7 +883,7 @@ function oauthSignIn() {
   
 
 // Handles appointment list creation
-
+let glbApps; 
 function addFocusTime()
 {
     const topPri = priority.topPriority.items;
@@ -925,6 +919,7 @@ function addFocusTime()
         }
         
     }
+    glbApps = [...apps];
     setAppointmentList(apps);
 
 }
@@ -990,6 +985,11 @@ function handlePlanDay()
         getUserTasksPreviousDay(user);
     }
     addFocusTime();
+
+    autoPopup();
+    // check autoPopup every 10 second
+    setInterval(autoPopup, 10000);
+    
     setPlanDay(true);
     localStorage.setItem(`${day}-${month}-${year}plan`, JSON.stringify(true));
 }
@@ -1146,7 +1146,7 @@ const pomoRef = useRef();
                             >
                             Plan Day
                             </Button>
-                        )} 
+                        )}
                     </Box>
                 </div>
                 <Box sx={{flexGrow: 1}}/>
@@ -2263,7 +2263,8 @@ const pomoRef = useRef();
                                                                         <></>
                                                                     )}
                                                                     </Box>
-                                                                     <IconButton 
+                                                                    {}
+                                                                    <IconButton 
                                                                     onClick={() => {
                                                                         const task = subBoxes.filter( function(subBox){return (subBox.title===(pair.name))});
                                                                         handleOpenPomo(task[0].title, task[0].note, task[0].pomTimers, task[0]);
